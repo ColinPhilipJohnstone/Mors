@@ -10,7 +10,7 @@ import StellarEvolution.miscellaneous as misc
 # Parameters for stellar evolution models
 
 # Directory for stellar evolution models
-starEvoDirDefault = os.getenv('stellarmodels')
+starEvoDirDefault = os.getenv('STELLARMODELS')
 
 # Filename for previously loaded grid of models
 starEvoCompiledDefault = "SEmodels.pickle"
@@ -45,7 +45,7 @@ class StellarEvoModel:
   
   #---------------------------------------------------------------------------------------
   
-  def __init__(self):
+  def __init__(self,starEvoDir=starEvoDirDefault):
     
     """Initialises instance of StellarEvoModel class."""
     
@@ -85,6 +85,32 @@ class StellarEvoModel:
     
     # Call Value() outside this class to get the value with this model
     value = Value(Mstar,Age,ParamString,ModelData=self.ModelData)
+    
+    return
+  
+  #---------------------------------------------------------------------------------------
+  
+  def LoadTrack(self,Mstar):
+    
+    """
+    Takes stellar mass, loads evolutionary track for a specific mass into the model data.
+    
+    This can be useful if the user wants to load a specific evolutionary track into a model data for a specific mass
+    since this will make getting values for this mass faster since no interpolation between mass bins will be needed.
+      
+    Parameters
+    ----------
+    Mstar : float
+        Mass of star in Msun.
+    
+    Returns
+    ----------
+    None
+        None
+    
+    """
+    
+    self.ModelData = LoadTrack(Mstar,ModelData=self.ModelData)
     
     return
   
@@ -448,7 +474,7 @@ def LoadTrack(Mstar,ModelData=None):
   if not ModelDataDefault is None:
     ModelDataDefault[Mstar] = Data
   
-  return
+  return ModelData
 
 #====================================================================================================================
 

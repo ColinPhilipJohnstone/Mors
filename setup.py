@@ -5,14 +5,14 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(
-    name="StellarEvolution",
+    name="Mors",
     version="1.0.0",
     author="Colin P. Johnstone",
     author_email="colin.johnstone@univie.ac.at",
-    description="Stellar rotation and XUV evolution",
+    description="Stellar rotation and activity evolution model",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/somethingsomething",
+    url="https://github.com/ColinPhilipJohnstone/Mors",
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
