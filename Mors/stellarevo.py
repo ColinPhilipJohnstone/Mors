@@ -1,9 +1,13 @@
 
+"""Module for loading the stellar evolution tracks and retrieving basic stellar properties."""
+
+# Imports for standard stuff needed here
 import numpy as np
 import pickle
 import os
 
-import StellarEvolution.miscellaneous as misc
+# Imports for Mors modules
+import Mors.miscellaneous as misc
 
 #====================================================================================================================
 
@@ -12,11 +16,8 @@ import StellarEvolution.miscellaneous as misc
 # Directory for stellar evolution models
 starEvoDirDefault = os.getenv('STELLARMODELS')
 
-# Filename for previously loaded grid of models
-starEvoCompiledDefault = "SEmodels.pickle"
-
 # Set which set of models to use, i.e. which X, Z, and A values (set to X0p70952_Z0p01631_A1p875 for closest to solar)
-evoModels = "X0p70952_Z0p01631_A1p875"
+evoModelsDefault = "X0p70952_Z0p01631_A1p875"
 
 # Initially set default model data to None so we know it has not been set
 ModelDataDefault = None
@@ -45,12 +46,12 @@ class StellarEvoModel:
   
   #---------------------------------------------------------------------------------------
   
-  def __init__(self,starEvoDir=starEvoDirDefault):
+  def __init__(self,starEvoDir=starEvoDirDefault,evoModels=evoModelsDefault):
     
     """Initialises instance of StellarEvoModel class."""
     
     # Load the models
-    self.ModelData = _LoadModels()
+    self.ModelData = _LoadModels( starEvoDir=starEvoDir , evoModels=evoModels )
     
   #---------------------------------------------------------------------------------------
   
@@ -153,9 +154,9 @@ class StellarEvoModel:
     """Takes mass and age, returns core radius."""
     return Value( Mstar , Age , 'Rcore' , ModelData=self.ModelData )
   
-  def tau(self,Mstar,Age,ModelData=ModelDataDefault):
+  def tauConv(self,Mstar,Age,ModelData=ModelDataDefault):
     """Takes mass and age, returns convective turnover time."""
-    return Value( Mstar , Age , 'tau' , ModelData=self.ModelData )
+    return Value( Mstar , Age , 'tauConv' , ModelData=self.ModelData )
   
   def dItotaldt(self,Mstar,Age,ModelData=ModelDataDefault):
     """Takes mass and age, returns rate of change of total moment of inertia."""
@@ -181,21 +182,21 @@ class StellarEvoModel:
 
 #====================================================================================================================
 
-def _LoadModels(starEvoDir=starEvoDirDefault,starEvoCompiled=starEvoCompiledDefault):
+def _LoadModels(starEvoDir=starEvoDirDefault,evoModels=evoModelsDefault):
   
   """Loads evolutionary tracks as a grid of parameters at each mass and age."""
   
   # Check if should compile new grid of evolutionary models or load previous grid
-  if _shouldCompileNew(starEvoDir,starEvoCompiled):
-    ModelData = _CompileNewGrid(starEvoDir,starEvoCompiled)
+  if _shouldCompileNew(starEvoDir,evoModels):
+    ModelData = _CompileNewGrid(starEvoDir,evoModels)
   else:
-    ModelData = _LoadSavedGrid(starEvoDir,starEvoCompiled)
+    ModelData = _LoadSavedGrid(starEvoDir,evoModels)
   
   return ModelData
 
 #====================================================================================================================
 
-def _shouldCompileNew(starEvoDir,starEvoCompiled):
+def _shouldCompileNew(starEvoDir,evoModels):
   
   """Takes directory for stellar evo models, returns if new grid needs to be compiled."""
   
@@ -203,14 +204,14 @@ def _shouldCompileNew(starEvoDir,starEvoCompiled):
   compileNew = True
   
   # Check if previously compiled models already exist
-  if ( os.path.isfile(starEvoDir+starEvoCompiled) ):
+  if ( os.path.isfile(starEvoDir+evoModels+".pickle") ):
     compileNew = False
   
   return compileNew
 
 #====================================================================================================================
 
-def _CompileNewGrid(starEvoDir,starEvoCompiled):
+def _CompileNewGrid(starEvoDir,evoModels):
   
   """Compiles new dictionary of stellar evo models."""
   
@@ -228,18 +229,22 @@ def _CompileNewGrid(starEvoDir,starEvoCompiled):
   
   # Add a list of strings holding each of the parameters
   ModelData['ParamsAll'] = [ 'Mstar' , 'Age' , 'Rstar' , 'Lbol' , 'Teff' , 'Itotal' , 'Icore' , 'Ienv' , 'Mcore' , 'Menv' , 'Rcore' , 
-                            'tau' , 'dItotaldt' , 'dIcoredt' , 'dIenvdt' , 'dMcoredt' , 'dRcoredt' ]
+                            'tauConv' , 'dItotaldt' , 'dIcoredt' , 'dIenvdt' , 'dMcoredt' , 'dRcoredt' ]
   
   # Loop over masses and add each one to dictionary
   for iMstar in range(0,len(MstarAll)):
-    ModelData[MstarAll[iMstar]] = _ReadEvolutionTrack( starEvoDir , MstarAll[iMstar] , MstarFilenameMiddle[iMstar] )
+    ModelData[MstarAll[iMstar]] = _ReadEvolutionTrack( starEvoDir , evoModels , MstarAll[iMstar] , MstarFilenameMiddle[iMstar] )
+  
+  # Save compiled models
+  with open(starEvoDir+evoModels+".pickle",'wb') as f:
+    pickle.dump(ModelData,f)
     
   
   return ModelData
 
 #====================================================================================================================
 
-def _ReadEvolutionTrack(starEvoDir,Mstar,MstarFilenameMiddle):
+def _ReadEvolutionTrack(starEvoDir,evoModels,Mstar,MstarFilenameMiddle):
   
   
   # This function loads the original stellar evolution models from Spada et al. (2013) for an individual 
@@ -285,7 +290,7 @@ def _ReadEvolutionTrack(starEvoDir,Mstar,MstarFilenameMiddle):
   Mcore = np.zeros(nAge)
   Menv = np.zeros(nAge)
   Rcore = np.zeros(nAge)
-  tau = np.zeros(nAge)
+  tauConv = np.zeros(nAge)
   dItotaldt = np.zeros(nAge)
   dIcoredt = np.zeros(nAge)
   dIenvdt = np.zeros(nAge)
@@ -308,7 +313,7 @@ def _ReadEvolutionTrack(starEvoDir,Mstar,MstarFilenameMiddle):
     # Update index
     iAge += 1
     
-  # Read quantities from second file into the arrays (has Itotal, Ienv, Menv, Rcore, and tau)
+  # Read quantities from second file into the arrays (has Itotal, Ienv, Menv, Rcore, and tauConv)
   iAge = 0
   for line in content2[nHeader:len(content2)]:
     
@@ -320,7 +325,7 @@ def _ReadEvolutionTrack(starEvoDir,Mstar,MstarFilenameMiddle):
     Ienv[iAge] = data[6]
     Menv[iAge] = data[2]
     Rcore[iAge] = data[3]
-    tau[iAge] = data[4]
+    tauConv[iAge] = data[4]
     
     # Update i
     iAge += 1
@@ -356,7 +361,7 @@ def _ReadEvolutionTrack(starEvoDir,Mstar,MstarFilenameMiddle):
   Data['Mcore'] = Mcore
   Data['Menv'] = Menv
   Data['Rcore'] = Rcore
-  Data['tau'] = tau
+  Data['tauConv'] = tauConv
   Data['dItotaldt'] = dItotaldt
   Data['dIcoredt'] = dIcoredt
   Data['dIenvdt'] = dIenvdt
@@ -426,6 +431,18 @@ def _CalculateGradient(Age,X):
   dAge[nAge-1] = Age[nAge-1] - Age[nAge-2]
   
   return dXdt
+
+#====================================================================================================================
+
+def _LoadSavedGrid(starEvoDir,evoModels):
+  
+  """Takes filename for stellar evo model, returns grid of models."""
+  
+  # Simply load data
+  with open(starEvoDir+evoModels+".pickle",'rb') as f:
+    ModelData = pickle.load(f)
+    
+  return ModelData
 
 #====================================================================================================================
 
@@ -530,18 +547,6 @@ def _LoadTrack(Mstar,ModelData):
     Data[param] = track
   
   return Data
-
-#====================================================================================================================
-
-def _LoadSavedGrid(starEvoDir,starEvoCompiled):
-  
-  """Takes filename for stellar evo model, returns grid of models."""
-  
-  # Simply load data
-  with open(starEvoDir+starEvoCompiled,'rb') as f:
-    ModelData = pickle.load(f)
-    
-  return ModelData
 
 #====================================================================================================================
 
@@ -916,9 +921,9 @@ def Rcore(Mstar,Age,ModelData=ModelDataDefault):
   """Takes mass and age, returns core radius."""
   return Value( Mstar , Age , 'Rcore' , ModelData=ModelData )
 
-def tau(Mstar,Age,ModelData=ModelDataDefault):
+def tauConv(Mstar,Age,ModelData=ModelDataDefault):
   """Takes mass and age, returns convective turnover time."""
-  return Value( Mstar , Age , 'tau' , ModelData=ModelData )
+  return Value( Mstar , Age , 'tauConv' , ModelData=ModelData )
 
 def dItotaldt(Mstar,Age,ModelData=ModelDataDefault):
   """Takes mass and age, returns rate of change of total moment of inertia."""

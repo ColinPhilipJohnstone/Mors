@@ -1,4 +1,6 @@
 
+"""Module for holding miscellaneous functions that can be used by many other modules."""
+
 import inspect
 import sys
 import numpy as np

@@ -1,4 +1,6 @@
 
+Mors - Model of rotational evolution
+
 -------------------------------------------------------------------------------------------------------------
 
 INSTALLATION
@@ -55,18 +57,18 @@ The functions available are
 Rstar - radius (Rsun)
 Lbol - bolometric luminosity (Lsun)
 Teff - effective temperature (K)
-Itotal - total moment of inertia in ()
-Icore - core moment of inertia in ()
-Ienv - envelope moment of inertia in ()
-Mcore - core mass in ()
-Menv - envelope mass in ()
-Rcore - core radius in ()
+Itotal - total moment of inertia in (g cm^2)
+Icore - core moment of inertia in (g cm^2)
+Ienv - envelope moment of inertia in (g cm^2)
+Mcore - core mass in (Msun)
+Menv - envelope mass in (Msun)
+Rcore - core radius in (Rsun)
 tau - convective turnover time (days)
-dItotaldt - rate of change of total moment of inertia  ()
-dIcoredt - rate of change of core moment of inertia  ()
-dIenvdt - rate of change of envelope moment of inertia  ()
-dMcoredt - rate of change of core mass ()
-dRcoredt - rate of change of core radius ()
+dItotaldt - rate of change of total moment of inertia  (g cm^2 Myr^-1)
+dIcoredt - rate of change of core moment of inertia  (g cm^2 Myr^-1)
+dIenvdt - rate of change of envelope moment of inertia  (g cm^2 Myr^-1)
+dMcoredt - rate of change of core mass (Msun Myr^-1)
+dRcoredt - rate of change of core radius (Rsun Myr^-1)
 
 Note that core and envelope have the definitions from the rotation model, so the 'core' is not the hydrogen burning core as it would typically be defined but everything interior to the outer convective zone, and the envelope is the outer convective zone. All of these functions take stellar mass in Msun and age in Myr. Alternatively, the user can call the function Value which takes the same two inputs and then the parameter name as a string. For example
 
@@ -83,6 +85,47 @@ The first time one of these functions is called, the code loads all of the evolu
 If a track for that specific mass is already loaded, this will do nothing. 
 
 -------------------------------------------------------------------------------------------------------------
+
+RUNNING ROTATIONAL EVOLUTION MODEL
+
+A rotational evolution model can be run using the function EvolveRotation. In the simplest case, a rotation model can be run simply by specifying the mass and initial rotation rate of the stars in the call to this function with no previous setup required. For example, to get the rotation track for a solar mass star with an initial rotation rate that is 10x the modern Sun's rotation (assumed throughout the code to be 2.67e-6 rad s^-1), use
+
+>>> tracks = mors.EvolveRotation(Mstar=1.0,Omega0=10.0)
+
+In this case, the evolutionary track starts are 1 Myr and ends at 5 Gyr. The user can specify starting and ending times in Myr using the AgeMin and AgeMax keyword arguments. 
+
+>>> tracks = mors.EvolveRotation(Mstar=1.0,Omega0=10.0,AgeMin=1.0,AgeMax=100.0)
+
+This does the same thing, but ends the time integration at 100 Myr. If core-envelope decoupling is being used, the initial core and envelope rotation rates can be specified separately using the OmegaEnv0 and OmegaCore0 arguments. 
+
+The behavior of the code is determined by a large number of parameters that set which physical processes are included, how these processes are included, and other details about the run. The parameters that exist and their default values are held in the dictionary paramsDefault and can be seen using the function PrintParams.
+
+>>> mors.PrintParams()
+
+If the user wants the code to use a different set of parameters, a new parameter dictionary can be generated using the NewParams() function.
+
+>>> myParams = mors.NewParams()
+
+This will create a dictionary that the user can edit as they want. For example, to change the parameter 'param1' to 1.5
+
+>>> myParams['param1'] = 1.5
+
+Alternatively, this can also be done in the initial call to NewParams using keyword arguments
+
+>>> myParams = mors.NewParams(param1=1.5)
+
+These parameters can then be input into EvolveRotation using the params keyword argument.
+
+>>> tracks = mors.EvolveRotation(Mstar=1.0,Omega0=10.0,params=myParams)
+
+The function EvolveRotation returns a dictionary with evolutionary tracks for rotation. The main elements of this dictionary are Age in Myr, OmegaEnv in OmegaSun, and OmegaCore in OmegaSun. The following code will calculate and plot a rotation model for a solar mass star
+
+>>> tracks = mors.EvolveRotation(Mstar=1.0,Omega0=10.0)
+>>> plt.plot( tracks['Age'] , tracks['OmegaEnv'] )
+>>> plt.show()
+
+
+
 
 -------------------------------------------------------------------------------------------------------------
 

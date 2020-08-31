@@ -1,5 +1,9 @@
 
-import StellarEvolution.miscellaneous as misc
+"""Module holding the Star class and related functions."""
+
+#====================================================================================================================
+
+import Mors.miscellaneous as misc
 #from stellarevo import LoadTracks
 
 # Limits on various input values
