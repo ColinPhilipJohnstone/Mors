@@ -55,10 +55,12 @@ ergs_cm_2 = 1.0           # erg s^-1 cm^-2
 Msunyr_ = Msun / year      # g s^-1
 
 # Other solar quantities
-AgeSun = 4567.0
+LbolSun = 3.828e33        # erg s^-1
+AgeSun = 4567.0           # Myr
 OmegaSun = 2.67e-6        # rad s^-1 - our assumed solar rotation
 ProtSun = 2.0*3.142 / ( OmegaSun ) / 86400.0    # days - corresponding solar rotation period
-tauConvSun = SE.tauConv(1.0,AgeSun)             # days - the Sun's convective turnover time using stellar evo models
+#tauConvSun = SE.tauConv(1.0,AgeSun)             # days - the Sun's convective turnover time using stellar evo models
+tauConvSun = 28.436   # days - the Sun's convective turnover time using stellar evo models of Spada et al. (2013)
 RoSun = ProtSun / tauConvSun                    # Sun's current Rossby number using stellar evo models
 
 # Standard constants

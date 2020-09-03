@@ -1,5 +1,22 @@
 
-Mors - Model of rotational evolution
+TBD - better descriptions of various parameters
+
+-------------------------------------------------------------------------------------------------------------
+
+MODEL FOR ROTATION OF STARS (MORS)
+Author: Colin P. Johnstone 
+
+-------------------------------------------------------------------------------------------------------------
+
+
+-------------------------------------------------------------------------------------------------------------
+CONTENTS
+1. INSTALLATION
+2. BASIC USAGE 
+3. 
+4. 
+5. 
+
 
 -------------------------------------------------------------------------------------------------------------
 
@@ -36,9 +53,83 @@ $ gedit ~/.profile
 and add the export command to the bottom of the file. You will probably have to logout and login again for this to work. Alternatively, when creating a star object in your Python script, you can specify the path to this directory using the starEvoDir keyword
 
 >>> import Mors as mors 
->>> myStar = mors.StellarEvoModel(starEvoDir=...)
+>>> myStar = mors.StarEvo(starEvoDir=...)
 
 where ... can be given as the path relative to the current directory. When this is done, no environmental variable needs to be set. 
+
+-------------------------------------------------------------------------------------------------------------
+
+BASIC USAGE
+
+The main way that the user is meant to interact with the code is through the Star class. The user can create an instance of the star class, specifying only the mass and star's initial (1 Myr) rotation rate using the Mstar and Omega0 keyword arguments. This can be done for a star with a mass of 1 Msun and an initial rotation of 10x the modern Sun using
+
+>>> star = mors.Star(Mstar=1.0,Omega=10.0)
+
+Alternatively, the user can specify starting values for both the core and envelope rotation rates using the OmegaEnv and OmegaCore arguments, though this is usually not recommended.
+
+If the user instead specifies an age the Age and Omega keyword argument, the code will look for the track that passes through the specified surface rotation rate at the specified age. The surface rotation rate can be specified either using Omega or OmegaEnv.
+
+>>> star = mors.Star(Mstar=1.0,Age=100.0,Omega=50.0)
+
+In this case, the code will search for a rotation track that has a surface rotation rate that is 50x the current Sun's at an age of 100 Myr. It is not recommended to do this when the age of the star is so large that the rotation rates of stars with different initial rotation rates have converged (i.e. Age should only be specified if it is low enough that there is still a large spread in rotation rates for that mass at that age). In not all cases will it actually be able to find a physically realistic rotation rate, for example if the rotation rate specified is unreaslistically large.
+
+The code will calculate evolutionary tracks for all rotation and activity quantities available. These include surface rotation rate, OmegaEnv, and X-ray luminosity, Lx. To see a list of quantities with calculated evolutionary tracks, use the PrintAvailableTracks() attribute of the Star class.
+
+>>> star.PrintAvailableTracks()
+
+This gives units for all quantities. This can also be used to get units for each of the available quantities. Tracks for each of the quantities are held in numpy arrays and can be accessed using the Tracks dictionary, which is an attribute of the Star class. For example, the user can plot evolutionary tracks for Lx using
+
+>>> plt.plot( star.Tracks['Age'] , star.Tracks['Lx'] )
+
+Alternatively, numpy arrays for each quantity are attributes of the Star class with the name of the quantity followed by 'Track', so the above can be replaced with
+
+>>> plt.plot( star.AgeTrack , star.LxTrack )
+
+Units are held in the dictionary Units, which is also an attribute of the Star class. For example, to see the units of Lx, the user can use
+
+>>> print( star.Units['Lx'] )
+
+The value of one of these quantities at a given age can be output using the Value() attribute of the Star class giving age the Myr and a string with the name of the desired quantity. These can be given either as positional or as keyword arguments. For example, to print Lx at 150 Myr to the screen you can use
+
+>>> print( star.Value(150.0,'Lx') )
+
+or
+
+>>> print( star.Value(Age=150.0,Quantity='Lx') )
+
+More simply, the user can use the function with the name of the desired quantity, so the two above lines could be replaced with
+
+>>> print( star.Lx(150.0) )
+
+-------------------------------------------------------------------------------------------------------------
+
+SETTING UP THE SIMULATION PARAMETERS
+
+In addition to just the masses and initial rotation rates, the basic behavior of the code depends on a large number of parameters all of which have default values and do not need to be changed by the user. These default values cause the code to run the evolutionary model for rotation and XUV emission described in Johnstone et al. (2020) and generally do not need to be changed by the user. However, if the user wishes, these parameters can be changed.
+
+In general, simulation parameters are held in a dictionary called 'params' within the code, and the user can specify this parameter dictionary when creating a instance of the Star class. When this is not done, the code will use the paramsDefault dictionary created in parameters.py in the source code. To use user specified set of parameters, the user must first generate a parameter dictionary using the NewParams() function.
+
+>>> myParams = mors.NewParams()
+
+This will create a dictionary that is identical to paramsDefault that the user can edit as they want. For example, to change the parameter param1 to 1.5 and param2 to 2.5, use
+
+>>> myParams = mors.NewParams()
+>>> myParams['param1'] = 1.5
+>>> myParams['param2'] = 2.5
+
+Alternatively, and probably preferrably, this can also be done in the initial call to NewParams using keyword arguments.
+
+>>> myParams = mors.NewParams(param1=1.5,param2=2.5)
+
+This user should then input this as a keyword argument when creating an instance of the Star class.
+
+>>> star = mors.Star(Mstar=1.0,Omega=10.0,params=myParams)
+
+To see a complete list of all parameters that should be set, the user can use the PrintParams() function.
+
+>>> mors.PrintParams()
+
+Or can simply look into the parameters.py file in the main directory where Mors is installed.
 
 -------------------------------------------------------------------------------------------------------------
 
@@ -86,6 +177,10 @@ If a track for that specific mass is already loaded, this will do nothing.
 
 -------------------------------------------------------------------------------------------------------------
 
+BELOW IS PART OF OLD DESCRIPTION AND MAYBE SHOULD BE REMOVED
+
+-------------------------------------------------------------------------------------------------------------
+
 RUNNING ROTATIONAL EVOLUTION MODEL
 
 A rotational evolution model can be run using the function EvolveRotation. In the simplest case, a rotation model can be run simply by specifying the mass and initial rotation rate of the stars in the call to this function with no previous setup required. For example, to get the rotation track for a solar mass star with an initial rotation rate that is 10x the modern Sun's rotation (assumed throughout the code to be 2.67e-6 rad s^-1), use
@@ -118,19 +213,31 @@ These parameters can then be input into EvolveRotation using the params keyword 
 
 >>> tracks = mors.EvolveRotation(Mstar=1.0,Omega0=10.0,params=myParams)
 
+The user might also want to use a specific instance of the stellar evolution model, for example using different metallicities. This can be done by first creating and instance of the StarEvo class and then inputting it into EvolveRotation() using the StarEvo keyword argument.
+
+>>> StarEvo = mors.StarEvo()
+>>> tracks = mors.EvolveRotation(Mstar=1.0,Omega0=10.0,params=myParams,StarEvo=StarEvo)
+
+-------------------------------------------------------------------------------------------------------------
+
+LOOKING AT RESULTS FROM ROTATION MODEL
+
 The function EvolveRotation returns a dictionary with evolutionary tracks for rotation. The main elements of this dictionary are Age in Myr, OmegaEnv in OmegaSun, and OmegaCore in OmegaSun. The following code will calculate and plot a rotation model for a solar mass star
 
 >>> tracks = mors.EvolveRotation(Mstar=1.0,Omega0=10.0)
->>> plt.plot( tracks['Age'] , tracks['OmegaEnv'] )
+>>> plt.plot( tracks['Age'] , tracks['OmegaEnv'] , 'k' )
+>>> plt.plot( tracks['Age'] , tracks['OmegaCore'] , 'k:' )
 >>> plt.show()
 
+By default, EvolveRotation() returns tracks for the envelope and core rotatation rates, so the dictionary that is returned will contain 'Age', 'dAge', 'OmegaEnv', and 'OmegaCore', where dAge is the length of each timestep (note that dAge[i]=Age[i]-Age[i-1] and dAge[0] is set to the starting value of dAge which for solvers that automatically determine step length will never be included). If core-envelope decoupling is not inlcuded (either because it was turned off as a parameter or because the mass of the star is below the fully convective boundary), then core and envelope rotation tracks will be identical.
+
+The code is able to calculate a large number of rotation and activity related quantities. Many of these quantities are calculated by the code when running the rotation model, but their evolutionary tracks are not saved by default. The user can however can have these also returned using the ExtendedTracks parameter.
+
+>>> myParams = mors.NewParams(ExtendedTracks=True)
+>>> tracks = mors.EvolveRotation(Mstar=1.0,Omega0=10.0,params=myParams)
 
 
 
 -------------------------------------------------------------------------------------------------------------
-
-
-
-
 
 

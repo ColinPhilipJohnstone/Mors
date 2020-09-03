@@ -5,6 +5,10 @@
 import numpy as np
 import pickle
 import os
+import math
+import sys
+import copy
+import inspect
 
 # Imports for Mors modules
 import Mors.miscellaneous as misc
@@ -22,9 +26,12 @@ evoModelsDefault = "X0p70952_Z0p01631_A1p875"
 # Initially set default model data to None so we know it has not been set
 ModelDataDefault = None
 
+# Number of decimal places to represent masses and ages when doing interpolations
+nDecValue = 7
+
 #====================================================================================================================
 
-class StellarEvoModel:
+class StarEvo:
   
   """
   Class to hold complete information about stellar evolution models.
@@ -48,11 +55,47 @@ class StellarEvoModel:
   
   def __init__(self,starEvoDir=starEvoDirDefault,evoModels=evoModelsDefault):
     
-    """Initialises instance of StellarEvoModel class."""
+    """Initialises instance of StarEvo class."""
+    
+    # If starEvoDir and evoModels are None, use defaults
+    if starEvoDir is None:
+      starEvoDir = starEvoDirDefault
+    if evoModels is None:
+      evoModels = evoModelsDefault
     
     # Load the models
     self.ModelData = _LoadModels( starEvoDir=starEvoDir , evoModels=evoModels )
     
+    return
+  
+  #---------------------------------------------------------------------------------------
+  
+  def LoadTrack(self,Mstar,ClearData=False):
+    
+    """
+    Takes stellar mass, loads evolutionary track for a specific mass into the model data.
+    
+    This can be useful if the user wants to load a specific evolutionary track into a model data for a specific mass
+    since this will make getting values for this mass faster since no interpolation between mass bins will be needed.
+      
+    Parameters
+    ----------
+    Mstar : float
+        Mass of star in Msun.
+    ClearData : bool , optional
+        If set to True, all other stellar masses will be removed from the ModelData dictionary.
+    
+    Returns
+    ----------
+    None
+        None
+    
+    """
+    
+    self.ModelData = LoadTrack(Mstar,ModelData=self.ModelData,ClearData=ClearData)
+    
+    return
+   
   #---------------------------------------------------------------------------------------
   
   def Value(Mstar,Age,ParamString):
@@ -86,32 +129,6 @@ class StellarEvoModel:
     
     # Call Value() outside this class to get the value with this model
     value = Value(Mstar,Age,ParamString,ModelData=self.ModelData)
-    
-    return
-  
-  #---------------------------------------------------------------------------------------
-  
-  def LoadTrack(self,Mstar):
-    
-    """
-    Takes stellar mass, loads evolutionary track for a specific mass into the model data.
-    
-    This can be useful if the user wants to load a specific evolutionary track into a model data for a specific mass
-    since this will make getting values for this mass faster since no interpolation between mass bins will be needed.
-      
-    Parameters
-    ----------
-    Mstar : float
-        Mass of star in Msun.
-    
-    Returns
-    ----------
-    None
-        None
-    
-    """
-    
-    self.ModelData = LoadTrack(Mstar,ModelData=self.ModelData)
     
     return
   
@@ -348,6 +365,10 @@ def _ReadEvolutionTrack(starEvoDir,evoModels,Mstar,MstarFilenameMiddle):
   dMcoredt[:] = _CalculateGradient( Age , Mcore )
   dRcoredt[:] = _CalculateGradient( Age , Rcore )
   
+  # Round mass and ages to nDecValue decimal places as specified at top of file
+  Mstar = round( Mstar , nDecValue )
+  Age = np.round( Age , decimals=nDecValue )
+  
   # Add all quantities to the dictionary
   Data = {}
   Data['Mstar'] = Mstar
@@ -446,7 +467,7 @@ def _LoadSavedGrid(starEvoDir,evoModels):
 
 #====================================================================================================================
 
-def LoadTrack(Mstar,ModelData=None):
+def LoadTrack(Mstar,ModelData=None,ClearData=False):
   global ModelDataDefault
   
   """
@@ -454,6 +475,10 @@ def LoadTrack(Mstar,ModelData=None):
   
   This can be useful if the user wants to load a specific evolutionary track into a model data for a specific mass
   since this will make getting values for this mass faster since no interpolation between mass bins will be needed.
+  The user might also want to set ClearData to True if doing the calculation only for a single stellar mass since 
+  this will cause the function to remove data for all other masses, which saves memory, though usually this will 
+  only be necessary if the user is going to have data for a very large number of stars loaded simultaneously. Note
+  that this does not change ModelDataDefault.
     
   Parameters
   ----------
@@ -461,6 +486,8 @@ def LoadTrack(Mstar,ModelData=None):
       Mass of star in Msun.
   ModelData : dict , optional
       Dictionary of dictionaries holding set of stellar evolution models.
+  ClearData : bool , optional
+      If set to True, all other stellar masses will be removed from the ModelData dictionary.
   
   Returns
   ----------
@@ -477,19 +504,41 @@ def LoadTrack(Mstar,ModelData=None):
   if ModelData is None:
     ModelData = _LoadDefaultModelData()
   
-  # If Mstar is already in the dictionary, just do nothing
-  if ( Mstar in ModelData ):
-    return
+  # Only do something if Mstar is not already in ModelData
+  if not ( Mstar in ModelData ):
+    
+    # Get evo tracks for this mass and add it to the dictionary
+    Data = _LoadTrack(Mstar,ModelData)
+    
+    # Add extra term to ModelData
+    ModelData[Mstar] = Data
+    
+    # Add this mass to MstarAll in ModelData
+    ModelData['MstarAll'] = np.sort( np.append( ModelData['MstarAll'] , Mstar ) ) 
+    
+    # If ModelDataDefault is not None, add this also to that
+    if not ModelDataDefault is None:
+      ModelDataDefault[Mstar] = Data
   
-  # Get evo tracks for this mass and add it to the dictionary
-  Data = _LoadTrack(Mstar,ModelData)
-  
-  # Add extra term to ModelData
-  ModelData[Mstar] = Data
-  
-  # If ModelDataDefault is not None, add this also to that
-  if not ModelDataDefault is None:
-    ModelDataDefault[Mstar] = Data
+  # If ClearData is set, remove all other tracks from return dictionary, but not ModelDataDefault
+  if ClearData:
+    
+    # Do this by making a new dictionary and copying stuff in
+    
+    # Make deepcopy of dictionary
+    ModelDataOld = copy.deepcopy(ModelData)
+    
+    # Make new dictionary
+    ModelData = {}
+    
+    # Make new MstarAll array
+    ModelData['MstarAll'] = np.array([Mstar])
+    
+    # Add properties
+    ModelData['ParamsAll'] = ModelDataOld['ParamsAll']
+    
+    # Add tracks for this mass bin
+    ModelData[Mstar] = ModelDataOld[Mstar]
   
   return ModelData
 
@@ -498,6 +547,9 @@ def LoadTrack(Mstar,ModelData=None):
 def _LoadTrack(Mstar,ModelData):
   
   """Takes stellar mass and model data dictionary, returns dictionary with track for this mass."""
+  
+  # Round mass to nDecValue decimal places specified at top of this file
+  Mstar = round( Mstar , nDecValue )
   
   # Make sure within mass limit
   _CheckMassLimit( ModelData['MstarAll'] , Mstar )
@@ -526,6 +578,9 @@ def _LoadTrack(Mstar,ModelData):
   # Make age array, log spacing
   Age = np.logspace( np.log10(AgeMin) , np.log10(AgeMax) , nAge )
   
+  # Round ages to nDecValue decimal placed specified at top of this file
+  Age = np.round( Age , decimals=nDecValue )
+  
   # Start the output dictionary
   Data = {}
   
@@ -553,10 +608,10 @@ def _LoadTrack(Mstar,ModelData):
 def _LoadDefaultModelData():
   global ModelDataDefault
   
-  """Loads model data for the default model to be used if no StellarEvoModel class object is used."""
+  """Loads model data for the default model to be used if no StarEvo class object is used."""
   
   # Loading a default model is generally not necessary, but it would be useful if the user doesn't want to mess
-  # around with creating a StellarEvoModel class object and instead just wants to quickly get a few values.
+  # around with creating a StarEvo class object and instead just wants to quickly get a few values.
   
   # Load the data 
   ModelDataDefault = _LoadModels()
@@ -619,10 +674,10 @@ def Value(MstarIn,AgeIn,ParamString,ModelData=ModelDataDefault):
   
   # Find if scenario 1 (most likely)
   if ( ( type(Mstar) == float ) and ( type(Age) == float ) and ( type(ParamString) == str ) ):
-    
+        
     # Scenario 1 so just get value
-    value = _ValueSingle( Mstar , Age , ParamString , ModelData )
-  
+    value = _ValueSingle( Mstar , Age , ParamString , ModelData=ModelData )
+    
   else:
     
     # In this case, the output will be an array with up to three dimensions, so first make 3D array
@@ -639,9 +694,9 @@ def Value(MstarIn,AgeIn,ParamString,ModelData=ModelDataDefault):
     except:
       nAge = 1
     
-    try:
+    if ( type(ParamString) == list ):
       nParam = len(ParamString)
-    except:
+    else:
       nParam = 1
     
     # Make array
@@ -669,7 +724,7 @@ def Value(MstarIn,AgeIn,ParamString,ModelData=ModelDataDefault):
             ParamStringValue = ParamString[iParam]
           
           # Now get the value
-          value[iMstar,iAge,iParam] = _ValueSingle( MstarValue , AgeValue , ParamStringValue , ModelData )
+          value[iMstar,iAge,iParam] = _ValueSingle( MstarValue , AgeValue , ParamStringValue , ModelData=ModelData )
     
     # Now get rid of unwanted dimensions
     value = np.squeeze(value)
@@ -680,6 +735,7 @@ def Value(MstarIn,AgeIn,ParamString,ModelData=ModelDataDefault):
 
 def _ValueSingle(Mstar,Age,ParamString,ModelData=ModelDataDefault):
   
+  """Takes stellar mass and age and parameter string, returns value of that parameter at that mass and age."""
   
   ## Make sure Mstar and age are floats
   #if not ( type(Mstar) == float ):
@@ -702,7 +758,7 @@ def _ValueSingle(Mstar,Age,ParamString,ModelData=ModelDataDefault):
     # but first check the age is within the correct age limit
     _CheckAgeLimit( ModelData[Mstar]['Age'] , Age )
     value = _Interpolate1D( ModelData[Mstar]['Age'] , ModelData[Mstar][ParamString] , Age )
-  
+    
   else:
     
     # In this case, no evo track for this specific mass is loaded and so a 2D interpolation between values from two
@@ -737,6 +793,10 @@ def _CheckAgeLimit(AgeArray,Age):
   
   """Takes age track and an age, outputs error and stops code if age is not within limits."""
   
+  # Round the age to decimal places determined by nDecValue at top of file
+  Age = round( Age , nDecValue )
+  
+  # Do check
   if not ( AgeArray[0] <= Age <= AgeArray[-1] ):
     misc._PrintErrorKill("input age "+str(Age)+" is not within limits of "+str(AgeArray[0])+" to "+str(AgeArray[-1]))
   
@@ -760,6 +820,9 @@ def _Interpolate2D(Z1,Z2,Z,Xarray1,Xarray2,X,Yarray1,Yarray2):
   
   """Takes two sets of 1D arrays for corresponding X and Y values, returns interpolated Y value corresponding to input X."""
   
+  # Round the input values to decimal places determined by nDecValue at top of file
+  Z = round( Z , nDecValue )
+  
   # Do interpolations to get Y at X for both tracks
   Y1 = _Interpolate1D( Xarray1 , Yarray1 , X )
   Y2 = _Interpolate1D( Xarray2 , Yarray2 , X )
@@ -778,6 +841,9 @@ def _Interpolate1D(Xarray,Yarray,X):
   """Takes 1D arrays for corresponding X and Y values, returns interpolated Y value corresponding to input X."""
   
   # Note that it is assumed here that Xarray is in ascending order and this won't work if it is not
+  
+  # Round the input values to decimal places determined by nDecValue at top of file
+  X = round( X , nDecValue )  
   
   # Make sure X is in limits
   if not ( Xarray[0] <= X <= Xarray[-1] ):
@@ -798,7 +864,7 @@ def _Interpolate1D(Xarray,Yarray,X):
     mInterp = ( Yarray[iMax] - Yarray[iMin] ) / ( Xarray[iMax] - Xarray[iMin] )
     cInterp = Yarray[iMin] - mInterp * Xarray[iMin]
     Y = mInterp * X + cInterp
-    
+  
   return Y
 
 #====================================================================================================================

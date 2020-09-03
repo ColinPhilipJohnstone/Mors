@@ -4,6 +4,7 @@
 # Imports for standard stuff needed here
 import numpy as np
 import sys as sys
+import copy as copy
 
 # Imports for Mors modules
 import Mors.miscellaneous as misc
@@ -13,26 +14,30 @@ import Mors.parameters as params
 
 #====================================================================================================================
 
-def dOmegadt(Mstar=None,Age=None,OmegaEnv=None,OmegaCore=None,params=params.paramsDefault):
+def dOmegadt(Mstar=None,Age=None,OmegaEnv=None,OmegaCore=None,params=params.paramsDefault,StarEvo=None):
   
   """
   Takes basic stellar parameters, returns rates of change of rotation.
   
-  This is the main function to be used to get the rates of change of the core and envelope rotation 
-  rates given basic stellar parameters. The actual calculations of these are done in GetState() which
-  itself also returns a very large number of other things used during the calculation of the rates 
+  This is the main function to be used by the solvers to get the rates of change of the core and envelope 
+  rotation rates given basic stellar parameters. The actual calculations of these are done in RotationQuantities() 
+  which itself also returns a very large number of other things used during the calculation of the rates 
   of change.
   
   Parameters
   ----------
   Mstar : float
       Mass of star in Msun.
-  Age : float , optional
+  Age : float
       Age of star.
-  OmegaEnv : float 
+  OmegaEnv : float
       Envelope rotation rate in OmegaSun (=2.67e-6 rad/s).
-  OmegaCore : float 
+  OmegaCore : float
       Core rotation rate in OmegaSun (=2.67e-6 rad/s).
+  params : dict , optional
+      Dictionary holding model parameters. 
+  ModelData : dict , optional
+      Dictionary holding stellar evolution model data.
   
   Returns
   ----------
@@ -53,22 +58,71 @@ def dOmegadt(Mstar=None,Age=None,OmegaEnv=None,OmegaCore=None,params=params.para
   if OmegaCore is None: 
     misc._PrintErrorKill("argument OmegaCore must be set in call to function")
   
+  # If an instance of the StarEvo class is not input, load it with defaults
+  if StarEvo is None:
+    StarEvo = SE.StarEvo()
+  
   # Get state of system 
-  StarState = GetState(Mstar=Mstar,Age=Age,OmegaEnv=OmegaEnv,OmegaCore=OmegaCore,params=params)
+  StarState = RotationQuantities(Mstar=Mstar,Age=Age,OmegaEnv=OmegaEnv,OmegaCore=OmegaCore,params=params,StarEvo=StarEvo)
   
   return ( StarState['dOmegaEnvdt'] , StarState['dOmegaCoredt'] )
 
 #====================================================================================================================
 
-def GetState(Mstar=None,Age=None,OmegaEnv=None,OmegaCore=None,params=params.paramsDefault):
+def RotationQuantities(Mstar=None,Age=None,OmegaEnv=None,OmegaCore=None,params=params.paramsDefault,StarEvo=None):
+  
+  """
+  Takes basic stellar parameters, returns rotation quantities including rates of change of rotation.
+  
+  This is the main function to be used to get the rates of change of the core and envelope rotation 
+  rates given basic stellar parameters. The actual calculations of these are done in GetState() which
+  itself also returns a very large number of other things used during the calculation of the rates 
+  of change.
+  
+  Parameters
+  ----------
+  Mstar : float
+      Mass of star in Msun.
+  Age : float
+      Age of star.
+  OmegaEnv : float
+      Envelope rotation rate in OmegaSun (=2.67e-6 rad/s).
+  OmegaCore : float
+      Core rotation rate in OmegaSun (=2.67e-6 rad/s).
+  params : dict , optional
+      Dictionary holding model parameters. 
+  ModelData : dict , optional
+      Dictionary holding stellar evolution model data.
+  
+  Returns
+  ----------
+  StarState : dict
+      Set of rotation quantities.
+  
+  """
+  
+  # Make sure parameters are set
+  if Mstar is None: 
+    misc._PrintErrorKill("argument Mstar must be set in call to function")
+  if Age is None: 
+    misc._PrintErrorKill("argument Age must be set in call to function")
+  if OmegaEnv is None: 
+    misc._PrintErrorKill("argument OmegaEnv must be set in call to function")
+  if OmegaCore is None: 
+    misc._PrintErrorKill("argument OmegaCore must be set in call to function")
   
   #--------------------------------------------------------
   
   # Setup stellar parameter dictionary
   # This will be used to hold all of the 
   
+  # If an instance of the StarEvo class is not input, load it with defaults
+  if StarEvo is None:
+    StarEvo = SE.StarEvo()
+  
   # Start dictionary
   StarState = {}
+  StarStateUnits = {}
   
   # Add basic input parameters 
   StarState['Mstar'] = Mstar
@@ -77,29 +131,29 @@ def GetState(Mstar=None,Age=None,OmegaEnv=None,OmegaCore=None,params=params.para
   StarState['OmegaCore'] = OmegaCore
   
   # Radius in cm
-  StarState['Rstar'] = SE.Rstar(Mstar,Age)
+  StarState['Rstar'] = StarEvo.Rstar(Mstar,Age)
   
   # Convective turnover time in days
-  StarState['tauConv'] = SE.tauConv(Mstar,Age)
+  StarState['tauConv'] = StarEvo.tauConv(Mstar,Age)
   
   # Rossby number
   StarState['Ro'] = _Ro(StarState)
   
   # Get moments of interia in g cm^2
-  StarState['Itotal'] = SE.Itotal(Mstar,Age)
-  StarState['Ienv'] = SE.Ienv(Mstar,Age)
-  StarState['Icore'] = SE.Icore(Mstar,Age)
+  StarState['Itotal'] = StarEvo.Itotal(Mstar,Age)
+  StarState['Ienv'] = StarEvo.Ienv(Mstar,Age)
+  StarState['Icore'] = StarEvo.Icore(Mstar,Age)
   
   # Rates of change of moment of inertia in g cm^2 s^-1
-  StarState['dItotaldt'] = SE.dItotaldt(Mstar,Age) / const.Myr
-  StarState['dIenvdt'] = SE.dIenvdt(Mstar,Age) / const.Myr
-  StarState['dIcoredt'] = SE.dIcoredt(Mstar,Age) / const.Myr
+  StarState['dItotaldt'] = StarEvo.dItotaldt(Mstar,Age) / const.Myr
+  StarState['dIenvdt'] = StarEvo.dIenvdt(Mstar,Age) / const.Myr
+  StarState['dIcoredt'] = StarEvo.dIcoredt(Mstar,Age) / const.Myr
   
   # Rcore in cm
-  StarState['Rcore'] = SE.Rcore(Mstar,Age) * const.Rsun
+  StarState['Rcore'] = StarEvo.Rcore(Mstar,Age) * const.Rsun
   
-  # dMcoredt in g s^-1 Msun Myr^-1
-  StarState['dMcoredt'] = SE.dMcoredt(Mstar,Age) * const.Msun / const.Myr
+  # dMcoredt in g s^-1
+  StarState['dMcoredt'] = StarEvo.dMcoredt(Mstar,Age) * const.Msun / const.Myr
   
   # Mass loss rate in g s^-1
   StarState['Mdot'] = _Mdot(StarState,params=params) * const.Msunyr_
@@ -122,7 +176,7 @@ def GetState(Mstar=None,Age=None,OmegaEnv=None,OmegaCore=None,params=params.para
     StarState['torqueEnvMom'] , StarState['torqueCoreMom'] = _torqueMoment( StarState , CoreEnvelopeDecoupling )
   else:
     StarState['torqueEnvMom'] = StarState['torqueCoreMom'] = 0.0
-    
+  
   # Add core-growth torque
   if params['CoreGrowthTorque'] and CoreEnvelopeDecoupling:
     StarState['torqueEnvCG'] , StarState['torqueCoreCG'] = _torqueCoreGrowth( StarState )
@@ -183,6 +237,292 @@ def GetState(Mstar=None,Age=None,OmegaEnv=None,OmegaCore=None,params=params.para
   #--------------------------------------------------------
   
   return StarState
+
+#====================================================================================================================
+
+def ExtendedQuantities(StarState=None,Mstar=None,Age=None,OmegaEnv=None,OmegaCore=None,params=params.paramsDefault,StarEvo=None):
+  
+  """
+  Takes basic stellar parameters, returns extended set of physical quantities not calculated by RotationQuantities.
+  
+  This is the main function to be used to get things like stellar XUV emission. The user can either input as arguments the 
+  dictionary StarState, which is returned by RotationQuantities, or the basic stellar parameters Mstar, Age, OmegaEnv, and
+  OmegaCore (final one not necessary). If StarState is not input, this function will first call RotationQuantities to get it.
+  Either way, the return will be the same dictionary with additional parameters added to it.
+  
+  Parameters
+  ----------
+  StarState : dict , optional
+      Set of quantities already calculated by RotationQuantities().
+  Mstar : float , optional
+      Mass of star in Msun.
+  Age : float , optional
+      Age of star.
+  OmegaEnv : float 
+      Envelope rotation rate in OmegaSun (=2.67e-6 rad/s).
+  OmegaCore : float 
+      Core rotation rate in OmegaSun (=2.67e-6 rad/s).
+  params : dict , optional
+      Dictionary holding model parameters. 
+  ModelData : dict , optional
+      Dictionary holding stellar evolution model data.
+  
+  Returns
+  ----------
+  StarState : dict
+      Set of extended quantities.
+  
+  """
+  
+  # If an instance of the StarEvo class is not input, load it with defaults
+  if StarEvo is None:
+    StarEvo = SE.StarEvo()
+    
+  # Get StarState if it was not already set
+  if StarState is None: 
+    
+    # Make sure required parameters were set
+    if Mstar is None: 
+      misc._PrintErrorKill("argument Mstar must be set in call to function")
+    if Age is None: 
+      misc._PrintErrorKill("argument Age must be set in call to function")
+    if OmegaEnv is None: 
+      misc._PrintErrorKill("argument OmegaEnv must be set in call to function")
+    if OmegaCore is None: 
+      misc._PrintErrorKill("argument OmegaCore must be set in call to function")
+    
+    # Get rotation quantities
+    StarState = RotationQuantities(Mstar=Mstar,Age=Age,OmegaEnv=OmegaEnv,OmegaCore=OmegaCore,params=params,StarEvo=StarEvo)
+  
+  # Get Lbol in erg s^-1
+  StarState['Lbol'] = StarEvo.Lbol(Mstar,Age) * const.LbolSun
+  
+  # Get effective temperature in K
+  StarState['Teff'] = StarEvo.Teff(Mstar,Age)
+  
+  # Get Lx in erg s^-1, Fx in erg s^-1 cm^-2, and Rx
+  StarState['Lx'] , StarState['Fx'] , StarState['Rx'] = _Xray(StarState,params=params)
+  
+  # Get Tcor in MK
+  StarState['Tcor'] = _Tcor(StarState,params=params)
+  
+  # Get Leuv1 in erg s^-1, Feuv1 in erg s^-1 cm^-2, and Reuv1 (10-36 nm)
+  StarState['Leuv1'] , StarState['Feuv1'] , StarState['Reuv1'] = _EUV1(StarState,params=params)
+  
+  # Get Leuv2 in erg s^-1, Feuv2 in erg s^-1 cm^-2, and Reuv2 (36-92 nm)
+  StarState['Leuv2'] , StarState['Feuv2'] , StarState['Reuv2'] = _EUV2(StarState,params=params)
+  
+  # Get Leuv in erg s^-1, Feuv in erg s^-1 cm^-2, and Reuv
+  StarState['Leuv'] , StarState['Feuv'] , StarState['Reuv'] = _EUV(StarState,params=params)
+  
+  # Get Lly in erg s^-1, Fly in erg s^-1 cm^-2, and Rly
+  StarState['Lly'] , StarState['Fly'] , StarState['Rly'] = _Lymanalpha(StarState,params=params)
+  
+  # Get habitable zone orbital distance
+  
+  # Get FxHZ, FeuvHZ, and Fla
+  
+  # Get rate of flares above given energy
+  
+  
+  
+  return StarState 
+
+#====================================================================================================================
+
+def QuantitiesUnits(StarState=None):
+  
+  """
+  Returns dictionary of units for each physical quantity in calculated by RotationQuantities() and ExtendedQuantities().
+  
+  For output purposes, this is essential since it gives the user a way to know the units of the quantities output. It is 
+  recommended to input also 'StarState' which will cause the function to also check that all quantities in StarState do
+  in fact have units and will cause the function to only return units for quantities that are included, so for instance if
+  StarState was only calculated by RotationQuantities() and not by ExtendedQuantities(), then only units for the rotation
+  quantities will be included.
+  
+  Parameters
+  ----------
+  StarState : dict , optional
+      Set of quantities already calculated by RotationQuantities() and possibly ExtendedQuantities().
+  
+  Returns
+  ----------
+  StarStateUnits : dict
+      Dictionary of strings holding units for quantities.
+  
+  """
+  
+  # Create empty dictionary
+  StarStateUnits = {}
+  
+  # Get initial dictionary of units
+  StarStateUnits['Mstar'] = 'Msun'
+  StarStateUnits['dAge'] = 'Myr'
+  StarStateUnits['Age'] = 'Myr'
+  StarStateUnits['OmegaEnv'] = 'OmegaSun =2.67e-6 rad s^-1'
+  StarStateUnits['OmegaCore'] = 'OmegaSun =2.67e-6 rad s^-1'  
+  StarStateUnits['Rstar'] = 'Rsun'
+  StarStateUnits['tauConv'] = 'days'
+  StarStateUnits['Ro'] = ''
+  StarStateUnits['Itotal'] = 'g cm^2'
+  StarStateUnits['Ienv'] = 'g cm^2'
+  StarStateUnits['Icore'] = 'g cm^2'  
+  StarStateUnits['dItotaldt'] = 'g cm^2 s^-1'
+  StarStateUnits['dIenvdt'] = 'g cm^2 s^-1'
+  StarStateUnits['dIcoredt'] = 'g cm^2 s^-1'
+  StarStateUnits['Rcore'] = 'Rsun'
+  StarStateUnits['dMcoredt'] = 'g s^-1'
+  StarStateUnits['Mdot'] = 'g s^-1'
+  StarStateUnits['Bdip'] = 'G'
+  StarStateUnits['vEsc'] = 'cm s^-1'
+  StarStateUnits['torqueEnvMom'] = 'erg'
+  StarStateUnits['torqueCoreMom'] = 'erg'
+  StarStateUnits['torqueEnvCG'] = 'erg'
+  StarStateUnits['torqueCoreCG'] = 'erg'
+  StarStateUnits['torqueEnvWind'] = 'erg'
+  StarStateUnits['torqueEnvCE'] = 'erg'
+  StarStateUnits['torqueCoreCE'] = 'erg'
+  StarStateUnits['torqueEnvDL'] = 'erg'
+  StarStateUnits['torqueEnv'] = 'erg'
+  StarStateUnits['dOmegaEnvdt'] = 'OmegaSun Myr^-1'
+  StarStateUnits['torqueCore'] = 'erg'
+  StarStateUnits['dOmegaCoredt'] = 'OmegaSun Myr^-1'
+  StarStateUnits['Lbol'] = 'erg s^-1'
+  StarStateUnits['Teff'] = 'K'
+  StarStateUnits['Lx'] = 'erg s^-1'
+  StarStateUnits['Fx'] = 'erg s^-1 cm^-2'
+  StarStateUnits['Rx'] = ''
+  StarStateUnits['Tcor'] = 'MK'
+  StarStateUnits['Leuv1'] = 'erg s^-1'
+  StarStateUnits['Feuv1'] = 'erg s^-1 cm^-2'
+  StarStateUnits['Reuv1'] = ''
+  StarStateUnits['Leuv2'] = 'erg s^-1'
+  StarStateUnits['Feuv2'] = 'erg s^-1 cm^-2'
+  StarStateUnits['Reuv2'] = ''
+  StarStateUnits['Leuv'] = 'erg s^-1'
+  StarStateUnits['Feuv'] = 'erg s^-1 cm^-2'
+  StarStateUnits['Reuv'] = ''  
+  StarStateUnits['Lly'] = 'erg s^-1'
+  StarStateUnits['Fly'] = 'erg s^-1 cm^-2'
+  StarStateUnits['Rly'] = ''
+  
+  # If StarState was set in call to function then only include units for quantities in StarState and
+  # make sure all quantities in StarState have units given (even if the quantity is dimensionless)
+  if not StarState is None:
+    
+    # Make deep copy of StarStateUnits
+    StarStateUnitsTemp = copy.deepcopy(StarStateUnits)
+    
+    # Start new StarStateUnits
+    StarStateUnits = {}
+    
+    # Loop over quantities in StarState and add each one to StarStateUnits
+    for quantity in StarState:
+      
+      # Make sure it is included in list of units above
+      if not ( quantity in StarStateUnitsTemp ):
+        misc._PrintErrorKill("units for "+quantity+" not included in units list")
+      
+      # Add to dictionary
+      StarStateUnits[quantity] = StarStateUnitsTemp[quantity]
+  
+  return StarStateUnits
+
+#====================================================================================================================
+
+def _Xray(StarState,params=params.paramsDefault):
+  
+  """Takes star state, returns Lx in erg s^-1, Fx in erg s^-1 cm^-1, and Rx."""
+  
+  # Get Rx depending on Ro and regime
+  if ( StarState['Ro'] < params['RoSatXray'] ):
+    Rx = params['C1Xray'] * StarState['Ro']**params['beta1Xray']
+  else:
+    Rx = params['C2Xray'] * StarState['Ro']**params['beta2Xray']
+  
+  # Get Lx from that
+  Lx = StarState['Lbol'] * Rx
+  
+  # Get Fx
+  Fx = Lx / ( 4.0 * const.Pi * (StarState['Rstar']*const.Rsun)**2.0 )
+  
+  return Lx , Fx , Rx
+
+#====================================================================================================================
+
+def _Tcor(StarState,params=params.paramsDefault):
+  
+  """Takes star state, returns average coronal temperature in MK."""
+  
+  # Get Tcor depending on Fx using equations from Johnstone & Guedel (2015)
+  Tcor = 0.11 * StarState['Fx']**0.26
+  
+  return Tcor
+
+#====================================================================================================================
+
+def _EUV1(StarState,params=params.paramsDefault):
+  
+  """Takes star state, returns Leuv1 in erg s^-1, Feuv in erg s^-1 cm^-1, and Reuv (10-36 nm)."""
+  
+  # Get Feuv from Fx using equation from Johnstone et al. (2020)
+  Feuv1 = 10.0**( 2.04 + 0.681 * np.log10(StarState['Fx']) )
+  
+  # Get Leuv1 from this
+  Leuv1 = Feuv1 * ( 4.0 * const.Pi * (StarState['Rstar']*const.Rsun)**2.0 )
+  
+  # Get Reuv1
+  Reuv1 = Leuv1 / StarState['Lbol'] 
+  
+  return Leuv1 , Feuv1 , Reuv1
+
+#====================================================================================================================
+
+def _EUV2(StarState,params=params.paramsDefault):
+  
+  """Takes star state, returns Leuv2 in erg s^-1, Feuv2 in erg s^-1 cm^-1, and Reuv2 (36-92 nm)."""
+  
+  # Get Feuv2 from Feuv1 using equation from Johnstone et al. (2020)
+  Feuv2 = 10.0**( -0.341 + 0.92 * np.log10(StarState['Feuv1']) )
+  
+  # Get Leuv1 from this
+  Leuv2 = Feuv2 * ( 4.0 * const.Pi * (StarState['Rstar']*const.Rsun)**2.0 )
+  
+  # Get Reuv2
+  Reuv2 = Leuv2 / StarState['Lbol']
+  
+  return Leuv2 , Feuv2 , Reuv2
+
+#====================================================================================================================
+
+def _EUV(StarState,params=params.paramsDefault):
+  
+  """Takes star state, returns Leuv in erg s^-1, Feuv in erg s^-1 cm^-1, and Reuv (10-92 nm)."""
+  
+  # Just add quantities 
+  Leuv = StarState['Leuv1'] + StarState['Leuv2']
+  Feuv = StarState['Feuv1'] + StarState['Feuv2']
+  Reuv = StarState['Reuv1'] + StarState['Reuv2']
+  
+  return Leuv , Feuv , Reuv
+
+#====================================================================================================================
+
+def _Lymanalpha(StarState,params=params.paramsDefault):
+  
+  """Takes star state, returns Lly in erg s^-1, Fly in erg s^-1 cm^-1, and Rly (10-92 nm)."""
+  
+  # Get Fly using from Fx using equation from Johnstone et al. (2020)
+  Fly = 10.0**( 3.97 + 0.375 * np.log10(StarState['Fx']) )
+  
+  # Get Lly
+  Lly = Fly * ( 4.0 * const.Pi * (StarState['Rstar']*const.Rsun)**2.0 )
+  
+  # Get Rly
+  Rly = Lly / StarState['Lbol']
+  
+  return Lly , Fly , Rly
 
 #====================================================================================================================
 
