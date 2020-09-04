@@ -13,7 +13,7 @@ from .stellarevo import ( Rstar , Lbol , Teff , Itotal , Icore , Ienv , Mcore , 
                          dItotaldt , dIcoredt , dIenvdt , dIenvdt , dMcoredt , dRcoredt )
 
 # Functions from physical model
-from .physicalmodel import dOmegadt , RotationQuantities , ExtendedQuantities
+from .physicalmodel import dOmegadt , RotationQuantities , ExtendedQuantities , Lxuv , Lx , Leuv , Lly
 
 # Rotational evolution stuff
 from .rotevo import EvolveRotation , EvolveRotationStep

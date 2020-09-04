@@ -133,6 +133,48 @@ Or can simply look into the parameters.py file in the main directory where Mors 
 
 -------------------------------------------------------------------------------------------------------------
 
+BASIC ROTATION AND ACTIVITY QUANTITES
+
+The code gives the user the ability to use the basic functions for calculating many activity related quantities as functions os stellar properties. For example, the user can calculate XUV luminosities from stellar mass, age, and rotation rates using the Lxuv function. For example, 
+
+>>> Lxuv = mors.Lxuv(Mstar=1.0,Age=5000.0)
+
+This gives a dictionary holding X-ray, EUV, and Lyman-alpha luminosities for a 5000 Myr old solar mass star rotating 10 times faster than the Sun. The surface rotation rate can be specified as a rotation velocity using the Omega or OmegaEnv arguments or as a rotation period in days using the Prot argument, e.g.
+
+>>> Lxuv = mors.Lxuv(Mstar=1.0,Age=5000.0,Prot=1.0)
+
+This is similar to above, but for a star with a rotation period of 1 day.
+
+The dictionary returned contains the following luminosities, all in erg s^-1
+
+Lxuv - 0.517 to 92 nm
+Lx - 0.517 to 12.4 nm (0.1 to 24 keV)
+Leuv1 - 10 to 36 nm
+Leuv2 - 36 to 92 nm
+Leuv - 10 to 92 nm
+Lly - Lymann-alpha emission line
+
+The user can also just get the X-ray luminosity as a float using Lx()
+
+>>> Lx = mors.Lx(Mstar=1.0,Age=5000.0,Omega=10.0)
+
+And similarly for the EUV and Lymann-alpha luminosities
+
+>>> Leuv = mors.Leuv(Mstar=1.0,Age=5000.0,Omega=10.0)
+>>> Lly = mors.Lly(Mstar=1.0,Age=5000.0,Omega=10.0)
+
+The function Leuv() also takes the keyword argument 'band' which can be used to specify the band desired (=0 for 10-92 nm; =1 for 10-32 nm; =2 for 32-92 nm).
+
+If the user wants a more detailed set of parameters for a given star, the ExtendedQuantities() function can be used and in this case, the star's mass, age, and envelope and core rotation rates must be specified.
+
+>>> quantities = ExtendedQuantities(Mstar=1.0,Age=5000.0,OmegaEnv=10.0,OmegaCore=10.0)
+
+This returns a larger dictionary with many other quantities, including some basic stellar properties such as radius and moment of inertia, the mass loss rate in the wind, the dipole field strength, and all of the torques acting on the star to influence its rotation. A list of the available parameters can be seen with
+
+>>> list(quantities)
+
+-------------------------------------------------------------------------------------------------------------
+
 BASIC STELLAR EVOLUTION
 
 The rotation and activity evolution model requires that various basic stellar properties such as bolometric luminosity, radius, and convective turnover time, can be accessed at all ages for for all masses within the mass range considered (0.1 to 1.25 Msun). These are calculated using the evolutionary tracks fronm Spada et al. (2013) and the functions that do this are available to the user. First import the Mors package

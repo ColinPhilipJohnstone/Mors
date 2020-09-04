@@ -36,8 +36,8 @@ def dOmegadt(Mstar=None,Age=None,OmegaEnv=None,OmegaCore=None,params=params.para
       Core rotation rate in OmegaSun (=2.67e-6 rad/s).
   params : dict , optional
       Dictionary holding model parameters. 
-  ModelData : dict , optional
-      Dictionary holding stellar evolution model data.
+  StarEvo : Mors.stellarevo.StarEvo , optional
+      Instance of StarEvo class holding stellar evolution model data.
   
   Returns
   ----------
@@ -91,8 +91,8 @@ def RotationQuantities(Mstar=None,Age=None,OmegaEnv=None,OmegaCore=None,params=p
       Core rotation rate in OmegaSun (=2.67e-6 rad/s).
   params : dict , optional
       Dictionary holding model parameters. 
-  ModelData : dict , optional
-      Dictionary holding stellar evolution model data.
+  StarEvo : Mors.stellarevo.StarEvo , optional
+      Instance of StarEvo class holding stellar evolution model data.
   
   Returns
   ----------
@@ -129,6 +129,9 @@ def RotationQuantities(Mstar=None,Age=None,OmegaEnv=None,OmegaCore=None,params=p
   StarState['Age'] = Age
   StarState['OmegaEnv'] = OmegaEnv
   StarState['OmegaCore'] = OmegaCore
+  
+  # Get rotation period from surface rotation in days
+  StarState['Prot'] = _Prot(OmegaEnv)
   
   # Radius in cm
   StarState['Rstar'] = StarEvo.Rstar(Mstar,Age)
@@ -264,8 +267,8 @@ def ExtendedQuantities(StarState=None,Mstar=None,Age=None,OmegaEnv=None,OmegaCor
       Core rotation rate in OmegaSun (=2.67e-6 rad/s).
   params : dict , optional
       Dictionary holding model parameters. 
-  ModelData : dict , optional
-      Dictionary holding stellar evolution model data.
+  StarEvo : Mors.stellarevo.StarEvo , optional
+      Instance of StarEvo class holding stellar evolution model data.
   
   Returns
   ----------
@@ -362,6 +365,7 @@ def QuantitiesUnits(StarState=None):
   StarStateUnits['Age'] = 'Myr'
   StarStateUnits['OmegaEnv'] = 'OmegaSun =2.67e-6 rad s^-1'
   StarStateUnits['OmegaCore'] = 'OmegaSun =2.67e-6 rad s^-1'  
+  StarStateUnits['Prot'] = 'days'
   StarStateUnits['Rstar'] = 'Rsun'
   StarStateUnits['tauConv'] = 'days'
   StarStateUnits['Ro'] = ''
@@ -431,6 +435,149 @@ def QuantitiesUnits(StarState=None):
 
 #====================================================================================================================
 
+def Lxuv(Mstar=None,Age=None,Omega=None,OmegaEnv=None,Prot=None,params=params.paramsDefault,StarEvo=None):
+  
+  """
+  Takes basic stellar parameters, returns X-ray, EUV, and Ly-alpha luminosities in erg s^-1.
+  
+  The user can supply a mass, age, and surface rotation rate for a star and it returns the XUV luminosities as 
+  a dictionary. The rotation rate can be either the rotation velocity as a multiple of the solar rotation 
+  rate (2.67e-6 rad s^-1) using either Omega or OmegaEnv keyword arguments, or as a rotation period in days using 
+  the Prot keyword argument, The user can optionally also give a parameter dictionary and an instance of the 
+  StarEvo class, though this is not necessary and if these are not specified then the defaults will be used.
+  
+  Parameters
+  ----------
+  Band : str
+      Wavelength band to calculate.
+  Mstar : float
+      Mass of star in Msun.
+  Age : float
+      Age of star.
+  Omega : float , optional
+      Surface rotation rate in OmegaSun (=2.67e-6 rad/s).
+  OmegaEnv : float , optional
+      Surface rotation rate in OmegaSun (=2.67e-6 rad/s).
+  Prot : float , optional
+      Surface rotation period in days.
+  params : dict , optional
+      Dictionary holding model parameters.
+  StarEvo : Mors.stellarevo.StarEvo , optional
+      Instance of StarEvo class holding stellar evolution model data.
+  
+  Returns
+  ----------
+  LxuvDict : dict
+      Dictionary of luminositie in erg s^-1.
+  
+  """
+  
+  # If an instance of the StarEvo class is not input, load it with defaults
+  if StarEvo is None:
+    StarEvo = SE.StarEvo()
+  
+  # Make sure mass and age are specified
+  if Mstar is None:
+    misc._PrintErrorKill("Mstar must be set in call to function")
+  if Age is None:
+    misc._PrintErrorKill("Age must be set in call to function")
+  
+  # Make sure rotation is set
+  if ( Omega is None ) and ( OmegaEnv is None ) and ( Prot is None ):
+    misc._PrintErrorKill("Omega, OmegaEnv, or Prot must be set in call to function")
+  
+  # Make sure only one rotation rate is set (add up number of set parameters)
+  nSet = 0
+  if not Omega is None:
+    nSet += 1
+  if not OmegaEnv is None:
+    nSet += 1
+  if not Prot is None:
+    nSet += 1
+  if not ( nSet == 1 ):
+    misc._PrintErrorKill("can only set one of Omega, OmegaEnv, and Prot in call to function")
+  
+  # Get Omega not set
+  if not OmegaEnv is None:
+    Omega = OmegaEnv
+  if not Prot is None:
+    Omega = _Omega(Prot)
+  
+  # The function _Xray needs Ro, Rstar, and Lbol so make a StarState dictionary with these
+  StarState = {}
+  StarState['OmegaEnv'] = Omega
+  StarState['Rstar'] = StarEvo.Rstar(Mstar,Age)
+  StarState['Prot'] = _Prot(Omega)
+  StarState['tauConv'] = StarEvo.tauConv(Mstar,Age)
+  StarState['Ro'] = _Ro(StarState)
+  StarState['Lbol'] = StarEvo.Lbol(Mstar,Age) * const.LbolSun
+  
+  # Get X-ray
+  StarState['Lx'] , StarState['Fx'] , StarState['Rx'] = _Xray(StarState,params=params)
+  
+  # Get EUV
+  StarState['Leuv1'] , StarState['Feuv1'] , StarState['Reuv1'] = _EUV1(StarState,params=params)
+  StarState['Leuv2'] , StarState['Feuv2'] , StarState['Reuv2'] = _EUV2(StarState,params=params)
+  StarState['Leuv'] , StarState['Feuv'] , StarState['Reuv'] = _EUV(StarState,params=params)
+  
+  # Get Ly-alpha 
+  StarState['Lly'] , StarState['Fly'] , StarState['Rly'] = _Lymanalpha(StarState,params=params)
+  
+  # Make dictionary with luminosities
+  LxuvDict = {}
+  LxuvDict['Lxuv'] = StarState['Lx'] + StarState['Leuv']
+  LxuvDict['Lx'] = StarState['Lx']
+  LxuvDict['Leuv1'] = StarState['Leuv1']
+  LxuvDict['Leuv2'] = StarState['Leuv2']
+  LxuvDict['Leuv'] = StarState['Leuv']
+  LxuvDict['Lly'] = StarState['Lly']
+  
+  return LxuvDict
+
+#====================================================================================================================
+
+def Lx(Mstar=None,Age=None,Omega=None,OmegaEnv=None,Prot=None,params=params.paramsDefault,StarEvo=None):
+  
+  """
+  Takes basic stellar parameters, returns X-ray luminosity in erg s^-1.
+  
+  The user can supply a mass, age, and surface rotation rate for a star and it returns the X-ray luminosity. The
+  rotation rate can be either the rotation velocity as a multiple of the solar rotation rate (2.67e-6 rad s^-1) 
+  using either Omega or OmegaEnv keyword arguments, or as a rotation period in days using the Prot keyword 
+  argument, The user can optionally also give a parameter dictionary and an instance of the StarEvo class, though 
+  this is not necessary and if these are not specified then the defaults will be used.
+  
+  Parameters
+  ----------
+  Mstar : float
+      Mass of star in Msun.
+  Age : float
+      Age of star.
+  Omega : float , optional
+      Surface rotation rate in OmegaSun (=2.67e-6 rad/s).
+  OmegaEnv : float , optional
+      Surface rotation rate in OmegaSun (=2.67e-6 rad/s).
+  Prot : float , optional
+      Surface rotation period in days.
+  params : dict , optional
+      Dictionary holding model parameters.
+  StarEvo : Mors.stellarevo.StarEvo , optional
+      Instance of StarEvo class holding stellar evolution model data.
+  
+  Returns
+  ----------
+  Lx : float
+      X-ray luminosity in erg s^-1.
+  
+  """
+  
+  # Get dictionary with all luminosities
+  LxuvDict = Lxuv(Mstar=Mstar,Age=Age,Omega=Omega,OmegaEnv=OmegaEnv,Prot=Prot,params=params,StarEvo=StarEvo)
+  
+  return LxuvDict['Lx']
+
+#====================================================================================================================
+
 def _Xray(StarState,params=params.paramsDefault):
   
   """Takes star state, returns Lx in erg s^-1, Fx in erg s^-1 cm^-1, and Rx."""
@@ -459,6 +606,63 @@ def _Tcor(StarState,params=params.paramsDefault):
   Tcor = 0.11 * StarState['Fx']**0.26
   
   return Tcor
+
+#====================================================================================================================
+
+def Leuv(Mstar=None,Age=None,Omega=None,OmegaEnv=None,Prot=None,band=0,params=params.paramsDefault,StarEvo=None):
+  
+  """
+  Takes basic stellar parameters, returns EUV luminosity in erg s^-1.
+  
+  The user can supply a mass, age, and surface rotation rate for a star and it returns the EUV luminosity. 
+  By default, this will be the luminosity in the 10-92 nm band, but using the band keyword argument, the 
+  user can set specify either the 10-36 nm range with 'band=1' or the 36-92 nm range for 'band=2'. The default
+  10-92 nm range is set with 'band=0'. The rotation rate can be either the rotation velocity as a multiple 
+  of the solar rotation rate (2.67e-6 rad s^-1) using either Omega or OmegaEnv keyword arguments, or as a 
+  rotation period in days using the Prot keyword argument, The user can optionally also give a parameter 
+  dictionary and an instance of the StarEvo class, though this is not necessary and if these are not specified 
+  then the defaults will be used.
+  
+  Parameters
+  ----------
+  Mstar : float
+      Mass of star in Msun.
+  Age : float
+      Age of star.
+  Omega : float , optional
+      Surface rotation rate in OmegaSun (=2.67e-6 rad/s).
+  OmegaEnv : float , optional
+      Surface rotation rate in OmegaSun (=2.67e-6 rad/s).
+  Prot : float , optional
+      Surface rotation period in days.
+  band : float , optional
+      Which wavelength band to return (=0 for 10-92 nm; =1 for 10-32 nm; =2 for 32-92 nm).
+  params : dict , optional
+      Dictionary holding model parameters.
+  StarEvo : Mors.stellarevo.StarEvo , optional
+      Instance of StarEvo class holding stellar evolution model data.
+  
+  Returns
+  ----------
+  Leuv : float
+      EUV luminosity in erg s^-1.
+  
+  """
+  
+  # Get dictionary with all luminosities
+  LxuvDict = Lxuv(Mstar=Mstar,Age=Age,Omega=Omega,OmegaEnv=OmegaEnv,Prot=Prot,params=params,StarEvo=StarEvo)
+  
+  # Return depending on the desired band
+  if ( band == 0 ):
+    return LxuvDict['Leuv']
+  elif ( band == 1 ):
+    return LxuvDict['Leuv1']
+  elif ( band == 2 ):
+    return LxuvDict['Leuv2']
+  else:
+    misc._PrintErrorKill("invalid band set in call to function")
+    
+  return -1
 
 #====================================================================================================================
 
@@ -506,6 +710,48 @@ def _EUV(StarState,params=params.paramsDefault):
   Reuv = StarState['Reuv1'] + StarState['Reuv2']
   
   return Leuv , Feuv , Reuv
+
+#====================================================================================================================
+
+def Lly(Mstar=None,Age=None,Omega=None,OmegaEnv=None,Prot=None,params=params.paramsDefault,StarEvo=None):
+  
+  """
+  Takes basic stellar parameters, returns Ly-alpha luminosity in erg s^-1.
+  
+  The user can supply a mass, age, and surface rotation rate for a star and it returns the Ly-alpha luminosity. The
+  rotation rate can be either the rotation velocity as a multiple of the solar rotation rate (2.67e-6 rad s^-1) 
+  using either Omega or OmegaEnv keyword arguments, or as a rotation period in days using the Prot keyword 
+  argument, The user can optionally also give a parameter dictionary and an instance of the StarEvo class, though 
+  this is not necessary and if these are not specified then the defaults will be used.
+  
+  Parameters
+  ----------
+  Mstar : float
+      Mass of star in Msun.
+  Age : float
+      Age of star.
+  Omega : float , optional
+      Surface rotation rate in OmegaSun (=2.67e-6 rad/s).
+  OmegaEnv : float , optional
+      Surface rotation rate in OmegaSun (=2.67e-6 rad/s).
+  Prot : float , optional
+      Surface rotation period in days.
+  params : dict , optional
+      Dictionary holding model parameters.
+  StarEvo : Mors.stellarevo.StarEvo , optional
+      Instance of StarEvo class holding stellar evolution model data.
+  
+  Returns
+  ----------
+  Lly : float
+      Lyman-alpha luminosity in erg s^-1.
+  
+  """
+  
+  # Get dictionary with all luminosities
+  LxuvDict = Lxuv(Mstar=Mstar,Age=Age,Omega=Omega,OmegaEnv=OmegaEnv,Prot=Prot,params=params,StarEvo=StarEvo)
+  
+  return LxuvDict['Lly']
 
 #====================================================================================================================
 
@@ -620,15 +866,24 @@ def _torqueWind(StarState,params=params.paramsDefault):
 
 #====================================================================================================================
 
+def _Omega(Prot):
+  """Takes rotation period in days, returns angular velocity in OmegaSun."""
+  return 2.0*const.Pi / ( Prot*const.day ) / const.OmegaSun
+
+#====================================================================================================================
+
+def _Prot(Omega):
+  """Takes angular velocity in OmegaSun, returns rotation period in days."""
+  return 2.0*const.Pi / ( Omega*const.OmegaSun ) / const.day
+
+#====================================================================================================================
+
 def _Ro(StarState):
   
   """Takes state of star, returns Rossby number."""
   
-  # Get rotation period from surface rotation in days
-  Prot = 2.0 * const.Pi / ( StarState['OmegaEnv']*const.OmegaSun ) / const.day
-  
   # Get Rossby 
-  Ro = Prot / StarState['tauConv']
+  Ro = StarState['Prot'] / StarState['tauConv']
   
   return Ro
 
