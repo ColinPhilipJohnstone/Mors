@@ -8,19 +8,23 @@ Author: Colin P. Johnstone
 
 -------------------------------------------------------------------------------------------------------------
 
+This code solves the stellar rotation and XUV evolution model presented in Johnstone et al. (2020). The package can be used to calculate evolutionary tracks for stellar rotaton and X-ray, EUV, and Ly-alpha emission for stars with masses between 0.1 and 1.25 Msun and has additional functionality such as allowing the user to get basic stellar parameters such as stellar radius and luminosity as functions of mass and age using the stellar evolution models of Spada et al. (2013). When publishing results that were calculated using this code, both the Johnstone et al. (2020) paper and Spada et al. (2013) should be cited.
+
 
 -------------------------------------------------------------------------------------------------------------
+
 CONTENTS
 1. INSTALLATION
-2. BASIC USAGE 
-3. 
-4. 
-5. 
+2. EVOLUTIONARY CALCULATIONS 
+3. SETTING SIMULATION PARAMETERS
+4. ROTATION AND ACTIVITY QUANTITES
+5. STELLAR EVOLUTION QUANTITIES
+6. CLUSTER EVOLUTION CALCULATIONS
 
 
 -------------------------------------------------------------------------------------------------------------
 
-INSTALLATION
+1. INSTALLATION
 
 1. Prerequisites: The code requires only that an up-to-date version of Python is installed with numpy and matplotlib included. 
 
@@ -59,7 +63,7 @@ where ... can be given as the path relative to the current directory. When this 
 
 -------------------------------------------------------------------------------------------------------------
 
-BASIC USAGE
+2. EVOLUTIONARY CALCULATIONS
 
 The main way that the user is meant to interact with the code is through the Star class. The user can create an instance of the star class, specifying only the mass and star's initial (1 Myr) rotation rate using the Mstar and Omega0 keyword arguments. This can be done for a star with a mass of 1 Msun and an initial rotation of 10x the modern Sun using
 
@@ -103,7 +107,7 @@ More simply, the user can use the function with the name of the desired quantity
 
 -------------------------------------------------------------------------------------------------------------
 
-SETTING UP THE SIMULATION PARAMETERS
+3. SETTING SIMULATION PARAMETERS
 
 In addition to just the masses and initial rotation rates, the basic behavior of the code depends on a large number of parameters all of which have default values and do not need to be changed by the user. These default values cause the code to run the evolutionary model for rotation and XUV emission described in Johnstone et al. (2020) and generally do not need to be changed by the user. However, if the user wishes, these parameters can be changed.
 
@@ -131,9 +135,19 @@ To see a complete list of all parameters that should be set, the user can use th
 
 Or can simply look into the parameters.py file in the main directory where Mors is installed.
 
+The user can set the keyword parameter AgesOut when creating a new Star object to a number or a numpy array and this will cause the code to only include these ages and the starting age in the evolutionary tracks. The ages should be given in Myr. For example
+
+>>> star = mors.Star(Mstar=1.0,Omega=10.0,AgesOut=100.0)
+
+will cause the evolutionary tracks to only contain the starting age of 1 Myr and the specified age of 100 Myr. Similarly
+
+>>> star = mors.Star(Mstar=1.0,Omega=10.0,AgesOut=np.array([100.0,200.0,300.0,400.0]))
+
+will cause the evolutionary tracks to contain 1 Myr, and the specified 100, 200, 300, and 400 Myr ages. The simulations will also end at the oldest year in the array. This array should be in ascending order. This is not recommended if the user wants to extract quantities at arbitrary ages along evolutionary tracks, for example using star.Lx(Age), since these functions interpolate between the values and if there are not enough age bins in the evolutionary tracks then these results can be inaccurate. Note that having two many age bins in the AgesOut array, e.g. with AgesOut=np.linspace(1.0,5000.0,10000), will cause the calculations of the evolutionary tracks to be very slow.
+
 -------------------------------------------------------------------------------------------------------------
 
-BASIC ROTATION AND ACTIVITY QUANTITES
+4. ROTATION AND ACTIVITY QUANTITES
 
 The code gives the user the ability to use the basic functions for calculating many activity related quantities as functions os stellar properties. For example, the user can calculate XUV luminosities from stellar mass, age, and rotation rates using the Lxuv function. For example, 
 
@@ -175,7 +189,7 @@ This returns a larger dictionary with many other quantities, including some basi
 
 -------------------------------------------------------------------------------------------------------------
 
-BASIC STELLAR EVOLUTION
+5. STELLAR EVOLUTION QUANTITIES
 
 The rotation and activity evolution model requires that various basic stellar properties such as bolometric luminosity, radius, and convective turnover time, can be accessed at all ages for for all masses within the mass range considered (0.1 to 1.25 Msun). These are calculated using the evolutionary tracks fronm Spada et al. (2013) and the functions that do this are available to the user. First import the Mors package
 
@@ -218,6 +232,15 @@ The first time one of these functions is called, the code loads all of the evolu
 If a track for that specific mass is already loaded, this will do nothing. 
 
 -------------------------------------------------------------------------------------------------------------
+
+6. CLUSTER EVOLUTION CALCULATIONS
+
+
+-------------------------------------------------------------------------------------------------------------
+
+
+
+
 
 BELOW IS PART OF OLD DESCRIPTION AND MAYBE SHOULD BE REMOVED
 

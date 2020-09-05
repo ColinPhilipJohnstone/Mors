@@ -24,6 +24,8 @@ def SetDefaultParameters(paramsDefault):
   paramsDefault['AgeMaxDefault'] = 5000.0                   # Myr - default age to end evolutionary tracks
   paramsDefault['deltaJac'] = 1.0e-5                        # pertubation to use when calculating Jacobian for Rosenbrock solver
   paramsDefault['CoefficientsRB'] = _CoefficientsRB()       # all coefficents needed for the Rosenbrock solver
+  paramsDefault['dAgeMin'] = 1.0e-5                         # Myr - minimum timestep to allow
+  paramsDefault['dAgeMax'] = 5000.0                         # Myr - maximum timestep to allow
 
   # Physical processes to include
   paramsDefault['CoreEnvelopeDecoupling'] = True            # should core envelope decoupling be included

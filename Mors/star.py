@@ -35,7 +35,7 @@ class Star:
   
   #---------------------------------------------------------------------------------------
 
-  def __init__(self,Mstar=None,Age=None,Omega=None,OmegaEnv=None,OmegaCore=None,starEvoDir=None,evoModels=None,params=params.paramsDefault):
+  def __init__(self,Mstar=None,Age=None,Omega=None,OmegaEnv=None,OmegaCore=None,AgesOut=None,starEvoDir=None,evoModels=None,params=params.paramsDefault):
     
     """
     Initialises instance of star class.
@@ -83,7 +83,7 @@ class Star:
     #self.OmegaCore = OmegaCore
     
     # Get evolutionary tracks 
-    self._LoadEvoTracks(Age,OmegaEnv,OmegaCore)
+    self._LoadEvoTracks(Age,OmegaEnv,OmegaCore,AgesOut=AgesOut)
     
     return
   
@@ -103,7 +103,7 @@ class Star:
   
   #---------------------------------------------------------------------------------------
   
-  def _LoadEvoTracks(self,Age,OmegaEnv0,OmegaCore0):
+  def _LoadEvoTracks(self,Age,OmegaEnv0,OmegaCore0,AgesOut=None):
     
     """Loads rotation and activity tracks."""
     
@@ -135,7 +135,7 @@ class Star:
     
     # Run evolution model using OmegaEnv0 and OmegaCore0 as initial rotation rate
     self.Tracks = RE.EvolveRotation( Mstar=self.Mstar , OmegaEnv0=OmegaEnv0 , OmegaCore0=OmegaCore0 , 
-                                    AgeMin=self.AgeMin , AgeMax=self.AgeMax , 
+                                    AgeMin=self.AgeMin , AgeMax=self.AgeMax , AgesOut=AgesOut ,
                                     params=self.params , StarEvo=self.StarEvo )
     
     # Make evolutionary tracks attributes of this class 

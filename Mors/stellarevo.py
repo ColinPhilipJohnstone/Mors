@@ -920,7 +920,7 @@ def _getIndexLT(Xarray,X):
   # Get smaller value by taking difference of X and all Xarray elements
   # then removing all values smaller than 0.0 (i.e. those larger than X)
   deltaX = X - Xarray
-  deltaX[np.where(deltaX<0.0)] = np.max(deltaX)
+  deltaX[np.where(deltaX<0.0)] = np.max(deltaX)*1.1+0.1
   
   # Get index
   index = np.argmin(deltaX)
@@ -940,7 +940,7 @@ def _getIndexGT(Xarray,X):
   # Get smaller value by taking difference of X and all Xarray elements
   # then removing all values smaller than 0.0 (i.e. those larger than X)
   deltaX = Xarray - X
-  deltaX[np.where(deltaX<0.0)] = np.max(deltaX)
+  deltaX[np.where(deltaX<0.0)] = np.max(deltaX)*1.1+0.1
   
   # Get index
   index = np.argmin(deltaX)

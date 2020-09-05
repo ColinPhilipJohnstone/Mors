@@ -140,7 +140,7 @@ def FitRotation(Mstar=None,Age=None,Omega=None,AgeMin=None,params=params.paramsD
 
 #====================================================================================================================
 
-def EvolveRotation(Mstar=None,Omega0=None,OmegaEnv0=None,OmegaCore0=None,AgeMin=None,AgeMax=None,params=params.paramsDefault,StarEvo=None):
+def EvolveRotation(Mstar=None,Omega0=None,OmegaEnv0=None,OmegaCore0=None,AgeMin=None,AgeMax=None,AgesOut=None,params=params.paramsDefault,StarEvo=None):
   
   """
   Takes stellar mass and rotation rate, evolves rotation. 
@@ -162,6 +162,8 @@ def EvolveRotation(Mstar=None,Omega0=None,OmegaEnv0=None,OmegaCore0=None,AgeMin=
       Starting age (default = 1 Myr).
   AgeMax : float , optional
       Final age (default = 5 Gyr).
+  AgesOut : float or numpy.ndarray , optional
+      Ages to output data for in Myr.
   params : dict , optional
       Parameters to determine behavior of code (default given in parameters.py).
   StarEvo : Mors.stellarevo.StarEvo
@@ -194,6 +196,19 @@ def EvolveRotation(Mstar=None,Omega0=None,OmegaEnv0=None,OmegaCore0=None,AgeMin=
   if AgeMax is None:
     AgeMax = params['AgeMaxDefault']
   
+  # Make editable and np array form of AgesOut and use this from now on
+  if not AgesOut is None:
+    if ( type(AgesOut) == float ) or ( type(AgesOut) == int ):
+      AgesOut2 = np.array([AgesOut])
+    else:
+      AgesOut2 = copy.deepcopy(AgesOut)
+  else:
+    AgesOut2 = None
+  
+  # If AgesOut has been set, use the final age from that as ending age
+  if not AgesOut2 is None:
+    AgeMax = AgesOut2[-1]
+  
   # If an instance of the StarEvo class is not input, load it with defaults
   if StarEvo is None:
     StarEvo = SE.StarEvo()
@@ -207,6 +222,10 @@ def EvolveRotation(Mstar=None,Omega0=None,OmegaEnv0=None,OmegaCore0=None,AgeMin=
   
   # Starting timestep in Myr
   dAge = 0.5
+  
+  # If AgesOut was set, make sure no ages are below AgeMin
+  if not AgesOut2 is None:
+    AgesOut2 = np.delete( AgesOut2 , np.where(AgesOut2<AgeMin) )
   
   # Starting rotation rates
   if Omega0 is None:
@@ -222,11 +241,8 @@ def EvolveRotation(Mstar=None,Omega0=None,OmegaEnv0=None,OmegaCore0=None,AgeMin=
   # Start looping, end only when end time is reached (additional 0.999 factor to stop code getting stuck)
   while ( Age < 0.999*AgeMax ):
     
-    # Get maximum timestep in Myr
-    dAgeMax = AgeMax - Age
-    
     # Make sure timestep is not too long
-    dAge = min( dAge , dAgeMax )
+    dAge , dAgeMax = _dAgeCalc(dAge,Age,AgeMax,AgesOut2,params)
     
     # Do timestep
     dAge , dAgeNew , OmegaEnv , OmegaCore = EvolveRotationStep( Mstar=Mstar , Age=Age , 
@@ -238,8 +254,12 @@ def EvolveRotation(Mstar=None,Omega0=None,OmegaEnv0=None,OmegaCore0=None,AgeMin=
     iAge += 1
     Age += dAge
     
-    # Add current state to tracks
-    Tracks = _AppendTracks(Tracks,Mstar,Age,dAge,OmegaEnv,OmegaCore,params,StarEvo)
+    # Work out if should add this age to output
+    AgesOut2 , shouldAppend = _shouldAppend(Age,AgesOut2)
+    
+    # Add current state to tracks if should output
+    if shouldAppend:
+      Tracks = _AppendTracks(Tracks,Mstar,Age,dAge,OmegaEnv,OmegaCore,params,StarEvo)
     
     # Check for bad data
     _CheckBadData(Tracks)
@@ -256,6 +276,83 @@ def EvolveRotation(Mstar=None,Omega0=None,OmegaEnv0=None,OmegaCore0=None,AgeMin=
   Tracks['nAge'] = len(Tracks['Age'])
   
   return Tracks
+
+#====================================================================================================================
+
+def _dAgeCalc(dAge,Age,AgeMax,AgesOut,params):
+  
+  """Takes information about age in evolutionary calculation, returns age step to use."""
+  
+  # Get maximum timestep in Myr
+  dAgeMax = AgeMax - Age
+  
+  # If AgesOut has been set, work out maximum from that
+  if not AgesOut is None:
+    
+    # If AgesOut is just a number (float or int) then it is easy
+    if ( type(AgesOut) == float ) or ( type(AgesOut) == int ):
+      
+      # Get new maximum age
+      dAgeMax = AgesOut - Age
+      
+    else:
+      
+      # Get index of next age in AgesOut after current Age
+      index = SE._getIndexGT(AgesOut,Age)
+      
+      # Get new maximum age
+      dAgeMax = AgesOut[index] - Age
+    
+  # Make sure timestep is not too long
+  dAge = min( dAge , dAgeMax )
+  
+  # Make sure dAge is within range in parameter file
+  dAge = max( dAge , params['dAgeMin'] )
+  dAge = min( dAge , params['dAgeMax'] )
+  
+  return dAge , dAgeMax
+
+#====================================================================================================================
+
+def _shouldAppend(Age,AgesOut):
+  
+  """Takes information about age in evolutionary calculation, returns if age should be output."""
+  
+  # If AgesOut is not set, then should always output
+  if AgesOut is None:
+    return AgesOut , True
+  
+  # If AgesOut is set, work out if this is one of the output ages
+  if not AgesOut is None:
+    
+    # If AgesOut is just a number (float or int) then it is easy
+    if ( type(AgesOut) == float ) or ( type(AgesOut) == int ):
+      
+      # Check if close enough to AgesOut to output
+      if ( abs(Age/float(AgesOut))-1.0 < 1.0e-6 ):
+        return AgesOut , True
+      else:
+        return AgesOut , False
+    
+    else:
+      
+      # Get smallest distance between age in AgesOut and current Age
+      indexMin = np.argmin( np.abs(AgesOut-Age) )
+      deltaAgeMin = np.min( np.abs(AgesOut-Age) )
+      
+      # Since we are removing this output age each time, indexMin should always be zero
+      if not indexMin == 0:
+        misc._PrintErrorKill("indexMin is not zero, probably because the input AgesOut is not in ascending order")
+      
+      # If age is close enough to element in AgesOut then remove this element and return True
+      if deltaAgeMin < 1.0e-3:
+        AgesOut = np.delete(AgesOut,indexMin)
+        return AgesOut , True
+      
+      else:
+        return AgesOut , False
+  
+  return AgesOut , False
 
 #====================================================================================================================
 
