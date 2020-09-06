@@ -7,6 +7,7 @@
 import sys
 import inspect
 import numpy as np
+import os
 
 # Imports for Mors modules
 import Mors.miscellaneous as misc
@@ -33,7 +34,7 @@ class Cluster:
   
   #---------------------------------------------------------------------------------------
   
-  def __init__(self,Mstar=None,Age=None,Omega=None,OmegaEnv=None,OmegaCore=None,AgesOut=None,starEvoDir=None,evoModels=None,params=params.paramsDefault):
+  def __init__(self,Mstar=None,Age=None,Omega=None,OmegaEnv=None,OmegaCore=None,AgesOut=None,starEvoDir=None,evoModels=None,params=params.paramsDefault,verbose=False):
     
     """
     Initialises instance of Cluster class.
@@ -88,13 +89,13 @@ class Cluster:
     self.evoModels = evoModels
     
     # Get evolutionary tracks 
-    self._LoadEvoTracks(Age,OmegaEnv,OmegaCore)
+    self._LoadEvoTracks(Age,OmegaEnv,OmegaCore,verbose)
     
     return
   
   #---------------------------------------------------------------------------------------
   
-  def _LoadEvoTracks(self,Age,OmegaEnv0,OmegaCore0):
+  def _LoadEvoTracks(self,Age,OmegaEnv0,OmegaCore0,verbose):
     
     """Loads rotation and activity tracks for each star."""
     
@@ -103,6 +104,11 @@ class Cluster:
     
     # Loop over each star and load each one
     for iStar in range(0,len(self.Mstar)):
+      
+      # Print to screen if verbose was set by user
+      if verbose:
+        #print(f"\rLoading star "+str(iStar)+" out of "+str(self.nStars),end="")
+        print("Loading star "+str(iStar)+" out of "+str(self.nStars)+" in cluster",end="\r")
       
       # Get parameters for this star in right type
       MstarStar = float(self.Mstar[iStar])
@@ -125,13 +131,15 @@ class Cluster:
       
       # Also make this star an attribute of the class
       setattr( self , "star"+str(iStar) , starTemp )
-      
+    
+    # Make new line if printing status to screen
+    if verbose:
+      print("")
+    
     # Make functions for each quantity that return this quantity at a given age as attributes of class
     # A description of how the code below works is given in the star class function with the same name
     # as this function. In this case, the code does it based on the quantities held in the first star. 
     for track in self.stars[0].Tracks:
-      
-      print(track)
       
       exec( "def "+track+"(self,Age):\n  return self.Values(Age=Age,Quantity='"+track+"')" )
       exec( "setattr( self.__class__ , '"+track+"' , "+track+" )" )
@@ -177,6 +185,24 @@ class Cluster:
   
   #---------------------------------------------------------------------------------------
   
+  def PrintStars(self):
+    
+    """Prints list of stars in cluster to screen."""
+    
+    # Header
+    print("The following is a list of masses for stars in this cluster.")
+    
+    # Loop over each star and print basic parameters
+    for iStar in range(0,self.nStars):
+      print("   "+str(iStar)+". "+str(self.Mstar[iStar])+" Msun")
+    
+    # Total number of stars
+    print("Number of stars in cluster = "+str(self.nStars))
+    
+    return
+  
+  #---------------------------------------------------------------------------------------
+  
 #====================================================================================================================
 
 def _CheckInputRotation(Age,Omega,OmegaEnv,OmegaCore):
@@ -206,5 +232,41 @@ def _CheckInputRotation(Age,Omega,OmegaEnv,OmegaCore):
   
   
   return Omega , OmegaEnv , OmegaCore
+
+#====================================================================================================================
+
+def LoadModelCluster():
+  
+  """Reads the model cluster used in Johnstone et al. (2020)."""
+  
+  # Get directory where package is installed
+  packageDir = misc._GetPackageDirectory()
+  
+  # Set filename including path
+  filename = packageDir + "ModelDistribution.dat"
+  
+  # Read lines of file
+  with open(filename) as f:
+      content = f.readlines()
+  
+  # Set number of header lines
+  nHeader = 1
+  
+  # Get number of steps in file
+  nStars = len(content) - nHeader
+  
+  # Make arrays
+  Mstar = np.zeros(nStars)
+  Omega = np.zeros(nStars)
+  
+  # Loop over lines and fill arrays
+  iStar = 0
+  for line in content[nHeader:len(content)]:
+    data = line.split()
+    Mstar[iStar] = data[0]
+    Omega[iStar] = data[1]
+    iStar += 1
+  
+  return Mstar , Omega
 
 #====================================================================================================================
