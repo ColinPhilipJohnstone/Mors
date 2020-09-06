@@ -38,13 +38,13 @@ class Star:
   def __init__(self,Mstar=None,Age=None,Omega=None,OmegaEnv=None,OmegaCore=None,AgesOut=None,starEvoDir=None,evoModels=None,params=params.paramsDefault):
     
     """
-    Initialises instance of star class.
+    Initialises instance of Star class.
     
     This is the main function that is run when creating an instance of the Star class and it sets up all
     the things needed including calculating evolutionary tracks for the star. The function requires that
     the arguments Mstar (the star's mass in Msun) and Omega (in OmegaSun=2.67e-6 rad s^-1) are specified
-    in the call. Alternatively, OmegaEnv and OmegaCore can be set, in which case Omega does not set to 
-    by specified. If the argument Age (in Myr) is also specified, then the code will find the evolutionary
+    in the call. Alternatively, OmegaEnv and OmegaCore can be set, in which case Omega does not need to 
+    be specified. If the argument Age (in Myr) is also specified, then the code will find the evolutionary
     track that passes through this rotation rate at this age, otherwise if Age is not set then it will 
     calculate evolutionary tracks assuming this Omega as the initial (1 Myr) rotation rate. The user should
     not specify OmegaCore and Age simultaneously, and if Age is set then either Omega or OmegaEnv can be
@@ -75,12 +75,6 @@ class Star:
     
     # Load evo tracks if Mstar is set
     self._LoadStarEvo()
-    
-    # Set Age, and Omega
-    #self.Age = Age
-    #self.Omega = Omega
-    #self.OmegaEnv = OmegaEnv
-    #self.OmegaCore = OmegaCore
     
     # Get evolutionary tracks 
     self._LoadEvoTracks(Age,OmegaEnv,OmegaCore,AgesOut=AgesOut)

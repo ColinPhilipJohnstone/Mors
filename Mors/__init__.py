@@ -1,6 +1,9 @@
 
-# The basic star class that people should be using
+# The basic Star class that people should be using
 from .star import Star
+
+# The basic Cluster class that people should be using
+from .cluster import Cluster
 
 # Parameters
 from .parameters import PrintParams , NewParams
