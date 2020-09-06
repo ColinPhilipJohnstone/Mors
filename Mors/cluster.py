@@ -8,6 +8,7 @@ import sys
 import inspect
 import numpy as np
 import os
+import pickle
 
 # Imports for Mors modules
 import Mors.miscellaneous as misc
@@ -199,6 +200,22 @@ class Cluster:
     # Total number of stars
     print("Number of stars in cluster = "+str(self.nStars))
     
+    return
+  
+  #---------------------------------------------------------------------------------------
+  
+  def Save(self,filename='cluster.pickle'):
+    
+    """Takes filename (default is 'cluster.pickle'), saves cluster to this file using pickle."""
+    
+    with open(filename,'wb') as f:
+      pickle.dump(self,f)
+    
+    return
+  
+  def save(self,filename='cluster.pickle'):
+    """Same as Save()."""
+    self.Save(filename=filename)
     return
   
   #---------------------------------------------------------------------------------------

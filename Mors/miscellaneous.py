@@ -4,6 +4,7 @@
 import inspect
 import sys
 import numpy as np
+import pickle
 
 #==================================================================================================================
 
@@ -102,5 +103,16 @@ def _convertFloatArray(Xin):
     return X
   
   return
+
+#==================================================================================================================
+
+def Load(filename):
+  
+  """Takes filename of saved star or cluster and loads object."""
+  
+  with open(filename,'rb') as f:
+    obj = pickle.load(f)
+  
+  return obj
 
 #==================================================================================================================

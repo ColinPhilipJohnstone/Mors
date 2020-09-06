@@ -21,3 +21,5 @@ from .physicalmodel import dOmegadt , RotationQuantities , ExtendedQuantities , 
 # Rotational evolution stuff
 from .rotevo import EvolveRotation , EvolveRotationStep
 
+# Some other stuff
+from .miscellaneous import Load

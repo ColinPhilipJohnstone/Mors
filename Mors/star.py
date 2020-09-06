@@ -205,6 +205,21 @@ class Star:
     return
   
   #---------------------------------------------------------------------------------------
+   
+  def Save(self,filename='star.pickle'):
+    
+    """Takes filename (default is 'star.pickle'), saves cluster to this file using pickle."""
+    
+    with open(filename,'wb') as f:
+      pickle.dump(self,f)
+    
+    return
+  
+  def save(self,filename='star.pickle'):
+    """Same as Save()."""
+    self.Save(filename=filename)
+    return
+  #---------------------------------------------------------------------------------------
   
 #====================================================================================================================
 
