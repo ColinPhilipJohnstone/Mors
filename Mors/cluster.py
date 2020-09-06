@@ -68,17 +68,17 @@ class Cluster:
     if not ( len(Mstar) == len(OmegaCore) ):
       misc._PrintErrorKill("Mstar and OmegaCore have different lengths")
     
+    # Set number of stars
+    self.nStars = len(Mstar)
+    
     # Set parameters
     self.params = params
     
     # Set the ExtendedTracks parameter to True so we get all parameters
     self.params['ExtendedTracks'] = True
     
-    # Set Mstar and rotation arrays
+    # Set Mstar arrays
     self.Mstar = Mstar
-    self.Omega = Omega
-    self.OmegaEnv = OmegaEnv
-    self.OmegaCore = OmegaCore
     
     # Set AgesOut 
     self.AgesOut = AgesOut
@@ -88,14 +88,13 @@ class Cluster:
     self.evoModels = evoModels
     
     # Get evolutionary tracks 
-    self._LoadEvoTracks(Age)
+    self._LoadEvoTracks(Age,OmegaEnv,OmegaCore)
     
     return
   
-  
   #---------------------------------------------------------------------------------------
   
-  def _LoadEvoTracks(self,Age):
+  def _LoadEvoTracks(self,Age,OmegaEnv0,OmegaCore0):
     
     """Loads rotation and activity tracks for each star."""
     
@@ -106,10 +105,9 @@ class Cluster:
     for iStar in range(0,len(self.Mstar)):
       
       # Get parameters for this star in right type
-      Mstar = float(self.Mstar[iStar])
-      Omega = float(self.Omega[iStar])
-      OmegaEnv = float(self.OmegaEnv[iStar])
-      OmegaCore = float(self.OmegaCore[iStar])
+      MstarStar = float(self.Mstar[iStar])
+      OmegaEnvStar = float(OmegaEnv0[iStar])
+      OmegaCoreStar = float(OmegaCore0[iStar])
       
       # Get Age depending on if it is an array or a float/int
       if Age is None:
@@ -120,18 +118,62 @@ class Cluster:
         AgeIn = Age[iStar]
       
       # Create instance of star class for this star
-      starTemp = star.Star(Mstar=Mstar,Age=AgeIn,OmegaEnv=OmegaEnv,OmegaCore=OmegaCore,AgesOut=self.AgesOut,starEvoDir=self.starEvoDir,evoModels=self.evoModels,params=self.params)
+      starTemp = star.Star(Mstar=MstarStar,Age=AgeIn,OmegaEnv=OmegaEnvStar,OmegaCore=OmegaCoreStar,AgesOut=self.AgesOut,starEvoDir=self.starEvoDir,evoModels=self.evoModels,params=self.params)
       
       # Append dictionary
       self.stars.append(starTemp)
       
-      # Also make this an attribute of the class
+      # Also make this star an attribute of the class
       setattr( self , "star"+str(iStar) , starTemp )
+      
+    # Make functions for each quantity that return this quantity at a given age as attributes of class
+    # A description of how the code below works is given in the star class function with the same name
+    # as this function. In this case, the code does it based on the quantities held in the first star. 
+    for track in self.stars[0].Tracks:
+      
+      print(track)
+      
+      exec( "def "+track+"(self,Age):\n  return self.Values(Age=Age,Quantity='"+track+"')" )
+      exec( "setattr( self.__class__ , '"+track+"' , "+track+" )" )
     
     return
   
   #---------------------------------------------------------------------------------------
   
+  def Values(self,Age=None,Quantity=None):
+    
+    """
+    Takes age in Myr and a string with name of quantity to output, returns value of that quantity at specified age for all stars.
+    
+    
+    Parameters
+    ----------
+    Age : float
+        Age of cluster.
+    Quantity : str
+        String holding name of parameter to get.
+    
+    Returns
+    ----------
+    values : numpy.ndarray
+        Set of extended quantities.
+    
+    """
+    
+    # Make sure input parameters are set
+    if Age is None:
+      misc._PrintErrorKill("keyword parameter Age not set in call to function")
+    if Quantity is None:
+      misc._PrintErrorKill("keyword parameter Quantity not set in call to function")
+    
+    # Make array to hold values
+    values = np.zeros(self.nStars)
+    
+    # Loop over stars and get values for each
+    for iStar in range(0,self.nStars):
+      values[iStar] = self.stars[iStar].Value(Age=Age,Quantity=Quantity)
+    
+    return values
   
   #---------------------------------------------------------------------------------------
   
