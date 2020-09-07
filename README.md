@@ -120,7 +120,7 @@ By default, the data will be saved into a file called 'star.pickle' but using th
 
 -------------------------------------------------------------------------------------------------------------
 
-3. PERCENTILES AND MODEL DISTRIBUTION
+3. MODEL DISTRIBUTION AND PERCENTILES
 
 It is possible when creating an instance of the Star class to specify the initial rotation as a percentile of the model distribution from Johnstone et al. (2020). This model distribution is composed of measured rotation distributions from several clusters with ages of ~150 Myr evolved back to 1 Myr. To get the masses and initial rotation rates of the model cluster, use the function ModelCluster().
 
@@ -138,9 +138,23 @@ This creates a solar mass star with an initial rotation rate equal to the 5th pe
 
 To calculate this percentile, the parameter dMstarPer is used and can be set if the user sets up their own parameters as discussed above. This is set by default to 0.1, meaning that all stars within 0.1 Msun of the specified Mstar will be considered.
 
+Regardless of how a star is setup, the percentile in the model distribution is calculated after the evolutionary tracks are calculated and stored in the percentile attribute of the class. It can be seen using
 
+>>> print(star.percentile)
 
+If the user wants to find out the percentile of a given rotation race for a given mass, they can use the the Percentile function, specifying the star's mass and surface rotation rate, either as a rotation velocity in OmegaSun using the Omega (or OmegaEnv) keyword argument, or as a rotation period in days using the Prot keyword argument. For example
 
+>>> print(mors.Percentile(Mstar=1.0,Omega=10.0))
+
+This will print to the screen where in the starting (1 Myr) distribution a solar mass star rotating at 10x the current Sun is, using the model distribution from Johnstone et al. (2020). Or for a star was a 1 day rotation period
+
+>>> print(mors.Percentile(Mstar=1.0,Prot=1.0))
+
+Alternatively, the user can specify the percentile and get the corresponding rotation rate
+
+>>> print(mors.Percentile(Mstar=1.0,percentile=10.0))
+
+This prints the rotation rate of the 10th percentile for solar mass stars in OmegaSun.
 
 -------------------------------------------------------------------------------------------------------------
 
