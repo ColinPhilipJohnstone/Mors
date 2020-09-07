@@ -36,7 +36,7 @@ class Star:
   
   #---------------------------------------------------------------------------------------
 
-  def __init__(self,Mstar=None,Age=None,Omega=None,OmegaEnv=None,OmegaCore=None,AgesOut=None,starEvoDir=None,evoModels=None,params=params.paramsDefault):
+  def __init__(self,Mstar=None,Age=None,percentile=None,Omega=None,Prot=None,OmegaEnv=None,OmegaCore=None,AgesOut=None,starEvoDir=None,evoModels=None,params=params.paramsDefault):
     
     """
     Initialises instance of Star class.
@@ -49,8 +49,32 @@ class Star:
     track that passes through this rotation rate at this age, otherwise if Age is not set then it will 
     calculate evolutionary tracks assuming this Omega as the initial (1 Myr) rotation rate. The user should
     not specify OmegaCore and Age simultaneously, and if Age is set then either Omega or OmegaEnv can be
-    used to specify the surface rotation rate.
+    used to specify the surface rotation rate. The user can also specify the initial rotation rate using 
     
+    Parameters
+    ----------
+    Mstar : float
+        Stellar mass in Msun.
+    Age : float , optional
+        Age in Myr of the input rotation rate (default = 1 Myr).
+    Omega : float , optional
+        Rotation rate of star at Age in OmegaSun.
+    Prot : float , optional
+        Rotation period of star at Age in days.
+    OmegaEnv : float , optional
+        Envelope rotation rate of star at Age in OmegaSun.
+    OmegaCore : float , optional
+        Core rotation rate of star at Age in OmegaSun.
+    percentile : float , optional
+        Percentile in 1 Myr distribution (between 0 and 100).
+        
+    params : dict , optional
+        Parameter dictionary used for getting width of bin to use for distribution.
+    
+    Returns
+    ----------
+    None
+        None
     
     """
     
@@ -59,7 +83,7 @@ class Star:
     
     # Make sure Omega, OmegaEnv, and OmegaCore are well set
     # (if Omega is set, OmegaEnv and OmegaCore will both be set to that value)
-    Omega , OmegaEnv , OmegaCore = _CheckInputRotation(Age,Omega,OmegaEnv,OmegaCore)
+    Omega , OmegaEnv , OmegaCore = _InputRotation(Mstar,Age,Omega,OmegaEnv,OmegaCore,Prot,percentile,params)
     
     # Set parameters
     self.params = params
@@ -118,9 +142,9 @@ class Star:
       
       # Make sure a correct initial rotation rate was found
       if ( Omega0 == -1 ):
-        misc._PrintErrorKill("input rotation rate too high for given mass and age")
-      if ( Omega0 == -2 ):
         misc._PrintErrorKill("input rotation rate too low for given mass and age")
+      if ( Omega0 == -2 ):
+        misc._PrintErrorKill("input rotation rate too high for given mass and age")
       if ( Omega0 == -3 ):
         misc._PrintErrorKill("input rotation rate in valid range for mass and age but solver was unable to fit track")
       
@@ -132,6 +156,9 @@ class Star:
     self.Tracks = RE.EvolveRotation( Mstar=self.Mstar , OmegaEnv0=OmegaEnv0 , OmegaCore0=OmegaCore0 , 
                                     AgeMin=self.AgeMin , AgeMax=self.AgeMax , AgesOut=AgesOut ,
                                     params=self.params , StarEvo=self.StarEvo )
+    
+    # Set the percentile of this track in the starting distribution
+    self.percentile = Percentile( Mstar=self.Mstar , Omega=OmegaEnv0 )
     
     # Make evolutionary tracks attributes of this class 
     # (this is so the user can get a track using e.g. star.Age instead of star.Tracks['Age'])
@@ -248,20 +275,61 @@ def _CheckInputMstar(Mstar):
 
 #====================================================================================================================
 
-def _CheckInputRotation(Age,Omega,OmegaEnv,OmegaCore):
+def _InputRotation(Mstar,Age,Omega,OmegaEnv,OmegaCore,Prot,percentile,params):
   
-  """Takes input rotation, checks if values are setup correctly."""
+  """Takes input rotation values, checks sets up values correctly."""
+  
+  # Make sure percentile and rotation are not both set
+  if not percentile is None: 
+    if not Omega is None :
+      misc._PrintErrorKill( "cannot set both percentile and Omega as arguments of Star" )
+    if not OmegaEnv is None :
+      misc._PrintErrorKill( "cannot set both percentile and OmegaEnv as arguments of Star" )
+    if not OmegaCore is None :
+      misc._PrintErrorKill( "cannot set both percentile and OmegaCore as arguments of Star" )
+    if not Prot is None :
+      misc._PrintErrorKill( "cannot set both percentile and Prot as arguments of Star" )
+    
+  # Make sure percentile and OmegaEnv are not both set
+  if ( not percentile is None ) and ( not OmegaEnv is None ):
+    misc._PrintErrorKill( "cannot set both percentile and OmegaEnv as arguments of Star" )
+  
+  # If percentile was set to a string, get float version
+  if ( type(percentile) == str ):
+    if ( percentile == 'slow' ):
+      percentile = 5.0
+    elif ( percentile == 'medium' ):
+      percentile = 50.0
+    elif ( percentile == 'fast' ):
+      percentile = 95.0
+    else:
+      misc._PrintErrorKill( "invalid percentile string (options are 'slow', 'medium', or 'fast')" )
+  
+  # If percentile was set, get Omega
+  if not percentile is None:
+    Omega = Percentile(Mstar=Mstar,percentile=percentile,params=params)
   
   # Make sure if Age is set that OmegaCore is not set
   if ( not Age is None ) and ( not OmegaCore is None ):
     misc._PrintErrorKill( "cannot set both Age and OmegaCore as arguments of Star" )
   
+  # Make sure not both Omega and Prot were set
+  if ( not Omega is None ) and ( not Prot is None ):
+    misc._PrintErrorKill( "cannot set both Omega and Prot as arguments of Star" )
+  
+  # If Prot is set, get Omega
+  if not Prot is None:
+    Omega = phys._Omega(Prot)
+  
   # Make sure at least one rotation rate is set
   if ( Omega is None ):
     
-    # Since Omega is not set, make sure both OmegaEnv and OmegaCore are set
-    if ( OmegaEnv is None ) or ( OmegaCore is None ):
-      misc._PrintErrorKill( "must set either Omega or both OmegaEnv and OmegaCore as arugment of Star" )
+    # If Age is set then make sure OmegaEnv is set, otherwise make sure both OmegaEnv and OmegaCore are set
+    if ( not Age is None ): 
+      if ( OmegaEnv is None ):
+        misc._PrintErrorKill( "if Age is set then must set either Omega or OmegaEnv as argument of Star" )
+    elif ( OmegaEnv is None ) or ( OmegaCore is None ):
+      misc._PrintErrorKill( "must set either Omega or both OmegaEnv and OmegaCore as argument of Star" )
   
   else:
     
@@ -273,9 +341,7 @@ def _CheckInputRotation(Age,Omega,OmegaEnv,OmegaCore):
     OmegaEnv = Omega
     OmegaCore = Omega
   
-  
   return Omega , OmegaEnv , OmegaCore
-
 
 #====================================================================================================================
 
@@ -303,7 +369,7 @@ def Percentile(Mstar=None,Omega=None,Prot=None,percentile=None,MstarDist=None,Om
   Prot : float , optional
       Rotation period of star in days.
   percentile : float , optional
-      Percentile in distribution (between 0 and 100).
+      percentile in distribution (between 0 and 100).
   MstarDist : numpy.ndarray , optional
       Array of masses of stars in distribution.
   OmegaDist : numpy.ndarray , optional
@@ -361,7 +427,7 @@ def Percentile(Mstar=None,Omega=None,Prot=None,percentile=None,MstarDist=None,Om
   # Work out which one to do
   if not percentile is None:
     
-    # Percentile was set, so get corresponding rotation rates
+    # percentile was set, so get corresponding rotation rates
     result = _OmegaPercentile(Mstar,percentile,MstarDist,OmegaDist,params)
   
   else:

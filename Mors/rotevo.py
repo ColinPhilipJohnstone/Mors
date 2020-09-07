@@ -109,14 +109,20 @@ def FitRotation(Mstar=None,Age=None,Omega=None,AgeMin=None,params=params.paramsD
     
     # Get middle Omega0
     Omega0Mid = 0.5 * ( Omega0Min + Omega0Max )
-    print(Omega0Min,Omega0Max,OmegaMin,OmegaMax,Omega0Mid)
     
     # Get rotation at mid spot
     Tracks = EvolveRotation(Mstar=Mstar,Omega0=Omega0Mid,AgeMin=params['AgeMinFit'],AgeMax=Age,params=params,StarEvo=StarEvo)
     OmegaMid = Tracks['OmegaEnv'][-1]
     
+    #print(Omega0Min,Omega0Mid,Omega0Max,OmegaMin,Omega,OmegaMax,OmegaMid/Omega,Omega0Min/Omega0Max)
     # Check if OmegaMid is close enough to the desired answer
     if ( abs(OmegaMid/Omega-1.0) < params['toleranceFit'] ):
+      found = True
+      Omega0 = Omega0Mid
+      break
+    
+    # Check if Omega0Min and Omega0Max are is close enough together (closest they will get)
+    if ( abs(Omega0Min/Omega0Max-1.0) < params['toleranceFit'] ):
       found = True
       Omega0 = Omega0Mid
       break

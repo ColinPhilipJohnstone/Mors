@@ -16,10 +16,11 @@ This code solves the stellar rotation and XUV evolution model presented in Johns
 CONTENTS
 1. INSTALLATION
 2. EVOLUTIONARY CALCULATIONS 
-3. SETTING SIMULATION PARAMETERS
-4. ROTATION AND ACTIVITY QUANTITES
-5. STELLAR EVOLUTION QUANTITIES
-6. CLUSTER EVOLUTION CALCULATIONS
+3. PERCENTILES AND MODEL DISTRIBUTION
+4. SETTING SIMULATION PARAMETERS
+5. ROTATION AND ACTIVITY QUANTITES
+6. STELLAR EVOLUTION QUANTITIES
+7. CLUSTER EVOLUTION CALCULATIONS
 
 
 -------------------------------------------------------------------------------------------------------------
@@ -69,6 +70,10 @@ The main way that the user is meant to interact with the code is through the Sta
 
 >>> star = mors.Star(Mstar=1.0,Omega=10.0)
 
+The user can instead set the initial rotation rate using the Prot keyword argument giving the surface rotation period in days.
+
+>>> star = mors.Star(Mstar=1.0,Prot=2.7)
+
 Alternatively, the user can specify starting values for both the core and envelope rotation rates using the OmegaEnv and OmegaCore arguments, though this is usually not recommended.
 
 If the user instead specifies an age the Age and Omega keyword argument, the code will look for the track that passes through the specified surface rotation rate at the specified age. The surface rotation rate can be specified either using Omega or OmegaEnv.
@@ -115,7 +120,31 @@ By default, the data will be saved into a file called 'star.pickle' but using th
 
 -------------------------------------------------------------------------------------------------------------
 
-3. SETTING SIMULATION PARAMETERS
+3. PERCENTILES AND MODEL DISTRIBUTION
+
+It is possible when creating an instance of the Star class to specify the initial rotation as a percentile of the model distribution from Johnstone et al. (2020). This model distribution is composed of measured rotation distributions from several clusters with ages of ~150 Myr evolved back to 1 Myr. To get the masses and initial rotation rates of the model cluster, use the function ModelCluster().
+
+>>> Mstar , Omega = ModelCluster()
+
+If this model cluster is used in any research, please cite the papers listed in Table 1 of Johnstone et al. (2020) for the 150 Myr age bin as the original sources for the rotation measurements (note that the function ModelCluster does not return these measurements, but 1 Myr rotation rates for these stars derived from their measurments using the rotational evolution model of Johnstone et al. 2020). To evolve this cluster, use the Cluster class as described below.
+
+When creating an instance of the Star class, use the keyword argument Percentile to set the initial rotation rate to a percentile of this distribution. This can either be given as a float or int between 0 and 100 or as a string, with the three options being 'slow', 'medium', and 'fast', corresponding to the 5th, 50th, and 95th percentiles of the rotation distribution. For example
+
+>>> star = mors.Star(Mstar=1.0,Percentile=5.0)
+
+This creates a solar mass star with an initial rotation rate equal to the 5th percentile of the rotation distribution at 1 Myr, as determined from our model cluster. This is equivalent to
+
+>>> star = mors.Star(Mstar=1.0,Percentile='slow')
+
+To calculate this percentile, the parameter dMstarPer is used and can be set if the user sets up their own parameters as discussed above. This is set by default to 0.1, meaning that all stars within 0.1 Msun of the specified Mstar will be considered.
+
+
+
+
+
+-------------------------------------------------------------------------------------------------------------
+
+4. SETTING SIMULATION PARAMETERS
 
 In addition to just the masses and initial rotation rates, the basic behavior of the code depends on a large number of parameters all of which have default values and do not need to be changed by the user. These default values cause the code to run the evolutionary model for rotation and XUV emission described in Johnstone et al. (2020) and generally do not need to be changed by the user. However, if the user wishes, these parameters can be changed.
 
@@ -155,7 +184,7 @@ will cause the evolutionary tracks to contain 1 Myr, and the specified 100, 200,
 
 -------------------------------------------------------------------------------------------------------------
 
-4. ROTATION AND ACTIVITY QUANTITES
+5. ROTATION AND ACTIVITY QUANTITES
 
 The code gives the user the ability to use the basic functions for calculating many activity related quantities as functions os stellar properties. For example, the user can calculate XUV luminosities from stellar mass, age, and rotation rates using the Lxuv function. For example, 
 
@@ -197,7 +226,7 @@ This returns a larger dictionary with many other quantities, including some basi
 
 -------------------------------------------------------------------------------------------------------------
 
-5. STELLAR EVOLUTION QUANTITIES
+6. STELLAR EVOLUTION QUANTITIES
 
 The rotation and activity evolution model requires that various basic stellar properties such as bolometric luminosity, radius, and convective turnover time, can be accessed at all ages for for all masses within the mass range considered (0.1 to 1.25 Msun). These are calculated using the evolutionary tracks fronm Spada et al. (2013) and the functions that do this are available to the user. First import the Mors package
 
@@ -241,7 +270,7 @@ If a track for that specific mass is already loaded, this will do nothing.
 
 -------------------------------------------------------------------------------------------------------------
 
-6. CLUSTER EVOLUTION CALCULATIONS
+7. CLUSTER EVOLUTION CALCULATIONS
 
 The code allows the user to calculate the evolution of stellar clusters in addition to single stars. This is done using the Cluster class. An instance of the Cluster class can be created in much the same way as an instance of the Star class using the same input keyword arguments. The only difference is that the masses and rotation rates of the stars should be given as arrays or lists
 
@@ -301,6 +330,9 @@ If this model cluster is used in any research, please cite the papers listed in 
 
 
 -------------------------------------------------------------------------------------------------------------
+
+8. OTHER USEFUL FUNCTIONS
+
 
 
 

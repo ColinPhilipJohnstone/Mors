@@ -77,7 +77,7 @@ def SetDefaultParameters(paramsDefault):
   paramsDefault['AgeMinFit'] = 1.0                          # Myr - starting age for fitting rotation track
   paramsDefault['Omega0FitMin'] = 0.1                       # OmegaSun - minimum starting rotation rate to consider when fitting initial rotation
   paramsDefault['Omega0FitMax'] = 50.0                      # OmegaSun - maximum starting rotation rate to consider when fitting initial rotation
-  paramsDefault['nStepMaxFit'] = 10000                      # maximum number of steps to take when fitting rotation rate
+  paramsDefault['nStepMaxFit'] = 1000                       # maximum number of steps to take when fitting rotation rate
   paramsDefault['toleranceFit'] = 1.0e-5                    # tolerance for fitting initial rotation rate
 
   # Other
