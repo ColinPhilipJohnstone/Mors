@@ -125,7 +125,8 @@ class Cluster:
         AgeIn = Age[iStar]
       
       # Create instance of star class for this star
-      starTemp = star.Star(Mstar=MstarStar,Age=AgeIn,OmegaEnv=OmegaEnvStar,OmegaCore=OmegaCoreStar,AgesOut=self.AgesOut,starEvoDir=self.starEvoDir,evoModels=self.evoModels,params=self.params)
+      starTemp = star.Star(Mstar=MstarStar,Age=AgeIn,OmegaEnv=OmegaEnvStar,OmegaCore=OmegaCoreStar,
+                           AgesOut=self.AgesOut,starEvoDir=self.starEvoDir,evoModels=self.evoModels,params=self.params)
       
       # Append dictionary
       self.stars.append(starTemp)
@@ -183,6 +184,20 @@ class Cluster:
       values[iStar] = self.stars[iStar].Value(Age=Age,Quantity=Quantity)
     
     return values
+  
+  #---------------------------------------------------------------------------------------
+  
+  def Percentile(self,Mstar=None,dMstar=0.1):
+    
+    """
+    
+    
+    """
+    
+    
+    
+    
+    return
   
   #---------------------------------------------------------------------------------------
   
@@ -252,7 +267,7 @@ def _CheckInputRotation(Age,Omega,OmegaEnv,OmegaCore):
 
 #====================================================================================================================
 
-def LoadModelCluster():
+def ModelCluster():
   
   """Reads the model cluster used in Johnstone et al. (2020)."""
   

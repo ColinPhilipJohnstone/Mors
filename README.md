@@ -105,6 +105,14 @@ More simply, the user can use the function with the name of the desired quantity
 
 >>> print( star.Lx(150.0) )
 
+Instances of the Star class can be saved using the Save (or save) functions,
+
+>>> star.Save()
+
+By default, the data will be saved into a file called 'star.pickle' but using the user can specify the name o the file using the filename argument in the call to Save(). Saved stars can be loaded using the Load() function.
+
+>>> star = mors.Load("star.pickle")
+
 -------------------------------------------------------------------------------------------------------------
 
 3. SETTING SIMULATION PARAMETERS
@@ -234,6 +242,62 @@ If a track for that specific mass is already loaded, this will do nothing.
 -------------------------------------------------------------------------------------------------------------
 
 6. CLUSTER EVOLUTION CALCULATIONS
+
+The code allows the user to calculate the evolution of stellar clusters in addition to single stars. This is done using the Cluster class. An instance of the Cluster class can be created in much the same way as an instance of the Star class using the same input keyword arguments. The only difference is that the masses and rotation rates of the stars should be given as arrays or lists
+
+>>> Mstar = np.array( [ 1.0 , 0.5 , 0.75 ] )
+>>> Omega = np.array( [ 10.0 , 10.0 , 10.0 ] )
+>>> cluster = mors.Cluster(Mstar=Mstar,Omega=Omega)
+
+This will create a cluster composed of three stars and immediately calculate evolutionary tracks for each. To see the progress of these calculations printed to the screen, use the verbose keyword argument
+
+>>> cluster = mors.Cluster(Mstar=Mstar,Omega=Omega,verbose=True)
+
+As in the Star class, it is possible to specify the Age keyword argument. If this is not specified, the code will assume the Omega values are starting (1 Myr) rotation rates. If it is specified, the code will fit the rotation tracks such that they pass through the specified rotation rates at the speficied ages. If Age is specified as a single value (in Myr), it will be assumed that all stars have that age, and if it is specified as a numpy array then the array should have the same lengths as Mstar and Omega and the ages will be assumed individually for each star. As with the Star class, it is possible to input simulation parameters using the params keyword argument (see above).
+
+As in the Star class, an instance of the Cluster class can be saved using the Save (or save) function
+
+>>> cluster.Save()
+
+By default, the data will be saved into a file called 'cluster.pickle' but using the user can specify the name o the file using the filename argument in the call to Save(). Saved clusters can be loaded using the Load() function.
+
+>>> cluster = mors.Load("cluster.pickle")
+
+This is advisable since the evolutionary tracks for clusters can take a lot of time to calculate if there are lots of stars.
+
+The Star class instances for each star in the cluster is held in the stars list, which is an attribute of this class. To plot Lx tracks for each star for example, the user can use
+
+>>> plt.plot(cluster.stars[0].AgeTrack,cluster.stars[0].LxTrack)
+>>> plt.plot(cluster.stars[1].AgeTrack,cluster.stars[1].LxTrack)
+>>> plt.plot(cluster.stars[2].AgeTrack,cluster.stars[2].LxTrack)
+
+Alternatively, each star is an attribute of the class instance and has the name 'star' followed by its place in the list (starting at zero), so the above can be replaced with
+
+>>> plt.plot(cluster.stars0.AgeTrack,cluster.stars0.LxTrack)
+>>> plt.plot(cluster.stars1.AgeTrack,cluster.stars1.LxTrack)
+>>> plt.plot(cluster.stars2.AgeTrack,cluster.stars2.LxTrack)
+
+To get values for each star at a given age of a given parameter, the user can use the Values() function, specifying the age in Myr and a string for the quantity to retrieve. For example,
+
+>>> Lx = cluster.Values(Age=100.0,Quantity='Lx')
+
+This gives an array with Lx for each star in the cluster. Alternatively, as with the Star class, each quantity can be specified using its own function and the above is equivalent to.
+
+>>> Lx = cluster.Lx(100.0)
+
+So to plot the Lx distribution for a cluster at 100 Myr, the user can use
+
+>>> plt.scatter(cluster.Mstar,cluster.Lx(100.0))
+
+In Johnstone et al. (2020), many of the results are based on a composite cluster that is often referred to in the paper as the model cluster. This is composed of measured rotation distributions from several clusters with ages of ~150 Myr evolved back to 1 Myr. To get the masses and initial rotation rates of the model cluster, use the function ModelCluster().
+
+>>> Mstar , Omega = ModelCluster()
+
+If this model cluster is used in any research, please cite the papers listed in Table 1 of Johnstone et al. (2020) for the 150 Myr age bin as the original sources for the rotation measurements (note that the function ModelCluster does not return these measurements, but 1 Myr rotation rates for these stars derived from their measurments using the rotational evolution model of Johnstone et al. 2020). This cluster can then be evolved in the usual way
+
+>>> Mstar , Omega = ModelCluster()
+>>> cluster = mors.Cluster(Mstar=Mstar,Omega=Omega)
+
 
 
 -------------------------------------------------------------------------------------------------------------

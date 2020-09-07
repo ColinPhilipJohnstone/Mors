@@ -3,7 +3,7 @@
 from .star import Star
 
 # The basic Cluster class that people should be using
-from .cluster import Cluster , LoadModelCluster
+from .cluster import Cluster , ModelCluster
 
 # Parameters
 from .parameters import PrintParams , NewParams
