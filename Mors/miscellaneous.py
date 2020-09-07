@@ -116,3 +116,39 @@ def Load(filename):
   return obj
 
 #==================================================================================================================
+
+def ModelCluster():
+  
+  """Reads the model cluster used in Johnstone et al. (2020)."""
+  
+  # Get directory where package is installed
+  packageDir = _GetPackageDirectory()
+  
+  # Set filename including path
+  filename = packageDir + "ModelDistribution.dat"
+  
+  # Read lines of file
+  with open(filename) as f:
+      content = f.readlines()
+  
+  # Set number of header lines
+  nHeader = 1
+  
+  # Get number of steps in file
+  nStars = len(content) - nHeader
+  
+  # Make arrays
+  Mstar = np.zeros(nStars)
+  Omega = np.zeros(nStars)
+  
+  # Loop over lines and fill arrays
+  iStar = 0
+  for line in content[nHeader:len(content)]:
+    data = line.split()
+    Mstar[iStar] = data[0]
+    Omega[iStar] = data[1]
+    iStar += 1
+  
+  return Mstar , Omega
+
+#====================================================================================================================

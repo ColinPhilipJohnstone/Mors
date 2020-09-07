@@ -913,13 +913,13 @@ def _Mdot(StarState,params=params.paramsDefault):
   
   # Multiply Mdot by additional mutliplicative factor for rapid rotators if desired
   if params['BreakupMdotIncrease']:
-    MdotWind *= _MdotFactor(StarState['Mstar'],StarState['Rstar'],StarState['OmegaEnv'])
+    MdotWind *= MdotFactor(StarState['Mstar'],StarState['Rstar'],StarState['OmegaEnv'])
   
   return MdotWind
 
 #====================================================================================================================
 
-def _MdotFactor(Mstar,Rstar,OmegaSurface,params=params.paramsDefault):
+def MdotFactor(Mstar,Rstar,OmegaSurface,params=params.paramsDefault):
   
   """Takes stellar mass, radius, and rotation rate, returns factor to increase wind mass loss rate."""
   
@@ -1028,9 +1028,109 @@ def _shouldCoreEnvelopeDecoupling(StarState,params=params.paramsDefault):
 
 #====================================================================================================================
 
+def OmegaSat(Mstar=None,Age=None,param='XUV',params=params.paramsDefault,StarEvo=None):
+  
+  """
+  Takes basic stellar parameters, returns saturation rotation rate as surface angular velocity.
+  
+  The user can supply a mass and age, and the code will return the rotation rate of the saturation threshold
+  as a multiple of the solar rotation rate (2.67e-6 rad s^-1). The user can optionally also give a parameter 
+  dictionary and an instance of the StarEvo class, though  this is not necessary and if these are not specified 
+  then the defaults will be used. The code has three activity quantities (XUV, Mdot, and Bdip) that saturate
+  and by default it is assumed that they saturate at the same rotation rates, but there are three separate
+  model parameters for each (RoSatBdip, RoSatMdot, RoSatXray). By default, it is assumed that the user wants 
+  the X-ray saturation threshold but this can be changed with the param keyword argument.
+  
+  Parameters
+  ----------
+  Mstar : float or np.ndarray
+      Mass of star in Msun.
+  Age : float or np.ndarray
+      Age of star in Myr.
+  param : str , optional
+      String specifying which quantity the saturation threshold is needed for (default='XUV', options: 'XUV', 'Bdip', 'Mdot').
+  params : dict , optional
+      Dictionary holding model parameters.
+  StarEvo : Mors.stellarevo.StarEvo , optional
+      Instance of StarEvo class holding stellar evolution model data.
+  
+  Returns
+  ----------
+  Omega : float
+      Saturation rotation rate in OmegaSun.
+  
+  """
+  
+  # If an instance of the StarEvo class is not input, load it with defaults
+  if StarEvo is None:
+    StarEvo = SE.StarEvo()
+  
+  # Get rotation period of saturation threshold
+  Prot = ProtSat(Mstar=Mstar,Age=Age,param=param,params=params,StarEvo=StarEvo)
+  
+  # Convert to rotation angular velocity in OmegaSun
+  Omega = _Omega(Prot)
+  
+  return Omega
 
+#====================================================================================================================
 
+def ProtSat(Mstar=None,Age=None,param='XUV',params=params.paramsDefault,StarEvo=None):
+  
+  """
+  Takes basic stellar parameters, returns saturation rotation rate as rotation period.
+  
+  The user can supply a mass and age, and the code will return the rotation rate of the saturation threshold
+  as a multiple of the solar rotation rate (2.67e-6 rad s^-1). The user can optionally also give a parameter 
+  dictionary and an instance of the StarEvo class, though  this is not necessary and if these are not specified 
+  then the defaults will be used. The code has three activity quantities (XUV, Mdot, and Bdip) that saturate
+  and by default it is assumed that they saturate at the same rotation rates, but there are three separate
+  model parameters for each (RoSatBdip, RoSatMdot, RoSatXray). By default, it is assumed that the user wants 
+  the X-ray saturation threshold but this can be changed with the param keyword argument.
+  
+  Parameters
+  ----------
+  Mstar : float
+      Mass of star in Msun.
+  Age : float
+      Age of star in Myr.
+  param : str , optional
+      String specifying which quantity the saturation threshold is needed for (default='XUV', options: 'XUV', 'Bdip', 'Mdot').
+  params : dict , optional
+      Dictionary holding model parameters.
+  StarEvo : Mors.stellarevo.StarEvo , optional
+      Instance of StarEvo class holding stellar evolution model data.
+  
+  Returns
+  ----------
+  Prot : float
+      Saturation rotation period in days.
+  
+  """
+  
+  # If an instance of the StarEvo class is not input, load it with defaults
+  if StarEvo is None:
+    StarEvo = SE.StarEvo()
+  
+  # Get saturation Rossby number based on user input of param
+  if ( param == 'XUV' ):
+    Ro = params['RoSatXray']
+  elif ( param == 'Bdip' ):
+    Ro = params['RoSatBdip']
+  elif ( param == 'Mdot' ):
+    Ro = params['RoSatMdot']
+  else:
+    misc._PrintErrorKill("invalid value of param in call to function")
+  
+  # Convective turnover time in days
+  tauConv = StarEvo.tauConv(Mstar,Age)
+  
+  # Work out rotation period saturation
+  Prot = Ro * tauConv
+  
+  return Prot
 
+#====================================================================================================================
 
 
 

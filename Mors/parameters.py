@@ -80,7 +80,11 @@ def SetDefaultParameters(paramsDefault):
   paramsDefault['nStepMaxFit'] = 10000                      # maximum number of steps to take when fitting rotation rate
   paramsDefault['toleranceFit'] = 1.0e-5                    # tolerance for fitting initial rotation rate
 
-  #paramsDefault[''] =   # 
+  # Other
+  paramsDefault['dMstarPer'] = 0.1                          # Msun - half width of bins for working out percentiles of distribution
+  
+  
+  
   #paramsDefault[''] =   # 
   #paramsDefault[''] =   # 
   #paramsDefault[''] =   # 
