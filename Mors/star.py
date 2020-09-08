@@ -350,7 +350,7 @@ def Percentile(Mstar=None,Omega=None,Prot=None,percentile=None,MstarDist=None,Om
   """
   Gets rotation rate of percentile or percentile of rotation rate in the model rotation distribution.
   
-  This code can be used for two purposes
+  This function can be used for two purposes
     1. to determine the percentile in a rotation distribution of a star given its mass and rotation rate
     2. to determine the rotation rate of a star in a rotation distribution given its mass and percentile
   In the first case, the user should specify the rotation rate using either the Omega or Prot keyword arguments (given 
@@ -444,8 +444,14 @@ def _OmegaPercentile(Mstar,percentile,MstarDist,OmegaDist,params):
   
   """Gets rotation rate that corresponds to a given percentile of the rotation distribution."""
   
+  ## If percentile was a string, get actual value
+  
   # Get part of distribution to include
   includeStars = np.where( np.abs(MstarDist-Mstar) <= params['dMstarPer'] )
+  
+  # Need at least two stars
+  if ( len(includeStars[0]) < 2 ):
+    misc._PrintErrorKill( "need at least two stars in mass bin to get percentile" )
   
   # Get percentile Omega
   Omega = np.percentile( OmegaDist[includeStars] , percentile )
@@ -460,6 +466,10 @@ def _PerPercentile(Mstar,Omega,MstarDist,OmegaDist,params):
   
   # Get part of distribution to include
   includeStars = np.where( np.abs(MstarDist-Mstar) <= params['dMstarPer'] )
+  
+  # Need at least two stars
+  if ( len(includeStars[0]) < 2 ):
+    misc._PrintErrorKill( "need at least two stars in mass bin to get percentile" )
   
   # If Omega is less than minimum then make this as the 0th percentile
   if ( Omega <= np.min(OmegaDist[includeStars]) ):

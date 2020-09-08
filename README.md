@@ -154,7 +154,7 @@ Alternatively, the user can specify the percentile and get the corresponding rot
 
 >>> print(mors.Percentile(Mstar=1.0,percentile=10.0))
 
-This prints the rotation rate of the 10th percentile for solar mass stars in OmegaSun.
+This prints the rotation rate of the 10th percentile for solar mass stars in OmegaSun. If the user wants to use a different cluster distribution, instead of the 1 Myr model distribution used in Johnstone et al. (2020), the masses and rotation rates of the stars in this distribution can be input. The masses are input as an array of masses in Msun using the MstarDist keyword argument, and the rotation rates can be input either as an array of surface angular velocities in OmegaSun using the OmegaDist keyword argument or as an array of rotation periods in days using the ProtDist keyword argument.
 
 -------------------------------------------------------------------------------------------------------------
 
@@ -202,7 +202,7 @@ will cause the evolutionary tracks to contain 1 Myr, and the specified 100, 200,
 
 The code gives the user the ability to use the basic functions for calculating many activity related quantities as functions os stellar properties. For example, the user can calculate XUV luminosities from stellar mass, age, and rotation rates using the Lxuv function. For example, 
 
->>> Lxuv = mors.Lxuv(Mstar=1.0,Age=5000.0)
+>>> Lxuv = mors.Lxuv(Mstar=1.0,Age=5000.0,Omega=10.0)
 
 This gives a dictionary holding X-ray, EUV, and Lyman-alpha luminosities for a 5000 Myr old solar mass star rotating 10 times faster than the Sun. The surface rotation rate can be specified as a rotation velocity using the Omega or OmegaEnv arguments or as a rotation period in days using the Prot argument, e.g.
 
@@ -219,6 +219,8 @@ Leuv2 - 36 to 92 nm
 Leuv - 10 to 92 nm
 Lly - Lymann-alpha emission line
 
+The dictionary also contains surface fluxes (e.g. Fxuv, Fx, Feuv1,...) in erg s^-1 cm^-2 and luminosities normalised to bolometric luminosities (e.g Rxuv, Rx, Reuv1,...).
+
 The user can also just get the X-ray luminosity as a float using Lx()
 
 >>> Lx = mors.Lx(Mstar=1.0,Age=5000.0,Omega=10.0)
@@ -229,6 +231,19 @@ And similarly for the EUV and Lymann-alpha luminosities
 >>> Lly = mors.Lly(Mstar=1.0,Age=5000.0,Omega=10.0)
 
 The function Leuv() also takes the keyword argument 'band' which can be used to specify the band desired (=0 for 10-92 nm; =1 for 10-32 nm; =2 for 32-92 nm).
+
+The above function calculate an average Lx for a star given its mass, age, and rotation. In reality there is a scatter around these values that appear somewhat random, likely due to variability. This scatter can be described as a log normal probability density function. To calculate this scatter for X-ray luminosity, the user can use the XrayScatter() function.
+
+>>> deltaLx = mors.XrayScatter(Lx)
+
+Here, the user should just enter the X-ray luminosity either as a single value or a numpy array and it returns the deltaLx from the equation LxScattered = Lx + deltaLx, where Lx is the value with this scatter not included and LxScattered is the value with it included. The user can also send in Fx or Rx to the function and get deltaFx and deltaRx. Note that these values are random and will be different each time. The width of the random distribution is set by sigmaXray in the parameter file and can be set using the params keyword argument.
+
+To get scatter values for EUV, Ly-alpha, and all other parameters returned by Lxuv() described above, use XUVScatter() which takes the dictionary returned by Lxuv().
+
+>>> Lxuv = mors.Lxuv(Mstar=1.0,Age=5000.0,Omega=10.0)
+>>> deltaLxuv = mors.XUVScatter(Lxuv)
+
+The return value is a dictionary containing delta values for the same quantities in Lxuv.
 
 If the user wants a more detailed set of parameters for a given star, the ExtendedQuantities() function can be used and in this case, the star's mass, age, and envelope and core rotation rates must be specified.
 
@@ -332,7 +347,8 @@ So to plot the Lx distribution for a cluster at 100 Myr, the user can use
 
 >>> plt.scatter(cluster.Mstar,cluster.Lx(100.0))
 
-In Johnstone et al. (2020), many of the results are based on a composite cluster that is often referred to in the paper as the model cluster. This is composed of measured rotation distributions from several clusters with ages of ~150 Myr evolved back to 1 Myr. To get the masses and initial rotation rates of the model cluster, use the function ModelCluster().
+In Johnstone et al. (2020), many of the results are based on a composite cluster that is often referred to in the paper as the model cluster. This is composed of measured rotation distributions from several clusters with ages of ~150 Myr evolved back to 1 Myr. 
+To get the masses and initial rotation rates of the model cluster, use the function ModelCluster().
 
 >>> Mstar , Omega = ModelCluster()
 
@@ -341,7 +357,7 @@ If this model cluster is used in any research, please cite the papers listed in 
 >>> Mstar , Omega = ModelCluster()
 >>> cluster = mors.Cluster(Mstar=Mstar,Omega=Omega)
 
-
+The Cluster class also has a function that allows the user to find where in the distribution a star with a given mass and surface rotation rate rate is at a given age. This uses the Percentile function discussed above applied to the rotation distribution of this cluster at the specified age.
 
 -------------------------------------------------------------------------------------------------------------
 
@@ -351,47 +367,6 @@ If this model cluster is used in any research, please cite the papers listed in 
 
 
 
-
-BELOW IS PART OF OLD DESCRIPTION AND MAYBE SHOULD BE REMOVED
-
--------------------------------------------------------------------------------------------------------------
-
-RUNNING ROTATIONAL EVOLUTION MODEL
-
-A rotational evolution model can be run using the function EvolveRotation. In the simplest case, a rotation model can be run simply by specifying the mass and initial rotation rate of the stars in the call to this function with no previous setup required. For example, to get the rotation track for a solar mass star with an initial rotation rate that is 10x the modern Sun's rotation (assumed throughout the code to be 2.67e-6 rad s^-1), use
-
->>> tracks = mors.EvolveRotation(Mstar=1.0,Omega0=10.0)
-
-In this case, the evolutionary track starts are 1 Myr and ends at 5 Gyr. The user can specify starting and ending times in Myr using the AgeMin and AgeMax keyword arguments. 
-
->>> tracks = mors.EvolveRotation(Mstar=1.0,Omega0=10.0,AgeMin=1.0,AgeMax=100.0)
-
-This does the same thing, but ends the time integration at 100 Myr. If core-envelope decoupling is being used, the initial core and envelope rotation rates can be specified separately using the OmegaEnv0 and OmegaCore0 arguments. 
-
-The behavior of the code is determined by a large number of parameters that set which physical processes are included, how these processes are included, and other details about the run. The parameters that exist and their default values are held in the dictionary paramsDefault and can be seen using the function PrintParams.
-
->>> mors.PrintParams()
-
-If the user wants the code to use a different set of parameters, a new parameter dictionary can be generated using the NewParams() function.
-
->>> myParams = mors.NewParams()
-
-This will create a dictionary that the user can edit as they want. For example, to change the parameter 'param1' to 1.5
-
->>> myParams['param1'] = 1.5
-
-Alternatively, this can also be done in the initial call to NewParams using keyword arguments
-
->>> myParams = mors.NewParams(param1=1.5)
-
-These parameters can then be input into EvolveRotation using the params keyword argument.
-
->>> tracks = mors.EvolveRotation(Mstar=1.0,Omega0=10.0,params=myParams)
-
-The user might also want to use a specific instance of the stellar evolution model, for example using different metallicities. This can be done by first creating and instance of the StarEvo class and then inputting it into EvolveRotation() using the StarEvo keyword argument.
-
->>> StarEvo = mors.StarEvo()
->>> tracks = mors.EvolveRotation(Mstar=1.0,Omega0=10.0,params=myParams,StarEvo=StarEvo)
 
 -------------------------------------------------------------------------------------------------------------
 

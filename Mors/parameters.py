@@ -26,7 +26,7 @@ def SetDefaultParameters(paramsDefault):
   paramsDefault['CoefficientsRB'] = _CoefficientsRB()       # all coefficents needed for the Rosenbrock solver
   paramsDefault['dAgeMin'] = 1.0e-5                         # Myr - minimum timestep to allow
   paramsDefault['dAgeMax'] = 5000.0                         # Myr - maximum timestep to allow
-
+  
   # Physical processes to include
   paramsDefault['CoreEnvelopeDecoupling'] = True            # should core envelope decoupling be included
   paramsDefault['MomentInertiaChangeTorque'] = True         # should the code include effects of moment of inertia changes on rotation (do not turn this off)
@@ -34,16 +34,16 @@ def SetDefaultParameters(paramsDefault):
   paramsDefault['WindTorque'] = True                        # should the code include wind spin-down torque
   paramsDefault['CoreEnvelopeTorque'] = True                # should the code include core-envelope coupling torque
   paramsDefault['DiskLocking'] = True                       # should disk-locking be used
-
+  
   # Core envelope decoupling parameters
   paramsDefault['IcoreThresholdCE'] = 0.01                  # value of Icore/Itotal below which core-envelope decoupling is not used
   paramsDefault['MstarThresholdCE'] = 0.35                  # Msun - value of Mstar below which core-envelope decoupling is not used
-
+  
   # Disk locking parameters
   paramsDefault['aDiskLock'] = 13.5                         # a in tDiskLock = a * Omega^b
   paramsDefault['bDiskLock'] = -0.5                         # b in tDiskLock = a * Omega^b
   paramsDefault['ageDLmax'] = 15.0                          # Myr - maximum disk locking age
-
+  
   # Wind parameters
   paramsDefault['Kwind'] = 11.0                             # additional constant in torque formula
   paramsDefault['BdipSun'] = 1.35                           # G - estimate for rotation models from Johnstone et al. (2015)
@@ -55,16 +55,16 @@ def SetDefaultParameters(paramsDefault):
   paramsDefault['RoSatMdot'] = 0.0605                       # saturation Rossby number for mass loss rate from Johnstone et al. (2020) using Spada et al. (2013) models
   paramsDefault['BreakupMdotIncrease'] = True               # should we increase Mdot as approaching breakup
   paramsDefault['fracBreakThreshold'] = 0.1                 # fraction of breakup to start increasing Mdot
-
+  
   # Core-envelope coupling stuff
   paramsDefault['aCoreEnvelope'] = 25.6015                  # a in tCoreEnvelope = a * (|OmegaCore-OmegaEnv|)^b * Mstar^d
   paramsDefault['bCoreEnvelope'] = -3.4817E-002             # b in tCoreEnvelope = a * (|OmegaCore-OmegaEnv|)^b * Mstar^d
   paramsDefault['cCoreEnvelope'] = -0.4476                  # c in tCoreEnvelope = a * (|OmegaCore-OmegaEnv|)^b * Mstar^d
   paramsDefault['timeCEmin'] = 0.0                          # minimum value of core-envelope coupling timescale
-
+  
   # Output parameters
   paramsDefault['ExtendedTracks'] = False                   # should the code return evolutionary tracks for all quantities 
-
+  
   # XUV emission parameters
   paramsDefault['RoSatXray'] = 0.0605                       # saturation Rossby number for X-ray emission from Johnstone et al. (2020) using models of Spada et al. (2013)
   paramsDefault['RxSatXray'] = 5.135e-4                     # saturation Rx
@@ -72,14 +72,15 @@ def SetDefaultParameters(paramsDefault):
   paramsDefault['beta2Xray'] = -1.889                       # beta from Rx = C * Ro^beta for the unsaturated regime
   paramsDefault['C1Xray'] = paramsDefault['RxSatXray'] / paramsDefault['RoSatXray']**paramsDefault['beta1Xray'] # C from Rx = C * Ro^beta for the saturated regime
   paramsDefault['C2Xray'] = paramsDefault['RxSatXray'] / paramsDefault['RoSatXray']**paramsDefault['beta2Xray'] # C from Rx = C * Ro^beta for the unsaturated regime
-
+  paramsDefault['sigmaXray'] = 0.359                        # dex - standard deviation of normal PDF for X-ray scatter
+  
   # Rotation fitting parameters
   paramsDefault['AgeMinFit'] = 1.0                          # Myr - starting age for fitting rotation track
   paramsDefault['Omega0FitMin'] = 0.1                       # OmegaSun - minimum starting rotation rate to consider when fitting initial rotation
   paramsDefault['Omega0FitMax'] = 50.0                      # OmegaSun - maximum starting rotation rate to consider when fitting initial rotation
   paramsDefault['nStepMaxFit'] = 1000                       # maximum number of steps to take when fitting rotation rate
   paramsDefault['toleranceFit'] = 1.0e-5                    # tolerance for fitting initial rotation rate
-
+  
   # Other
   paramsDefault['dMstarPer'] = 0.1                          # Msun - half width of bins for working out percentiles of distribution
   

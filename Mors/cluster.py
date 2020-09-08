@@ -220,7 +220,67 @@ class Cluster:
     return
   
   #---------------------------------------------------------------------------------------
-  
+    
+    
+  def Percentile(self,Mstar=None,Age=None,Omega=None,Prot=None,percentile=None):
+    
+    """
+    Gets rotation rate of percentile or percentile of rotation rate in the rotation distribution at given age.
+    
+    This function can be used for two purposes
+      1. to determine the percentile in a rotation distribution of a star given its mass, rotation rate, and age
+      2. to determine the rotation rate of a star in a rotation distribution given its mass, percentile, and age
+    In the first case, the user should specify the rotation rate using either the Omega or Prot keyword arguments (given 
+    in OmegaSun and days respectively) and the mass. In the second case, the user should specify the percentile using the
+    percentile keyword argument (in the range 0 to 100) and the mass. The mass should be specified in Msun using the Mstar
+    keyword argument and the age in Myr using the Age keyword argument. These should only be given as floats. 
+    
+    Parameters
+    ----------
+    Mstar : float
+        Stellar mass in Msun.
+    Age : float
+        Age of star in Myr.
+    Omega : float , optional
+        Rotation rate of star in OmegaSun.
+    Prot : float , optional
+        Rotation period of star in days.
+    percentile : float , optional
+        percentile in distribution (between 0 and 100).
+    
+    Returns
+    ----------
+    result : float
+        Either rotation rate for percentile or percentile for rotation rate.
+    
+    """
+    
+    # Make sure the age is specified
+    if Age is None:
+      misc._PrintErrorKill("keyword parameter Age not set in call to function")
+    
+    # If percentile was set to a string, get float version
+    if ( type(percentile) == str ):
+      if ( percentile == 'slow' ):
+        percentile = 5.0
+      elif ( percentile == 'medium' ):
+        percentile = 50.0
+      elif ( percentile == 'fast' ):
+        percentile = 95.0
+      else:
+        misc._PrintErrorKill( "invalid percentile string (options are 'slow', 'medium', or 'fast')" )
+    
+    # Get the rotation distribution at this age
+    OmegaDist = self.Values( Age=Age , Quantity='OmegaEnv' )
+    
+    # Get the result
+    result = star.Percentile( Mstar=Mstar , Omega=Omega , Prot=Prot , percentile=percentile , 
+                            MstarDist=self.Mstar , OmegaDist=OmegaDist , params=self.params )
+    
+    return result
+    
+  #---------------------------------------------------------------------------------------
+    
 #====================================================================================================================
 
 def _CheckInputRotation(Age,Omega,OmegaEnv,OmegaCore):

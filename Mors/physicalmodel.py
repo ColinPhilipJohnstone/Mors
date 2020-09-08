@@ -532,6 +532,20 @@ def Lxuv(Mstar=None,Age=None,Omega=None,OmegaEnv=None,Prot=None,params=params.pa
   LxuvDict['Leuv'] = StarState['Leuv']
   LxuvDict['Lly'] = StarState['Lly']
   
+  LxuvDict['Fxuv'] = StarState['Fx'] + StarState['Feuv']
+  LxuvDict['Fx'] = StarState['Fx']
+  LxuvDict['Feuv1'] = StarState['Feuv1']
+  LxuvDict['Feuv2'] = StarState['Feuv2']
+  LxuvDict['Feuv'] = StarState['Feuv']
+  LxuvDict['Fly'] = StarState['Fly']
+  
+  LxuvDict['Rxuv'] = StarState['Rx'] + StarState['Reuv']
+  LxuvDict['Rx'] = StarState['Rx']
+  LxuvDict['Reuv1'] = StarState['Reuv1']
+  LxuvDict['Reuv2'] = StarState['Reuv2']
+  LxuvDict['Reuv'] = StarState['Reuv']
+  LxuvDict['Rly'] = StarState['Rly']
+  
   return LxuvDict
 
 #====================================================================================================================
@@ -595,6 +609,140 @@ def _Xray(StarState,params=params.paramsDefault):
   Fx = Lx / ( 4.0 * const.Pi * (StarState['Rstar']*const.Rsun)**2.0 )
   
   return Lx , Fx , Rx
+
+#====================================================================================================================
+
+def XrayScatter(XrayAverage,params=params.paramsDefault):
+  
+  """
+  Takes stellar X-ray, returns X-ray scatter around this value.
+  
+  The other functions in this code calculate an average Lx for a star given its parameters, making Lx a unique
+  function of mass, age, and rotation. In reality there is a scatter around these values that appear somewhat
+  random, likely due to variability. This scatter can be described as a log normal probability density function.
+  This function can be used to get values for the scatter for a given stellar Lx. Specifically, if LxAverage is
+  the average mass, age, and omega dependent X-ray luminosity, the true Lx is given by LxAverage + deltaLx, and
+  it is this deltaLx that this function calculates. This function works equally well for inputting Rx or Fx.
+  
+  Parameters
+  ----------
+  XrayAverage : float or numpy.ndarray
+      Values for stellar Lx, Fx, or Rx in any units.
+  params : dict , optional
+      Dictionary holding model parameters.
+  
+  Returns
+  ----------
+  deltaXray : float or numpy.ndarray
+      Values for stellar deltaLx, deltaFx, or deltaRx in input units.
+  
+  """
+  
+  # Get number of stars
+  if ( type(XrayAverage) == float ) or ( type(XrayAverage) == int ):
+    nStars = 1
+  else:
+    nStars = len(XrayAverage)
+  
+  # Get random number from normal distribution
+  rand = np.random.normal( 0.0 , params['sigmaXray'] , nStars )
+  
+  # Add random to the log of the quantities to get scattered values
+  XrayAverageScattered = 10.0**( np.log10(XrayAverage) + rand )
+  
+  # Get change
+  deltaXray = XrayAverageScattered - XrayAverage
+  
+  return deltaXray
+
+#====================================================================================================================
+
+def XUVScatter(XUVAverage,params=params.paramsDefault):
+  
+  """
+  Takes stellar XUV values, returns scatter around these value.
+  
+  The other functions in this code calculate an average XUV values for a star given its parameters, making them unique
+  functions of mass, age, and rotation. In reality there is a scatter around these values that appear somewhat
+  random, likely due to variability. This scatter can be described as a log normal probability density function.
+  This function can be used to get values for the scatter for a given stellar Lx. Specifically, if LxAverage is
+  the average mass, age, and omega dependent X-ray luminosity, the true Lx is given by LxAverage + deltaLx, and
+  it is this deltaLx that this function calculates. This function calculates these scatter values for all XUV
+  parameters calculated by Lxuv above
+  
+  Parameters
+  ----------
+  XUVAverage : dict
+      Dictionary of values returned by Lxuv().
+  params : dict , optional
+      Dictionary holding model parameters.
+  
+  Returns
+  ----------
+  deltaXUV : dict
+      Values for deltaLx, deltaFx, etc. for all quantities calculated by Lxuv().
+  
+  """
+  
+  
+  # Get random number for X-rays from normal distribution
+  randXray = np.random.normal( 0.0 , params['sigmaXray'] )
+  
+  # Get random numbers for other quantities (not including composite like EUV=EUV1+EUV2)
+  randEUV1 = 0.681 * randXray
+  randEUV2 = 0.920 * randEUV1
+  randLy = 0.375 * randXray
+  
+  # Add random to the log of the quantities to get scattered values
+  LxScattered = 10.0**( np.log10(XUVAverage['Lx']) + randXray )
+  Leuv1Scattered = 10.0**( np.log10(XUVAverage['Leuv1']) + randEUV1 )
+  Leuv2Scattered = 10.0**( np.log10(XUVAverage['Leuv2']) + randEUV2 )
+  LlyScattered = 10.0**( np.log10(XUVAverage['Lly']) + randLy )
+  
+  FxScattered = 10.0**( np.log10(XUVAverage['Fx']) + randXray )
+  Feuv1Scattered = 10.0**( np.log10(XUVAverage['Feuv1']) + randEUV1 )
+  Feuv2Scattered = 10.0**( np.log10(XUVAverage['Feuv2']) + randEUV2 )
+  FlyScattered = 10.0**( np.log10(XUVAverage['Fly']) + randLy )
+  
+  RxScattered = 10.0**( np.log10(XUVAverage['Rx']) + randXray )
+  Reuv1Scattered = 10.0**( np.log10(XUVAverage['Reuv1']) + randEUV1 )
+  Reuv2Scattered = 10.0**( np.log10(XUVAverage['Reuv2']) + randEUV2 )
+  RlyScattered = 10.0**( np.log10(XUVAverage['Rly']) + randLy )
+  
+  # Get scattered values for composite quantities
+  LeuvScattered = Leuv1Scattered + Leuv2Scattered
+  FeuvScattered = Feuv1Scattered + Feuv2Scattered
+  ReuvScattered = Reuv1Scattered + Reuv2Scattered
+  
+  LxuvScattered = LxScattered + LeuvScattered
+  FxuvScattered = FxScattered + FeuvScattered
+  RxuvScattered = RxScattered + ReuvScattered
+  
+  # Get changes in array
+  deltaXUV = {}
+  
+  deltaXUV['Lxuv'] = LxuvScattered - XUVAverage['Lxuv']
+  deltaXUV['Lx'] = LxScattered - XUVAverage['Lx']
+  deltaXUV['Leuv'] = LeuvScattered - XUVAverage['Leuv']
+  deltaXUV['Leuv1'] = Leuv1Scattered - XUVAverage['Leuv1']
+  deltaXUV['Leuv2'] = Leuv2Scattered - XUVAverage['Leuv2']
+  deltaXUV['Lly'] = LlyScattered - XUVAverage['Lly']
+  
+  deltaXUV['Fxuv'] = FxuvScattered - XUVAverage['Fxuv']
+  deltaXUV['Fx'] = FxScattered - XUVAverage['Fx']
+  deltaXUV['Feuv'] = FeuvScattered - XUVAverage['Feuv']
+  deltaXUV['Feuv1'] = Feuv1Scattered - XUVAverage['Feuv1']
+  deltaXUV['Feuv2'] = Feuv2Scattered - XUVAverage['Feuv2']
+  deltaXUV['Fly'] = FlyScattered - XUVAverage['Fly']
+  
+  deltaXUV['Rxuv'] = RxuvScattered - XUVAverage['Rxuv']
+  deltaXUV['Rx'] = RxScattered - XUVAverage['Rx']
+  deltaXUV['Reuv'] = ReuvScattered - XUVAverage['Reuv']
+  deltaXUV['Reuv1'] = Reuv1Scattered - XUVAverage['Reuv1']
+  deltaXUV['Reuv2'] = Reuv2Scattered - XUVAverage['Reuv2']
+  deltaXUV['Rly'] = RlyScattered - XUVAverage['Rly']
+  
+  return deltaXUV
 
 #====================================================================================================================
 
