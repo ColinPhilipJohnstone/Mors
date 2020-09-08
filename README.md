@@ -21,7 +21,8 @@ CONTENTS
 5. ROTATION AND ACTIVITY QUANTITES
 6. STELLAR EVOLUTION QUANTITIES
 7. CLUSTER EVOLUTION CALCULATIONS
-
+8. HABITABLE ZONE BOUNDARIES
+9. ACTIVITY LIFETIMES
 
 -------------------------------------------------------------------------------------------------------------
 
@@ -361,30 +362,29 @@ The Cluster class also has a function that allows the user to find where in the 
 
 -------------------------------------------------------------------------------------------------------------
 
-8. OTHER USEFUL FUNCTIONS
+8. HABITABLE ZONE BOUNDARIES
 
+Using the formulae of Kopparapu et al. (2013) and the luminosities and effective temperatures from the stellar models of Spada et al. (2013), the user can calculate the orbital distances of the habitable zone boundaries as a function of stellar mass and age. This is done using the aOrbHZ function.
 
+>>> aOrbHZ = mors.aOrbHZ(Mstar=1.0)
 
+In this case, the function returns a dictionary holding the orbital distances in AU in a dictionary. The six values in the dictionary are 'RecentVenus', 'RunawayGreenhouse', 'MoistGreenhouse', 'MaximumGreenhouse', 'EarlyMars', and 'HZ'. While the first five are obvious and correspond to the boundaries in Kopparapu et al. (2013), the final one is defined in Johnstone et al. (2020) as the average of the runaway greenhouse and moist greenhouse orbital distances. For example, to see these values
 
+>>> print( aOrbHZ['RecentVenus'] )
+>>> print( aOrbHZ['RunawayGreenhouse'] )
+>>> print( aOrbHZ['MoistGreenhouse'] )
+>>> print( aOrbHZ['MaximumGreenhouse'] )
+>>> print( aOrbHZ['EarlyMars'] )
+>>> print( aOrbHZ['HZ'] )
+  
+Mstar can be input as a numpy array in which case the dictionary will contain arrays with values for each mass. By default the orbital distances are calculated assuming stellar parameters at 5000 Myr. The user can also set the age in Myr using the Age keyword argument
+
+>>> aOrbHZ = mors.aOrbHZ(Mstar=1.0,Age=1000.0)
 
 
 -------------------------------------------------------------------------------------------------------------
 
-LOOKING AT RESULTS FROM ROTATION MODEL
-
-The function EvolveRotation returns a dictionary with evolutionary tracks for rotation. The main elements of this dictionary are Age in Myr, OmegaEnv in OmegaSun, and OmegaCore in OmegaSun. The following code will calculate and plot a rotation model for a solar mass star
-
->>> tracks = mors.EvolveRotation(Mstar=1.0,Omega0=10.0)
->>> plt.plot( tracks['Age'] , tracks['OmegaEnv'] , 'k' )
->>> plt.plot( tracks['Age'] , tracks['OmegaCore'] , 'k:' )
->>> plt.show()
-
-By default, EvolveRotation() returns tracks for the envelope and core rotatation rates, so the dictionary that is returned will contain 'Age', 'dAge', 'OmegaEnv', and 'OmegaCore', where dAge is the length of each timestep (note that dAge[i]=Age[i]-Age[i-1] and dAge[0] is set to the starting value of dAge which for solvers that automatically determine step length will never be included). If core-envelope decoupling is not inlcuded (either because it was turned off as a parameter or because the mass of the star is below the fully convective boundary), then core and envelope rotation tracks will be identical.
-
-The code is able to calculate a large number of rotation and activity related quantities. Many of these quantities are calculated by the code when running the rotation model, but their evolutionary tracks are not saved by default. The user can however can have these also returned using the ExtendedTracks parameter.
-
->>> myParams = mors.NewParams(ExtendedTracks=True)
->>> tracks = mors.EvolveRotation(Mstar=1.0,Omega0=10.0,params=myParams)
+9. ACTIVITY LIFETIMES
 
 
 
