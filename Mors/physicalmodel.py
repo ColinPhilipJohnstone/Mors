@@ -1280,22 +1280,101 @@ def ProtSat(Mstar=None,Age=None,param='XUV',params=params.paramsDefault,StarEvo=
 
 #====================================================================================================================
 
+def aOrbHZ(Mstar=None,Age=None,params=params.paramsDefault):
+  
+  """
+  Takes stellar mass, returns orbital distances of habitable zone boundaries.
+  
+  This function can be used to get the habitable zone boundary orbital distances as a function of stellar mass
+  and age. The mass can be either a simple value or an array, in which case all HZ boundaries will be returned
+  as arrays. The age does not need to be set and by default the value of the AgeHZ parameter (default 5000 Myr)
+  will be used. The habitable zone boundaries are calculated using the formulae of Kopparapu et al. (2013) and
+  the luminosities and effective temperatures from the stellar models of Spada et al. (2013). The dictionary that
+  is returned contains the following elements: 'RecentVenus', 'RunawayGreenhouse', 'MoistGreenhouse', 
+  'MaximumGreenhouse', 'EarlyMars', and 'HZ'. While the first five are obvious and correspond to the boundaries 
+  in Kopparapu et al. (2013), the final one is defined in Johnstone et al. (2020) as the average of the runaway 
+  greenhouse and moist greenhouse orbital distances. All are calculated in AU.
+  
+  Parameters
+  ----------
+  Mstar : float or np.ndarray
+      Stellar mass in Msun.
+  Age : float , optional
+      Age to get stellar parameters in Myr (default = 5000 Myr).
+  params : dict , optional
+      Dictionary holding model parameters.
+  Returns
+  ----------
+  aOrbHZAll : dict
+      Values of HZ boundary orbital distances in AU.
+  """
+  
+  # Make sure Mstar is set 
+  if Mstar is None:
+    misc._PrintErrorKill("Mstar must be set in call to function")
+  
+  # If Age is not set, get value from params
+  if Age is None:
+    Age = params['AgeHZ']
+  
+  # Start dictionary
+  aOrbHZAll = {}
+  
+  # Set effective temperatures and luminosities of stars
+  Lbol = SE.Lbol( Mstar , Age )
+  Teff = SE.Teff( Mstar , Age )
+  
+  # Converf Teff to Tstar
+  Teff += -5780.0
+  
+  # Get Recent Venus limit
+  SeffSun = 1.7763
+  a = 1.4335e-4
+  b = 3.3954e-9
+  c = -7.6364e-12
+  d = -1.1950e-15
+  Seff = SeffSun + a*Teff + b*Teff**2.0 + c*Teff*3.0 + d*Teff**4.0
+  aOrbHZAll['RecentVenus'] = ( Lbol / Seff )**0.5
+  
+  # Get Runaway Greenhouse limit
+  SeffSun = 1.0385
+  a = 1.2456e-4
+  b = 1.4612e-8
+  c = -7.6345e-12
+  d = -1.7511e-15
+  Seff = SeffSun + a*Teff + b*Teff**2.0 + c*Teff*3.0 + d*Teff**4.0
+  aOrbHZAll['RunawayGreenhouse'] = ( Lbol / Seff )**0.5
+  
+  # Get Moist Greenhouse limit
+  SeffSun = 1.0146
+  a = 8.1884e-5
+  b = 1.9394e-9
+  c = -4.3618e-12
+  d = -6.8260e-16
+  Seff = SeffSun + a*Teff + b*Teff**2.0 + c*Teff*3.0 + d*Teff**4.0
+  aOrbHZAll['MoistGreenhouse'] = ( Lbol / Seff )**0.5
+  
+  # Get Maximum Greenhouse limit
+  SeffSun = 0.3507
+  a = 5.9578e-5
+  b = 1.6707e-9
+  c = -3.0058e-12
+  d = -5.1925e-16
+  Seff = SeffSun + a*Teff + b*Teff**2.0 + c*Teff*3.0 + d*Teff**4.0
+  aOrbHZAll['MaximumGreenhouse'] = ( Lbol / Seff )**0.5
+  
+  # Get Early Mars limit
+  SeffSun = 0.3207
+  a = 5.4471e-5
+  b = 1.5275e-9
+  c = -2.1709e-12
+  d = -3.8282e-16
+  Seff = SeffSun + a*Teff + b*Teff**2.0 + c*Teff*3.0 + d*Teff**4.0
+  aOrbHZAll['EarlyMars'] = ( Lbol / Seff )**0.5
+  
+  # Now get value of center of moist and maximum greenhouse
+  aOrbHZAll['HZ'] = 0.5 * ( aOrbHZAll['MoistGreenhouse'] + aOrbHZAll['MaximumGreenhouse'] )
+  
+  return aOrbHZAll
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+#====================================================================================================================

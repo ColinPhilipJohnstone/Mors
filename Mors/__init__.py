@@ -17,7 +17,7 @@ from .stellarevo import ( Rstar , Lbol , Teff , Itotal , Icore , Ienv , Mcore , 
 
 # Functions from physical model
 from .physicalmodel import ( dOmegadt , RotationQuantities , ExtendedQuantities , Lxuv , Lx , Leuv , Lly , 
-                            OmegaSat , ProtSat , MdotFactor , OmegaBreak , XrayScatter , XUVScatter )
+                            OmegaSat , ProtSat , MdotFactor , OmegaBreak , XrayScatter , XUVScatter , aOrbHZ )
 
 # Rotational evolution stuff
 from .rotevo import EvolveRotation , EvolveRotationStep

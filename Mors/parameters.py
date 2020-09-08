@@ -83,6 +83,7 @@ def SetDefaultParameters(paramsDefault):
   
   # Other
   paramsDefault['dMstarPer'] = 0.1                          # Msun - half width of bins for working out percentiles of distribution
+  paramsDefault['AgeHZ'] = 5000.0                           # Myr - age to use for calculating habitable zone boundaries
   
   
   

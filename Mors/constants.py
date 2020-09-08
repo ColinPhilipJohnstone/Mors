@@ -24,6 +24,7 @@ m = 1.0e3                 # meter
 Rearth = 6.371e8          # Radius of Earth
 Rjup = 6.9911e9           # Radius of Jupiter
 Rsun = 6.957e10           # cm
+AU = 1.496e13             # cm
 
 # Area units
 cm2 = 1.0                 # cm^2
