@@ -115,7 +115,7 @@ Instances of the Star class can be saved using the Save (or save) functions,
 
 >>> star.Save()
 
-By default, the data will be saved into a file called 'star.pickle' but using the user can specify the name o the file using the filename argument in the call to Save(). Saved stars can be loaded using the Load() function.
+By default, the data will be saved into a file called 'star.pickle' but using the user can specify the name of the file using the filename argument in the call to Save(). Saved stars can be loaded using the Load() function.
 
 >>> star = mors.Load("star.pickle")
 
@@ -364,7 +364,7 @@ The Cluster class also has a function that allows the user to find where in the 
 
 8. HABITABLE ZONE BOUNDARIES
 
-Using the formulae of Kopparapu et al. (2013) and the luminosities and effective temperatures from the stellar models of Spada et al. (2013), the user can calculate the orbital distances of the habitable zone boundaries as a function of stellar mass and age. This is done using the aOrbHZ function.
+Using the formulae of Kopparapu et al. (2013) and the luminosities and effective temperatures from the stellar models of Spada et al. (2013), the user can calculate the orbital distances of the habitable zone boundaries as a function of stellar mass and age. Please cite these two papers if using the output of this function. The HZ boundaries are calculated using the aOrbHZ function.
 
 >>> aOrbHZ = mors.aOrbHZ(Mstar=1.0)
 
@@ -386,7 +386,25 @@ Mstar can be input as a numpy array in which case the dictionary will contain ar
 
 9. ACTIVITY LIFETIMES
 
+The code contains functions that calculate how long stars remain above certain acitivty thresholds. Firstly, the function ActivityLifetime() takes an evolutionary track and returns when the value of the track goes below a certain threshold. For example
 
+>>> AgeThreshold = mors.ActivityLifetime( Age=star.AgeTrack , Track=star.LxTrack , Threshold=1.0e28 )
+
+This will tell us when the star's Lx dropped below 10^28 erg s^-1. If the star crosses this threshold multiple times, only the final time will be returned. If it never goes below this threshold then the final age in the track will be returned and if it is never above this threshold then 0.0 will be returned. If the user wants to set a maximum age so that the code only looks for crossings of the threshold below this age then this can be done using the AgeMax keyword argument
+
+More recommended though is to use the function of the same name in the Star class, where the quantity of interest should be specified as a string.
+
+>>> AgeThreshold = star.ActivityLifetime( Quantity='Lx' , Threshold=1.0e28 )
+
+This does the same thing. Valid options for Quantity are 'Lx', 'Fx', 'Rx', 'FxHZ', 'Leuv1', 'Feuv1', 'Reuv1', 'Feuv1HZ', 'Leuv2', 'Feuv2', 'Reuv2', 'Feuv2HZ', 'Leuv', 'Feuv', 'Reuv', 'FeuvHZ', 'Lly', 'Fly', 'Rly', and 'FlyHZ'. It is also possible here to specify AgeMax. If the user wants to know how long the star remained saturated, Threshold can be given with the string 'sat'.
+
+>>> AgeSaturated = star.ActivityLifetime( Quantity='Lx' , Threshold='sat' )
+
+Note that when doing this, the value of Quantity should not influence the return value since all XUV quantities saturate at the same time, though it still must be set to a valid option.
+
+The Cluster class also contains this function and is called in the exact same way, returning this time the values for each star in the cluster as a numpy array.
+
+>>> AgeThreshold = cluster.ActivityLifetime( Quantity='Lx' , Threshold=1.0e28 )
 
 -------------------------------------------------------------------------------------------------------------
 

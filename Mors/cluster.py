@@ -92,6 +92,9 @@ class Cluster:
     # Get evolutionary tracks 
     self._LoadEvoTracks(Age,OmegaEnv,OmegaCore,verbose)
     
+    # Get HZ boundaries
+    self.aOrbHZ = phys.aOrbHZ(Mstar=self.Mstar,params=self.params)
+    
     return
   
   #---------------------------------------------------------------------------------------
@@ -279,6 +282,53 @@ class Cluster:
     
     return result
     
+  #---------------------------------------------------------------------------------------
+  
+  def ActivityLifetime(self,Quantity=None,Threshold=None,AgeMax=None):
+    
+    """
+    Takes threshold value, returns ages at which each star last drops below this threshold.
+    
+    This function can be used to determine when each star's emission crosses a given threshold value for a few
+    activity quantities. These are Lx, Fx, Rx, and FxHZ for X-rays, and similar values for EUV1, EUV2, EUV, 
+    XUV, and Ly-alpha. If the star crosses the threshold (from above it to below it) multiple times, this 
+    will find the final time it will cross the threshold. If the user wants to set a maximum age so that the 
+    code only looks for crossings of the threshold below this age then this can be done using the AgeMax
+    keyword argument.
+        
+    Parameters
+    ----------
+    Quantity : str
+        Gives which quantity to consider (e.g. 'Lx').
+    Threshold : float or str
+        Value for threshold in units of quantity or string of 'sat'.
+    AgeMax : float , optional
+        End age of track to consider in Myr.
+    
+    Returns
+    ----------
+    AgeActive : float
+        Activity lifetime in Myr.
+    
+    """
+    
+    # Make sure Quantity is set
+    if Quantity is None:
+      misc._PrintErrorKill("Quantity not set in call to function")
+      
+    # Make sure Quantity is string
+    if not ( type(Quantity) == str ):
+      misc._PrintErrorKill("Quantity must be string")
+    
+    # Make array
+    AgeActive = np.zeros(self.nStars)
+    
+    # Loop over stars and get each
+    for iStar in range(self.nStars):
+      AgeActive[iStar] = self.stars[iStar].ActivityLifetime(Quantity=Quantity,Threshold=Threshold,AgeMax=AgeMax)
+    
+    return AgeActive
+  
   #---------------------------------------------------------------------------------------
     
 #====================================================================================================================

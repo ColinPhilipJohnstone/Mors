@@ -152,3 +152,77 @@ def ModelCluster():
   return Mstar , Omega
 
 #====================================================================================================================
+
+def ActivityLifetime(Age=None,Track=None,Threshold=None,AgeMax=None):
+  
+  """
+  Takes evolutionary track for parameter, calculates when value drops below threshold.
+
+  This function can be used to determine when a star's emission crosses a given threshold value for a few
+  activity quantities. These are Lx, Fx, Rx, and FxHZ for X-rays, and similar values for EUV1, EUV2, EUV, 
+  XUV, and Ly-alpha. If the star crosses the threshold (from above it to below it) multiple times, this 
+  will find the final time it will cross the threshold. If the user wants to set a maximum age so that the 
+  code only looks for crossings of the threshold below this age then this can be done using the AgeMax
+  keyword argument. If the track is always below this threshold value then the function returns 0.0.
+      
+  Parameters
+  ----------
+  Age : numpy.ndarray
+      Age array for evolutionary track.
+  Track : numpy.ndarray
+      Value array for evolutionary track.
+  Threshold : float
+      Value for threshold in units of quantity.
+  AgeMax : float , optional
+      End age of track to consider in Myr.
+  
+  Returns
+  ----------
+  AgeActive : float
+      Activity lifetime in Myr.
+  
+  """
+  
+  # Make sure parameters set
+  if Age is None:
+    misc._PrintErrorKill("required argument Age not set")
+  if Track is None:
+    misc._PrintErrorKill("required argument Track not set")
+  if Threshold is None:
+    misc._PrintErrorKill("required argument Threshold not set")
+  
+  # Make sure Age and Track same length
+  if not ( len(Age) == len(Track) ):
+    misc._PrintErrorKill("Age and Track are different lengths")
+  
+  # Change Age and Track to only be ages below AgeMax, if AgeMax is set
+  if not AgeMax is None:
+    includeAges = np.where( Age <= AgeMax )
+    Age = Age[includeAges]
+    Track = Track[includeAges]
+  
+  # See if final value below threshold, otherwise return final age
+  if ( Track[-1] > Threshold ):
+    return Age[-1]
+  
+  # Start at end of array and loop backwards
+  for iAge in range(len(Age)-1,0,-1):
+    
+    # Make sure next one back is not equal to threshold
+    if ( Track[iAge-1] == Threshold ):
+      return Age[iAge-1]
+    
+    # Check if this age bin is when it drops past the threshold 
+    if ( ( Track[iAge] < Threshold ) and ( Track[iAge-1] > Threshold ) ):
+      
+      # Do interpoaltion to get when it crosses 
+      # Assume here Age = m*Track + c
+      mInterp = ( Age[iAge] - Age[iAge-1] ) / ( Track[iAge] - Track[iAge-1] )
+      cInterp = Age[iAge] - mInterp * Track[iAge]
+      return mInterp*Threshold + cInterp
+      
+  return 0.0
+
+#====================================================================================================================
+
+

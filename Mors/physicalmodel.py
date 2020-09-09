@@ -321,13 +321,13 @@ def ExtendedQuantities(StarState=None,Mstar=None,Age=None,OmegaEnv=None,OmegaCor
   # Get Lly in erg s^-1, Fly in erg s^-1 cm^-2, and Rly
   StarState['Lly'] , StarState['Fly'] , StarState['Rly'] = _Lymanalpha(StarState,params=params)
   
-  # Get habitable zone orbital distance
-  
-  # Get FxHZ, FeuvHZ, and Fla
-  
-  # Get rate of flares above given energy
-  
-  
+  # Get habitable zone fluxes in erg s^-1 cm^-2
+  aOrbHZ2 = aOrbHZ( Mstar=StarState['Mstar'] , params=params )
+  StarState['FxHZ'] = StarState['Lx'] / ( 4.0 * const.Pi * (aOrbHZ2['HZ']*const.AU)**2.0 )
+  StarState['Feuv1HZ'] = StarState['Leuv1'] / ( 4.0 * const.Pi * (aOrbHZ2['HZ']*const.AU)**2.0 )
+  StarState['Feuv2HZ'] = StarState['Leuv2'] / ( 4.0 * const.Pi * (aOrbHZ2['HZ']*const.AU)**2.0 )
+  StarState['FeuvHZ'] = StarState['Leuv'] / ( 4.0 * const.Pi * (aOrbHZ2['HZ']*const.AU)**2.0 )
+  StarState['FlyHZ'] = StarState['Lly'] / ( 4.0 * const.Pi * (aOrbHZ2['HZ']*const.AU)**2.0 )
   
   return StarState 
 
@@ -825,7 +825,7 @@ def _EUV1(StarState,params=params.paramsDefault):
   Leuv1 = Feuv1 * ( 4.0 * const.Pi * (StarState['Rstar']*const.Rsun)**2.0 )
   
   # Get Reuv1
-  Reuv1 = Leuv1 / StarState['Lbol'] 
+  Reuv1 = Leuv1 / StarState['Lbol']
   
   return Leuv1 , Feuv1 , Reuv1
 

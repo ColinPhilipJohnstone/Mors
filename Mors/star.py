@@ -104,6 +104,9 @@ class Star:
     # Get evolutionary tracks 
     self._LoadEvoTracks(Age,OmegaEnv,OmegaCore,AgesOut=AgesOut)
     
+    # Get HZ boundaries
+    self.aOrbHZ = phys.aOrbHZ(Mstar=self.Mstar,params=self.params)
+    
     return
   
   #---------------------------------------------------------------------------------------
@@ -247,6 +250,77 @@ class Star:
     """Same as Save()."""
     self.Save(filename=filename)
     return
+  
+  #---------------------------------------------------------------------------------------
+  
+  def ActivityLifetime(self,Quantity=None,Threshold=None,AgeMax=None):
+    
+    """
+    Takes threshold value, returns age at which a star last drops below this threshold.
+    
+    This function can be used to determine when a star's emission crosses a given threshold value for a few
+    activity quantities. These are Lx, Fx, Rx, and FxHZ for X-rays, and similar values for EUV1, EUV2, EUV, 
+    XUV, and Ly-alpha. If the star crosses the threshold (from above it to below it) multiple times, this 
+    will find the final time it will cross the threshold. If the user wants to set a maximum age so that the 
+    code only looks for crossings of the threshold below this age then this can be done using the AgeMax
+    keyword argument.
+        
+    Parameters
+    ----------
+    Quantity : str
+        Gives which quantity to consider (e.g. 'Lx').
+    Threshold : float or str
+        Value for threshold in units of quantity or string of 'sat'.
+    AgeMax : float , optional
+        End age of track to consider in Myr.
+    
+    Returns
+    ----------
+    AgeActive : float
+        Activity lifetime in Myr.
+    
+    """
+    
+    # Allowed quantities
+    QuantitiesAllowed = [ 'Lx' , 'Fx' , 'Rx' , 'FxHZ' , 'Leuv1' , 'Feuv1' , 'Reuv1' , 'Feuv1HZ' , 'Leuv2' , 'Feuv2' , 'Reuv2' , 'Feuv2HZ' , 
+                         'Leuv' , 'Feuv' , 'Reuv' , 'FeuvHZ' , 'Lly' , 'Fly' , 'Rly' , 'FlyHZ' ]
+    
+    # Make sure Quantity is set
+    if Quantity is None:
+      misc._PrintErrorKill("Quantity not set in call to function")
+      
+    # Make sure Quantity is string
+    if not ( type(Quantity) == str ):
+      misc._PrintErrorKill("Quantity must be string")
+    
+    # Check input Quantity is valid
+    if not Quantity in QuantitiesAllowed:
+      QuantitiesString = ''
+      for quantity in QuantitiesAllowed:
+        QuantitiesString += quantity + " , "
+      misc._PrintErrorKill("invalid quantity "+Quantity+"\n valid options are "+QuantitiesString[0:-3])
+    
+    # Set tracks
+    AgeTrack = self.AgeTrack
+    Track = self.Tracks[Quantity]
+    
+    # If Threshold is 'sat' then normalise track to saturation value and set threshold to unity
+    if ( Threshold == 'sat' ):
+      
+      # Get saturation rotation rate as function of age
+      OmegaSatTrack = phys.OmegaSat( Mstar=self.Mstar , Age=self.AgeTrack , param='XUV' , params=self.params , StarEvo=self.StarEvo )
+      
+      # Make track just OmegaEnv/OmegaSat
+      Track = self.OmegaEnvTrack / OmegaSatTrack
+      
+      # Set threshold to unity
+      Threshold = 1.0
+      
+    # Get result
+    AgeActive = misc.ActivityLifetime( Age=AgeTrack , Track=Track , Threshold=Threshold , AgeMax=AgeMax )
+    
+    return AgeActive
+  
   #---------------------------------------------------------------------------------------
   
 #====================================================================================================================

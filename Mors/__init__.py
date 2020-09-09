@@ -23,4 +23,4 @@ from .physicalmodel import ( dOmegadt , RotationQuantities , ExtendedQuantities 
 from .rotevo import EvolveRotation , EvolveRotationStep
 
 # Some other stuff
-from .miscellaneous import Load , ModelCluster
+from .miscellaneous import Load , ModelCluster , ActivityLifetime
