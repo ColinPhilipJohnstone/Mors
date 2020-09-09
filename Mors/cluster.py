@@ -331,6 +331,48 @@ class Cluster:
   
   #---------------------------------------------------------------------------------------
     
+  def IntegrateEmission(self,AgeMin=None,AgeMax=None,Band=None,aOrb=None):
+    
+    """
+    Takes age range, returns integrated emission in band within that range for each star.
+    
+    This code can be used to the luminosities of the stars between two ages. This can be applied to any wavelength band
+    and the result is a total energy emitted in this time in erg. If the user also specifies an orbital distance using 
+    the aOrb keyword argument, the code integrates the flux at this obital distance returns a fluence in erg cm^-2. The
+    user can specify aOrb as a string to get the fluences at various habitable zone boundaries (using the HZ calculated 
+    at the age defined in params when creating this cluster). Options are 'RecentVenus', 'RunawayGreenhouse', 'MoistGreenhouse', 
+    'MaximumGreenhouse', 'EarlyMars', and 'HZ'.
+        
+    Parameters
+    ----------
+    AgeMin : float
+        Start of time period to integrate in Myr.
+    AgeMax : float
+        End of time period to integrate in Myr.
+    Band : str
+        Gives which wavelength band to consider (options are 'XUV', 'Xray', 'EUV1', 'EUV2', 'EUV', 'Lyman', 'bol').
+    aOrb : float or str, optional
+        Orbital distance to get fluence at in AU or string identifying HZ boundary.
+    
+    Returns
+    ----------
+    Energy : numpy.ndarray
+        Integrated luminosity or flux in erg or erg cm^-2.
+    
+    """
+    
+    # Make array
+    Energy = np.zeros(self.nStars)
+    
+    # Loop over stars and get each
+    for iStar in range(self.nStars):
+      Energy[iStar] = self.stars[iStar].IntegrateEmission(AgeMin=AgeMin,AgeMax=AgeMax,Band=Band,aOrb=aOrb)
+    
+    return Energy
+    
+  #---------------------------------------------------------------------------------------
+  
+    
 #====================================================================================================================
 
 def _CheckInputRotation(Age,Omega,OmegaEnv,OmegaCore):

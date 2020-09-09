@@ -1,10 +1,16 @@
 
 """Module for holding miscellaneous functions that can be used by many other modules."""
 
+# Imports for standard stuff needed here
 import inspect
 import sys
 import numpy as np
 import pickle
+import copy
+
+# Imports for Mors modules
+import Mors.stellarevo as SE
+import Mors.constants as const
 
 #==================================================================================================================
 
@@ -225,4 +231,89 @@ def ActivityLifetime(Age=None,Track=None,Threshold=None,AgeMax=None):
 
 #====================================================================================================================
 
+def IntegrateEmission(AgeMin=None,AgeMax=None,Age=None,Luminosity=None,aOrb=None):
+  
+  """
+  Takes evolutionary track for parameter, calculates when value drops below threshold.
+  
+  This code can be used to integrate a star's luminosity between two ages. This can be applied to Lx, Leuv, or any
+  other luminosity and the result is a total energy emitted in this time in erg. If the user also specifies an orbital 
+  distance using the aOrb keyword argument, the code integrates the flux at this obital distance returns a fluence 
+  in erg cm^-2.
+      
+  Parameters
+  ----------
+  AgeMin : float
+      Start of time period to integrate in Myr.
+  AgeMax : float
+      End of time period to integrate in Myr.
+  Age : numpy.ndarray
+      Age array for evolutionary track.
+  Luminosity : numpy.ndarray
+      Value array for evolutionary track.
+  aOrb : float , optional
+      Orbital distance to get fluence at in AU.
+  
+  Returns
+  ----------
+  Energy : float
+      Integrated luminosity of flux in erg or erg cm^-2.
+  
+  """
+  
+  # Make sure parameters set
+  if AgeMin is None:
+    misc._PrintErrorKill("required argument AgeMin not set")
+  if AgeMax is None:
+    misc._PrintErrorKill("required argument AgeMax not set")
+  if Age is None:
+    misc._PrintErrorKill("required argument Age not set")
+  if Luminosity is None:
+    misc._PrintErrorKill("required argument Luminosity not set")
+  
+  # Make sure Age and Luminosity same length
+  if not ( len(Age) == len(Luminosity) ):
+    misc._PrintErrorKill("Age and Luminosity are different lengths")
+  
+  # Make sure AgeMin and AgeMax is in track
+  if not ( ( AgeMin >= Age[0] ) and ( AgeMin <= Age[-1] ) ):
+    misc._PrintErrorKill("AgeMin not in range of evolutionary track")
+  if not ( ( AgeMax >= Age[0] ) and ( AgeMax <= Age[-1] ) ):
+    misc._PrintErrorKill("AgeMax not in range of evolutionary track")
+  
+  # Get track to actually integrate
+  Track = copy.deepcopy(Luminosity)
+  if not aOrb is None:
+    Track *= 1.0 / ( 4.0 * const.Pi * (aOrb*const.AU)**2.0 )
+  
+  # Get index of first age bin with age above AgeMin
+  indexMin = SE._getIndexGT(Age,AgeMin)
+  
+  # Get index of final age bin with age below AgeMax
+  indexMax = SE._getIndexLT(Age,AgeMax)
+  
+  # Initially take no energy then add up energy from bins
+  Energy = 0.0
+  
+  # Add energy from first bin if needed (simple assumption for luminosity constant ove age bin)
+  if ( AgeMin < Age[indexMin] ):
+    Energy += ( Age[indexMin] - AgeMin ) * Track[indexMin]
+  
+  # Intergate over all full bins (only if there is something to integrate)
+  if not ( indexMin == indexMax ):
+    for iAge in range(indexMin,indexMax):
+      
+      # Do integration using trapezoidal rule (not the chained version)
+      Energy += 0.5 * ( Age[iAge+1] - Age[iAge] ) * ( Track[iAge] + Track[iAge+1] )
+  
+  # Add energy from final bin if needed (simple assumption for luminosity constant ove age bin)
+  if ( AgeMax > Age[indexMax] ):
+    Energy += ( AgeMax - Age[indexMax] ) * Track[indexMax]
+  
+  # So far, units of Age were in Myr when integrating, so include also Myr to s conversion
+  Energy *= const.Myr
+  
+  return Energy
+
+#====================================================================================================================
 

@@ -7,6 +7,7 @@
 import sys
 import inspect
 import numpy as np
+import pickle
 
 # Imports for Mors modules
 import Mors.miscellaneous as misc
@@ -321,6 +322,100 @@ class Star:
     
     return AgeActive
   
+  #---------------------------------------------------------------------------------------
+    
+  def IntegrateEmission(self,AgeMin=None,AgeMax=None,Band=None,aOrb=None):
+    
+    """
+    Takes age range, calculates integrated emission in band within that range.
+    
+    This code can be used to integrate a star's luminosity between two ages. This can be applied to any wavelength band
+    and the result is a total energy emitted in this time in erg. If the user also specifies an orbital distance using 
+    the aOrb keyword argument, the code integrates the flux at this obital distance returns a fluence in erg cm^-2. The
+    user can specify aOrb as a string to get the fluences at various habitable zone boundaries (using the HZ calculated 
+    at the age defined in params when creating this cluster). Options are 'RecentVenus', 'RunawayGreenhouse', 'MoistGreenhouse', 
+    'MaximumGreenhouse', 'EarlyMars', and 'HZ'.
+        
+    Parameters
+    ----------
+    AgeMin : float
+        Start of time period to integrate in Myr.
+    AgeMax : float
+        End of time period to integrate in Myr.
+    Band : str
+        Gives which wavelength band to consider (options are 'XUV', 'Xray', 'EUV1', 'EUV2', 'EUV', 'Lyman', 'bol').
+    aOrb : float or str , optional
+        Orbital distance to get fluence at in AU or string identifying HZ boundary.
+    
+    Returns
+    ----------
+    Energy : float
+        Integrated luminosity or flux in erg or erg cm^-2.
+    
+    """
+    
+    # Allowed quantities
+    BandsAllowed = [ 'XUV', 'Xray', 'EUV1', 'EUV2', 'EUV', 'Lyman', 'bol' ]
+    
+    # Make sure Band is set
+    if Band is None:
+      misc._PrintErrorKill("Band not set in call to function")
+      
+    # Make sure Band is string
+    if not ( type(Band) == str ):
+      misc._PrintErrorKill("Band must be string")
+    
+    # Check input Band is valid
+    if not Band in BandsAllowed:
+      BandsString = ''
+      for band in BandsAllowed:
+        BandsString += band + " , "
+      misc._PrintErrorKill("invalid Band "+Band+"\n valid options are "+BandsString[0:-3])
+    
+    # Get luminosity track to use
+    if Band == 'XUV':
+      Luminosity = self.LxTrack + LeuvTrack
+    elif Band == 'Xray':
+      Luminosity = self.LxTrack
+    elif Band == 'EUV1':
+      Luminosity = self.Leuv1Track
+    elif Band == 'EUV2':
+      Luminosity = self.Leuv2Track
+    elif Band == 'EUV':
+      Luminosity = self.LeuvTrack
+    elif Band == 'Lyman':
+      Luminosity = self.LlyTrack
+    elif Band == 'bol':
+      Luminosity = self.LbolTrack
+    else:
+      misc._PrintErrorKill("did not find right luminosity track")
+    
+    # If aOrb was set to a string, do necessary work to get useable aOrb (given by aOrbUse)
+    if ( type(aOrb) == str ):
+      
+      # Valid options
+      aOrbAllowed = [ 'RecentVenus' , 'RunawayGreenhouse' , 'MoistGreenhouse' , 'MaximumGreenhouse' , 'EarlyMars' , 'HZ' ]
+      
+      # Check input is valid
+      if not aOrb in aOrbAllowed:
+        aOrbString = ''
+        for a in aOrbAllowed:
+          aOrbString += a + " , "
+        misc._PrintErrorKill("invalid aOrb "+aOrb+"\n valid options are a value in AU or "+aOrbString[0:-3])
+      
+      # Get orbital distance
+      aOrbUse = self.aOrbHZ[aOrb]
+    
+    else:
+      
+      # Just set to input value
+      aOrbUse = aOrb
+    
+    # Do calculation
+    Energy = misc.IntegrateEmission( AgeMin=AgeMin , AgeMax=AgeMax , Age=self.AgeTrack , Luminosity=Luminosity , aOrb=aOrbUse )
+    
+    return Energy
+    
   #---------------------------------------------------------------------------------------
   
 #====================================================================================================================

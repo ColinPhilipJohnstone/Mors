@@ -1,6 +1,7 @@
 
 """Module for holding default parameters and related functions."""
 
+# Imports for standard stuff needed here
 import copy
 import numpy as np
 
