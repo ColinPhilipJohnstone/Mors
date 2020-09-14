@@ -374,7 +374,7 @@ class Star:
     
     # Get luminosity track to use
     if Band == 'XUV':
-      Luminosity = self.LxTrack + LeuvTrack
+      Luminosity = self.LxTrack + self.LeuvTrack
     elif Band == 'Xray':
       Luminosity = self.LxTrack
     elif Band == 'EUV1':
@@ -429,8 +429,8 @@ def _CheckInputMstar(Mstar):
     misc._PrintErrorKill("stellar mass not given")
   
   # Make sure it is a float
-  if not ( type(Mstar) == float ):
-    misc._PrintErrorKill("stellar mass must be given as float")
+  #if not ( type(Mstar) == float ):
+    #misc._PrintErrorKill("stellar mass must be given as float")
   
   # Make sure it above minimum
   if ( Mstar < MstarMin ):
