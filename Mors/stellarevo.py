@@ -555,11 +555,11 @@ def _LoadTrack(Mstar,ModelData):
   _CheckMassLimit( ModelData['MstarAll'] , Mstar )
   
   # Get nearest mass bin below
-  iMin = _getIndexLT( ModelData['MstarAll'] , Mstar )
+  iMin = misc._getIndexLT( ModelData['MstarAll'] , Mstar )
   MstarMin = ModelData['MstarAll'][iMin]
   
   # Get nearest mass bin above
-  iMax = _getIndexGT( ModelData['MstarAll'] , Mstar )
+  iMax = misc._getIndexGT( ModelData['MstarAll'] , Mstar )
   MstarMax = ModelData['MstarAll'][iMax]
   
   # Get dictionaries for masses below and above Mstar
@@ -769,11 +769,11 @@ def _ValueSingle(Mstar,Age,ParamString,ModelData=ModelDataDefault):
     _CheckMassLimit( ModelData['MstarAll'] , Mstar )
     
     # Get nearest mass bin below
-    iMin = _getIndexLT( ModelData['MstarAll'] , Mstar )
+    iMin = misc._getIndexLT( ModelData['MstarAll'] , Mstar )
     MstarMin = ModelData['MstarAll'][iMin]
     
     # Get nearest mass bin above
-    iMax = _getIndexGT( ModelData['MstarAll'] , Mstar )
+    iMax = misc._getIndexGT( ModelData['MstarAll'] , Mstar )
     MstarMax = ModelData['MstarAll'][iMax]
     
     # Check age ranges for both (max first since the upper limit is likely lower)
@@ -850,7 +850,7 @@ def _Interpolate1D(Xarray,Yarray,X):
     misc._PrintErrorKill("input value "+str(X)+" is not within limits of "+str(Xarray[0])+" to "+str(Xarray[-1]))
   
   # Get index of X closest to but smaller than value
-  iMin = _getIndexLTordered(Xarray,X)
+  iMin = misc._getIndexLTordered(Xarray,X)
   iMax = iMin + 1
   
   # Check if X is an element in Xarray
@@ -866,86 +866,6 @@ def _Interpolate1D(Xarray,Yarray,X):
     Y = mInterp * X + cInterp
   
   return Y
-
-#====================================================================================================================
-
-def _getIndexLTordered(Xarray,X):
-  
-  """Takes min to max ordered array of values and a value, returns index of closest element in array smaller than value."""
-  
-  # It is assumed that X is between the min and max of Xarray and it is assumed
-  # that Xarray is in ascending order
-    
-  # Initial guesses for i
-  i1 = 0
-  i2 = len(Xarray)-1
-  
-  # Check if right value
-  if ( Xarray[i1] == X ):
-    return i1
-  if ( Xarray[i2] == X ):
-    return i2
-  
-  # Start iterating
-  for iIter in range(0,len(Xarray)):
-    
-    # Get iMid
-    iMid = int(0.5*(i1+i2))
-    
-    # Check if iMid is right value
-    if ( ( Xarray[iMid] <= X ) and ( Xarray[iMid+1] > X ) ):
-      return iMid
-    
-    # Work out if answer is between i1 and iMid or iMid and i2
-    if ( Xarray[iMid] > X ):
-      i2 = iMid
-    else:
-      i1 = iMid
-  
-  # It should not get here
-  misc._PrintErrorKill("did not find index")
-  
-  return iMid
-
-#====================================================================================================================
-
-def _getIndexLT(Xarray,X):
-  
-  """Takes array of values and a value, returns index of closest element in array smaller than value."""
-  
-  # It is assumed that X is greater than the min of Xarray, but check this
-  if ( X < np.min(Xarray) ):
-    misc._PrintErrorKill("X is less than minimum of Xarray")
-  
-  # Get smaller value by taking difference of X and all Xarray elements
-  # then removing all values smaller than 0.0 (i.e. those larger than X)
-  deltaX = X - Xarray
-  deltaX[np.where(deltaX<0.0)] = np.max(deltaX)*1.1+0.1
-  
-  # Get index
-  index = np.argmin(deltaX)
-  
-  return index
-
-#====================================================================================================================
-
-def _getIndexGT(Xarray,X):
-  
-  """Takes array of values and a value, returns index of closest element in array larger than value."""
-  
-  # It is assumed that X is less than the max of Xarray, but check this
-  if ( X > np.max(Xarray) ):
-    misc._PrintErrorKill("X is more than maximum of Xarray")
-  
-  # Get smaller value by taking difference of X and all Xarray elements
-  # then removing all values smaller than 0.0 (i.e. those larger than X)
-  deltaX = Xarray - X
-  deltaX[np.where(deltaX<0.0)] = np.max(deltaX)*1.1+0.1
-  
-  # Get index
-  index = np.argmin(deltaX)
-  
-  return index
 
 #====================================================================================================================
 
