@@ -9,7 +9,6 @@ import pickle
 import copy
 
 # Imports for Mors modules
-import Mors.stellarevo as SE
 import Mors.constants as const
 
 #==================================================================================================================
