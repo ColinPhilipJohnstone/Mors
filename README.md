@@ -50,7 +50,7 @@ http://www.astro.yale.edu/demarque/yyiso.html
 
 Download and extract their package and put it somewhere safe. After this, it is necessary to tell the code where it can find the stellar evolution tracks. This can be done by setting the environmental variable 'STELLARMODELS', which on Ubuntu can be set using
 
-$ export STELLAREVODIR=...
+$ export STELLARMODELS=...
 
 Where ... should be replaced with the path to the main directory holding the stellar models (i.e. the directory holding directories with names such as "X0p70952_Z0p01631_A1p875") and should end with a /. To make this permanent on Ubuntu, use
 
