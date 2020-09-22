@@ -1,9 +1,6 @@
 
 """Module for holding some basic constants."""
 
-# Imports for Mors modules
-import Mors.stellarevo as SE
-
 # Time units
 sec = 1.0                   # seconds
 minute = 60.0*sec             # 
@@ -60,7 +57,6 @@ LbolSun = 3.828e33        # erg s^-1
 AgeSun = 4567.0           # Myr
 OmegaSun = 2.67e-6        # rad s^-1 - our assumed solar rotation
 ProtSun = 2.0*3.142 / ( OmegaSun ) / 86400.0    # days - corresponding solar rotation period
-#tauConvSun = SE.tauConv(1.0,AgeSun)             # days - the Sun's convective turnover time using stellar evo models
 tauConvSun = 28.436   # days - the Sun's convective turnover time using stellar evo models of Spada et al. (2013)
 RoSun = ProtSun / tauConvSun                    # Sun's current Rossby number using stellar evo models
 
