@@ -14,6 +14,8 @@ setup(
     long_description_content_type="text/markdown",
     url="https://github.com/ColinPhilipJohnstone/Mors",
     packages=setuptools.find_packages(),
+    package_data={'': ['ModelDistribution.dat']},
+    include_package_data=True,
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: No idea",
