@@ -36,9 +36,9 @@ $ git clone https://github.com/ColinPhilipJohnstone/Mors
 
  The code can be installed from the command line inside the main directory, where the setup.py file is kept, using 
 
-$ git install . 
+$ pip install . 
 
-If this does not work, it should be possible to just include the main directory and all its contents in the working directory of your code if you wish to do it that way.
+For some users, it will be necessary to replace pip with pip3 in the above command. If this does not work, it should be possible to just include the main directory and all its contents in the working directory of your code if you wish to do it that way.
 
 3. Stellar evolution tracks: The code requires also the set of stellar evolution models from this paper
 
