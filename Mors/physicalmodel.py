@@ -410,6 +410,11 @@ def QuantitiesUnits(StarState=None):
   StarStateUnits['Lly'] = 'erg s^-1'
   StarStateUnits['Fly'] = 'erg s^-1 cm^-2'
   StarStateUnits['Rly'] = ''
+  StarStateUnits['FxHZ'] = 'erg s^-1 cm^-2'
+  StarStateUnits['Feuv1HZ'] = 'erg s^-1 cm^-2'
+  StarStateUnits['Feuv2HZ'] = 'erg s^-1 cm^-2'
+  StarStateUnits['FeuvHZ'] = 'erg s^-1 cm^-2'
+  StarStateUnits['FlyHZ'] = 'erg s^-1 cm^-2'
   
   # If StarState was set in call to function then only include units for quantities in StarState and
   # make sure all quantities in StarState have units given (even if the quantity is dimensionless)
