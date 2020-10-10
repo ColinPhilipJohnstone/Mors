@@ -28,7 +28,8 @@ def _PrintErrorKill(errorString):
   print( "Error in "+function+"() in file "+filename+": "+errorString )
   
   # Stop the code
-  sys.exit()
+  sys.tracebacklimit = 1
+  raise ValueError()
   
   return
 
