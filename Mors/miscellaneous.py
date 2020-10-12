@@ -116,8 +116,12 @@ def Load(filename):
   
   """Takes filename of saved star or cluster and loads object."""
   
+  # Load the object
   with open(filename,'rb') as f:
     obj = pickle.load(f)
+  
+  # Setup the quantity functions (which for some reason do not work on objects loaded from pickle)
+  obj._setupQuantityFunctions()
   
   return obj
 

@@ -176,6 +176,17 @@ class Star:
     self.Units = phys.QuantitiesUnits()
     
     # Make functions for each quantity that return this quantity at a given age as attributes of class
+    self._setupQuantityFunctions()
+    
+    return
+
+  #---------------------------------------------------------------------------------------
+    
+  def _setupQuantityFunctions(self):
+    
+    """Makes functions for each quantity that return this quantity at a given age as attributes of class."""
+    
+    # Loop over quantities held in self.Tracks
     for track in self.Tracks:
       
       # The method for this is very strange and I don't like it. Better would likely just to be to 

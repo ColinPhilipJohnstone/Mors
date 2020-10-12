@@ -142,6 +142,16 @@ class Cluster:
       print("")
     
     # Make functions for each quantity that return this quantity at a given age as attributes of class
+    self._setupQuantityFunctions()
+    
+    return
+
+  #---------------------------------------------------------------------------------------
+    
+  def _setupQuantityFunctions(self):
+    
+    """Makes functions for each quantity that return this quantity at a given age as attributes of class."""
+    
     # A description of how the code below works is given in the star class function with the same name
     # as this function. In this case, the code does it based on the quantities held in the first star. 
     for track in self.stars[0].Tracks:
