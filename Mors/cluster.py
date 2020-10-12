@@ -21,7 +21,6 @@ import Mors.star as star
 #====================================================================================================================
 
 class Cluster:
-  
   """
   A class for star objects that hold all information about a star. 
   
@@ -36,7 +35,6 @@ class Cluster:
   #---------------------------------------------------------------------------------------
   
   def __init__(self,Mstar=None,Age=None,Omega=None,OmegaEnv=None,OmegaCore=None,AgesOut=None,starEvoDir=None,evoModels=None,params=params.paramsDefault,verbose=False):
-    
     """
     Initialises instance of Cluster class.
     
@@ -50,7 +48,6 @@ class Cluster:
     The user should not specify OmegaCore and Age simultaneously, and if Age is set then either Omega or OmegaEnv 
     can be used to specify the surface rotation rate. Age can also be set as an array giving different ages for 
     each star.
-    
     
     """
     
@@ -100,7 +97,6 @@ class Cluster:
   #---------------------------------------------------------------------------------------
   
   def _LoadEvoTracks(self,Age,OmegaEnv0,OmegaCore0,verbose):
-    
     """Loads rotation and activity tracks for each star."""
     
     # Start dictionary holding stars
@@ -149,7 +145,6 @@ class Cluster:
   #---------------------------------------------------------------------------------------
     
   def _setupQuantityFunctions(self):
-    
     """Makes functions for each quantity that return this quantity at a given age as attributes of class."""
     
     # A description of how the code below works is given in the star class function with the same name
@@ -164,7 +159,6 @@ class Cluster:
   #---------------------------------------------------------------------------------------
   
   def Values(self,Age=None,Quantity=None):
-    
     """
     Takes age in Myr and a string with name of quantity to output, returns value of that quantity at specified age for all stars.
     
@@ -201,7 +195,6 @@ class Cluster:
   #---------------------------------------------------------------------------------------
   
   def PrintStars(self):
-    
     """Prints list of stars in cluster to screen."""
     
     # Header
@@ -219,7 +212,6 @@ class Cluster:
   #---------------------------------------------------------------------------------------
   
   def Save(self,filename='cluster.pickle'):
-    
     """Takes filename (default is 'cluster.pickle'), saves cluster to this file using pickle."""
     
     with open(filename,'wb') as f:
@@ -236,7 +228,6 @@ class Cluster:
     
     
   def Percentile(self,Mstar=None,Age=None,Omega=None,Prot=None,percentile=None):
-    
     """
     Gets rotation rate of percentile or percentile of rotation rate in the rotation distribution at given age.
     
@@ -295,7 +286,6 @@ class Cluster:
   #---------------------------------------------------------------------------------------
   
   def ActivityLifetime(self,Quantity=None,Threshold=None,AgeMax=None):
-    
     """
     Takes threshold value, returns ages at which each star last drops below this threshold.
     
@@ -342,7 +332,6 @@ class Cluster:
   #---------------------------------------------------------------------------------------
     
   def IntegrateEmission(self,AgeMin=None,AgeMax=None,Band=None,aOrb=None):
-    
     """
     Takes age range, returns integrated emission in band within that range for each star.
     
@@ -386,7 +375,6 @@ class Cluster:
 #====================================================================================================================
 
 def _CheckInputRotation(Age,Omega,OmegaEnv,OmegaCore):
-  
   """Takes input rotation, checks if values are setup correctly."""
   
   # Make sure if Age is set that OmegaCore is not set

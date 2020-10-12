@@ -14,6 +14,7 @@ import Mors.constants as const
 #==================================================================================================================
 
 def _PrintErrorKill(errorString):
+  """Takes string with error message, prints message to screen and end code execution."""
   
   # Get info about the calling function
   frame = inspect.stack()[1]
@@ -36,7 +37,8 @@ def _PrintErrorKill(errorString):
 #==================================================================================================================
 
 def _PrintError(errorString):
-  
+  """Takes string with error message, prints message to screen."""
+
   # Get info about the calling function
   frame = inspect.stack()[1]
   filename = frame.filename
@@ -54,7 +56,6 @@ def _PrintError(errorString):
 #==================================================================================================================
 
 def _GetPackageDirectory():
-  
   """Gets path to main directory where the code is installed."""
   
   # Get information about function
@@ -74,7 +75,6 @@ def _GetPackageDirectory():
 #==================================================================================================================
 
 def _convertFloatArray(Xin):
-  
   """Takes a value and returns either as float or numpy.ndarray of floats."""
   
   # If input is float or int, return float version
@@ -113,7 +113,6 @@ def _convertFloatArray(Xin):
 #==================================================================================================================
 
 def Load(filename):
-  
   """Takes filename of saved star or cluster and loads object."""
   
   # Load the object
@@ -128,7 +127,6 @@ def Load(filename):
 #==================================================================================================================
 
 def ModelCluster():
-  
   """Reads the model cluster used in Johnstone et al. (2020)."""
   
   # Get directory where package is installed
@@ -164,7 +162,6 @@ def ModelCluster():
 #====================================================================================================================
 
 def ActivityLifetime(Age=None,Track=None,Threshold=None,AgeMax=None):
-  
   """
   Takes evolutionary track for parameter, calculates when value drops below threshold.
 
@@ -236,7 +233,6 @@ def ActivityLifetime(Age=None,Track=None,Threshold=None,AgeMax=None):
 #====================================================================================================================
 
 def IntegrateEmission(AgeMin=None,AgeMax=None,Age=None,Luminosity=None,aOrb=None):
-  
   """
   Takes evolutionary track for parameter, calculates when value drops below threshold.
   
@@ -322,7 +318,6 @@ def IntegrateEmission(AgeMin=None,AgeMax=None,Age=None,Luminosity=None,aOrb=None
 #====================================================================================================================
 
 def _getIndexLTordered(Xarray,X):
-  
   """Takes min to max ordered array of values and a value, returns index of closest element in array smaller than value."""
   
   # It is assumed that X is between the min and max of Xarray and it is assumed
@@ -362,7 +357,6 @@ def _getIndexLTordered(Xarray,X):
 #====================================================================================================================
 
 def _getIndexLT(Xarray,X):
-  
   """Takes array of values and a value, returns index of closest element in array smaller than value."""
   
   # It is assumed that X is greater than the min of Xarray, but check this
@@ -382,7 +376,6 @@ def _getIndexLT(Xarray,X):
 #====================================================================================================================
 
 def _getIndexGT(Xarray,X):
-  
   """Takes array of values and a value, returns index of closest element in array larger than value."""
   
   # It is assumed that X is less than the max of Xarray, but check this
