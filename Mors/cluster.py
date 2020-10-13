@@ -118,7 +118,7 @@ class Cluster:
       # Get Age depending on if it is an array or a float/int
       if Age is None:
         AgeIn = None
-      elif ( type(Age) == float ) or ( type(Age) == int ):
+      elif isinstance(Age,(float,int)):
         AgeIn = Age
       else:
         AgeIn = Age[iStar]
@@ -264,7 +264,7 @@ class Cluster:
       misc._PrintErrorKill("keyword parameter Age not set in call to function")
     
     # If percentile was set to a string, get float version
-    if ( type(percentile) == str ):
+    if isinstance(percentile,str):
       if ( percentile == 'slow' ):
         percentile = 5.0
       elif ( percentile == 'medium' ):
@@ -317,7 +317,7 @@ class Cluster:
       misc._PrintErrorKill("Quantity not set in call to function")
       
     # Make sure Quantity is string
-    if not ( type(Quantity) == str ):
+    if not isinstance(Quantity,str):
       misc._PrintErrorKill("Quantity must be string")
     
     # Make array

@@ -673,8 +673,8 @@ def Value(MstarIn,AgeIn,ParamString,ModelData=ModelDataDefault):
     misc._PrintErrorKill("argument Age has invalid type")
   
   # Find if scenario 1 (most likely)
-  if ( ( type(Mstar) == float ) and ( type(Age) == float ) and ( type(ParamString) == str ) ):
-        
+  if ( isinstance(Mstar,float) and isinstance(Age,float) and isinstance(ParamString,str) ):
+    
     # Scenario 1 so just get value
     value = _ValueSingle( Mstar , Age , ParamString , ModelData=ModelData )
     
@@ -694,7 +694,7 @@ def Value(MstarIn,AgeIn,ParamString,ModelData=ModelDataDefault):
     except:
       nAge = 1
     
-    if ( type(ParamString) == list ):
+    if isinstance(ParamString,list):
       nParam = len(ParamString)
     else:
       nParam = 1
@@ -708,17 +708,17 @@ def Value(MstarIn,AgeIn,ParamString,ModelData=ModelDataDefault):
         for iParam in range(0,nParam):
           
           # Get values of Mstar, Age, and ParamString
-          if ( type(Mstar) == float ):
+          if isinstance(Mstar,float):
             MstarValue = Mstar
           else:
             MstarValue = Mstar[iMstar]
             
-          if ( type(Age) == float ):
+          if isinstance(Age,float):
             AgeValue = Age
           else:
             AgeValue = Age[iAge]
             
-          if ( type(ParamString) == str ):
+          if isinstance(ParamString,str):
             ParamStringValue = ParamString
           else:
             ParamStringValue = ParamString[iParam]
@@ -738,13 +738,13 @@ def _ValueSingle(Mstar,Age,ParamString,ModelData=ModelDataDefault):
   """Takes stellar mass and age and parameter string, returns value of that parameter at that mass and age."""
   
   ## Make sure Mstar and age are floats
-  #if not ( type(Mstar) == float ):
+  #if not isinstance(Mstar,float):
     #misc._PrintErrorKill("argument Mstar must be float in call to Value")
-  #if not ( type(Age) == float ):
+  #if not isinstance(Age,float):
     #misc._PrintErrorKill("argument Age must be float in call to Value")
   
   # Make sure ParamString is indeed a string
-  if not ( type(ParamString) == str ):
+  if not isinstance(ParamString,str):
     misc._PrintErrorKill("argument ParamString must be string in call to Value")
   
   # Make sure ParamString corresponds to a valid parameter

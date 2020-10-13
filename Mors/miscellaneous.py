@@ -78,11 +78,11 @@ def _convertFloatArray(Xin):
   """Takes a value and returns either as float or numpy.ndarray of floats."""
   
   # If input is float or int, return float version
-  if ( ( type(Xin) == float ) or ( type(Xin) == int ) ):
+  if isinstance(Xin,(float,int)):
     return float(Xin)
   
   # If input is a list, numpy array version (will only work if elements can be converted into floats)
-  if ( type(Xin) == list ):
+  if isinstance(Xin,list):
     X = np.zeros(len(Xin))
     for i in range(0,len(Xin)):
       X[i] = float(Xin[i])

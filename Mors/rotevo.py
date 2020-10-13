@@ -204,7 +204,7 @@ def EvolveRotation(Mstar=None,Omega0=None,OmegaEnv0=None,OmegaCore0=None,AgeMin=
   
   # Make editable and np array form of AgesOut and use this from now on
   if not AgesOut is None:
-    if ( type(AgesOut) == float ) or ( type(AgesOut) == int ):
+    if isinstance(AgesOut,(float,int)):
       AgesOut2 = np.array([AgesOut])
     else:
       AgesOut2 = copy.deepcopy(AgesOut)
@@ -296,7 +296,7 @@ def _dAgeCalc(dAge,Age,AgeMax,AgesOut,params):
   if not AgesOut is None:
     
     # If AgesOut is just a number (float or int) then it is easy
-    if ( type(AgesOut) == float ) or ( type(AgesOut) == int ):
+    if isinstance(AgesOut,(float,int)):
       
       # Get new maximum age
       dAgeMax = AgesOut - Age
@@ -332,7 +332,7 @@ def _shouldAppend(Age,AgesOut):
   if not AgesOut is None:
     
     # If AgesOut is just a number (float or int) then it is easy
-    if ( type(AgesOut) == float ) or ( type(AgesOut) == int ):
+    if isinstance(AgesOut,(float,int)):
       
       # Check if close enough to AgesOut to output
       if ( abs(Age/float(AgesOut))-1.0 < 1.0e-6 ):

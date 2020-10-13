@@ -644,7 +644,7 @@ def XrayScatter(XrayAverage,params=params.paramsDefault):
   """
   
   # Get number of stars
-  if ( type(XrayAverage) == float ) or ( type(XrayAverage) == int ):
+  if isinstance(XrayAverage,(float,int)):
     nStars = 1
   else:
     nStars = len(XrayAverage)

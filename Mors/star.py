@@ -302,7 +302,7 @@ class Star:
       misc._PrintErrorKill("Quantity not set in call to function")
       
     # Make sure Quantity is string
-    if not ( type(Quantity) == str ):
+    if not isinstance(Quantity,str):
       misc._PrintErrorKill("Quantity must be string")
     
     # Check input Quantity is valid
@@ -373,7 +373,7 @@ class Star:
       misc._PrintErrorKill("Band not set in call to function")
       
     # Make sure Band is string
-    if not ( type(Band) == str ):
+    if not isinstance(Band,str):
       misc._PrintErrorKill("Band must be string")
     
     # Check input Band is valid
@@ -402,7 +402,7 @@ class Star:
       misc._PrintErrorKill("did not find right luminosity track")
     
     # If aOrb was set to a string, do necessary work to get useable aOrb (given by aOrbUse)
-    if ( type(aOrb) == str ):
+    if isinstance(aOrb,str):
       
       # Valid options
       aOrbAllowed = [ 'RecentVenus' , 'RunawayGreenhouse' , 'MoistGreenhouse' , 'MaximumGreenhouse' , 'EarlyMars' , 'HZ' ]
@@ -440,7 +440,7 @@ def _CheckInputMstar(Mstar):
     misc._PrintErrorKill("stellar mass not given")
   
   # Make sure it is a float
-  #if not ( type(Mstar) == float ):
+  #if not isinstance(Mstar,float):
     #misc._PrintErrorKill("stellar mass must be given as float")
   
   # Make sure it above minimum
@@ -475,7 +475,7 @@ def _InputRotation(Mstar,Age,Omega,OmegaEnv,OmegaCore,Prot,percentile,params):
     misc._PrintErrorKill( "cannot set both percentile and OmegaEnv as arguments of Star" )
   
   # If percentile was set to a string, get float version
-  if ( type(percentile) == str ):
+  if isinstance(percentile,str):
     if ( percentile == 'slow' ):
       percentile = 5.0
     elif ( percentile == 'medium' ):
