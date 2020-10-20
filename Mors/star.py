@@ -23,7 +23,6 @@ MstarMax = 1.25
 #====================================================================================================================
 
 class Star:
-  
   """
   A class for star objects that hold all information about a star. 
   
@@ -38,7 +37,6 @@ class Star:
   #---------------------------------------------------------------------------------------
 
   def __init__(self,Mstar=None,Age=None,percentile=None,Omega=None,Prot=None,OmegaEnv=None,OmegaCore=None,AgesOut=None,starEvoDir=None,evoModels=None,params=params.paramsDefault):
-    
     """
     Initialises instance of Star class.
     
@@ -113,7 +111,6 @@ class Star:
   #---------------------------------------------------------------------------------------
   
   def _LoadStarEvo(self,starEvoDir=None,evoModels=None):
-    
     """Loads stellar evolution tracks."""
     
     # Get an instance of the StarEvo class holding evolutionary tracks for all masses
@@ -127,7 +124,6 @@ class Star:
   #---------------------------------------------------------------------------------------
   
   def _LoadEvoTracks(self,Age,OmegaEnv0,OmegaCore0,AgesOut=None):
-    
     """Loads rotation and activity tracks."""
     
     
@@ -183,7 +179,6 @@ class Star:
   #---------------------------------------------------------------------------------------
     
   def _setupQuantityFunctions(self):
-    
     """Makes functions for each quantity that return this quantity at a given age as attributes of class."""
     
     # Loop over quantities held in self.Tracks
@@ -205,13 +200,7 @@ class Star:
   #---------------------------------------------------------------------------------------
   
   def Value(self,Age=None,Quantity=None):
-    
-    """
-    Takes age in Myr and a string with name of quantity to output, returns value of that quantity at specified age.
-    
-    
-    
-    """
+    """Takes age in Myr and a string with name of quantity to output, returns value of that quantity at specified age."""
     
     # Do 1D linear interpolation to get value
     value = SE._Interpolate1D( self.Tracks['Age'] , self.Tracks[Quantity] , Age )
@@ -220,8 +209,26 @@ class Star:
   
   #---------------------------------------------------------------------------------------
   
-  def PrintAvailableTracks(self):
+  def Track(self,Quantity=None):
+    """Takes a quantity string, return evolutionary track for that quantity."""
     
+    # Make sure Quantity is set
+    if Quantity is None:
+      misc._PrintErrorKill("Quantity not set in call to function")
+      
+    # Make sure Quantity is string
+    if not isinstance(Quantity,str):
+      misc._PrintErrorKill("Quantity must be string")
+      
+    # Make sure Quantity is a valid quantity with a track
+    if not Quantity in self.Tracks:
+      misc._PrintErrorKill("no available track for "+Quantity)
+    
+    return self.Tracks[Quantity]
+  
+  #---------------------------------------------------------------------------------------
+  
+  def PrintAvailableTracks(self):
     """Prints all quantities that have evolutionary tracks available."""
     
     # Print header
@@ -250,7 +257,6 @@ class Star:
   #---------------------------------------------------------------------------------------
    
   def Save(self,filename='star.pickle'):
-    
     """Takes filename (default is 'star.pickle'), saves cluster to this file using pickle."""
     
     with open(filename,'wb') as f:
@@ -266,7 +272,6 @@ class Star:
   #---------------------------------------------------------------------------------------
   
   def ActivityLifetime(self,Quantity=None,Threshold=None,AgeMax=None):
-    
     """
     Takes threshold value, returns age at which a star last drops below this threshold.
     
@@ -336,7 +341,6 @@ class Star:
   #---------------------------------------------------------------------------------------
     
   def IntegrateEmission(self,AgeMin=None,AgeMax=None,Band=None,aOrb=None):
-    
     """
     Takes age range, calculates integrated emission in band within that range.
     
@@ -432,7 +436,6 @@ class Star:
 #====================================================================================================================
 
 def _CheckInputMstar(Mstar):
-  
   """Takes stellar mass, checks if value is a valid input mass."""
   
   # Make sure Mstar was set
@@ -456,7 +459,6 @@ def _CheckInputMstar(Mstar):
 #====================================================================================================================
 
 def _InputRotation(Mstar,Age,Omega,OmegaEnv,OmegaCore,Prot,percentile,params):
-  
   """Takes input rotation values, checks sets up values correctly."""
   
   # Make sure percentile and rotation are not both set
@@ -526,7 +528,6 @@ def _InputRotation(Mstar,Age,Omega,OmegaEnv,OmegaCore,Prot,percentile,params):
 #====================================================================================================================
 
 def Percentile(Mstar=None,Omega=None,Prot=None,percentile=None,MstarDist=None,OmegaDist=None,ProtDist=None,params=params.paramsDefault):
-  
   """
   Gets rotation rate of percentile or percentile of rotation rate in the model rotation distribution.
   
@@ -621,7 +622,6 @@ def Percentile(Mstar=None,Omega=None,Prot=None,percentile=None,MstarDist=None,Om
 #====================================================================================================================
 
 def _OmegaPercentile(Mstar,percentile,MstarDist,OmegaDist,params):
-  
   """Gets rotation rate that corresponds to a given percentile of the rotation distribution."""
   
   ## If percentile was a string, get actual value
@@ -641,7 +641,6 @@ def _OmegaPercentile(Mstar,percentile,MstarDist,OmegaDist,params):
 #====================================================================================================================
 
 def _PerPercentile(Mstar,Omega,MstarDist,OmegaDist,params):
-  
   """Gets percentile of the rotation distribution for a given mass and rotation rate."""
   
   # Get part of distribution to include
