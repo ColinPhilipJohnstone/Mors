@@ -1,6 +1,4 @@
 
-TBD - better descriptions of various parameters
-
 -------------------------------------------------------------------------------------------------------------
 
 MODEL FOR ROTATION OF STARS (MORS)
@@ -28,9 +26,9 @@ CONTENTS
 
 1. INSTALLATION
 
-1. Prerequisites: The code requires only that an up-to-date version of Python is installed with numpy and matplotlib included. 
+Prerequisites: The code requires only that an up-to-date version of Python is installed with numpy and matplotlib included. 
 
-2. Obtaining and installing the code: Make a clone of the repository on GitHub somewhere on your computer using
+Obtaining and installing the code: Make a clone of the repository on GitHub somewhere on your computer using
 
 $ git clone https://github.com/ColinPhilipJohnstone/Mors
 
