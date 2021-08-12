@@ -1,4 +1,6 @@
 
+NOTE: This version contains the fix for the error in the equation converting EUV1 to EUV2.
+
 -------------------------------------------------------------------------------------------------------------
 
 MODEL FOR ROTATION OF STARS (MORS)

@@ -841,7 +841,7 @@ def _EUV2(StarState,params=params.paramsDefault):
   """Takes star state, returns Leuv2 in erg s^-1, Feuv2 in erg s^-1 cm^-1, and Reuv2 (36-92 nm)."""
   
   # Get Feuv2 from Feuv1 using equation from Johnstone et al. (2020)
-  Feuv2 = 10.0**( -0.341 + 0.92 * np.log10(StarState['Feuv1']) )
+  Feuv2 = 10.0**( -0.0341 + 0.92 * np.log10(StarState['Feuv1']) )
   
   # Get Leuv1 from this
   Leuv2 = Feuv2 * ( 4.0 * const.Pi * (StarState['Rstar']*const.Rsun)**2.0 )
