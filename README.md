@@ -1,13 +1,12 @@
-
-**NOTE:** This version contains the fix for the error in the equation converting EUV1 to EUV2.
-
 **MODEL FOR ROTATION OF STARS (MORS)**
 
 **Author:** Colin P. Johnstone 
 
-This code solves the stellar rotation and XUV evolution model presented in Johnstone et al. (2020). The package can be used to calculate evolutionary tracks for stellar rotaton and X-ray, EUV, and Ly-alpha emission for stars with masses between 0.1 and 1.25 Msun and has additional functionality such as allowing the user to get basic stellar parameters such as stellar radius and luminosity as functions of mass and age using the stellar evolution models of Spada et al. (2013). When publishing results that were calculated using this code, both the Johnstone et al. (2020) paper and Spada et al. (2013) should be cited.
+This code solves the stellar rotation and XUV evolution model presented in Johnstone et al. (2021). The package can be used to calculate evolutionary tracks for stellar rotaton and X-ray, EUV, and Ly-alpha emission for stars with masses between 0.1 and 1.25 Msun and has additional functionality such as allowing the user to get basic stellar parameters such as stellar radius and luminosity as functions of mass and age using the stellar evolution models of Spada et al. (2013). When publishing results that were calculated using this code, both the Johnstone et al. (2020) paper and Spada et al. (2013) should be cited.
 
-# 0. CONTENTS
+**NOTE:** This version contains the fix for the error in the equation converting EUV1 to EUV2.
+
+# CONTENTS
 1. INSTALLATION
 2. EVOLUTIONARY CALCULATIONS 
 3. PERCENTILES AND MODEL DISTRIBUTION
