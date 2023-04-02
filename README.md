@@ -26,7 +26,11 @@ Obtaining and installing the code: Make a clone of the repository on GitHub some
 
 $ git clone https://github.com/ColinPhilipJohnstone/Mors
 
- The code can be installed from the command line inside the main directory, where the setup.py file is kept, using 
+```
+$ git clone https://github.com/ColinPhilipJohnstone/Mors
+```
+
+The code can be installed from the command line inside the main directory, where the setup.py file is kept, using 
 
 $ pip install . 
 
