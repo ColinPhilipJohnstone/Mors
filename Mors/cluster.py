@@ -1,4 +1,3 @@
-
 """Module holding the Cluster class and related functions."""
 
 # Imports for standard stuff needed here
@@ -17,8 +16,7 @@ import Mors.physicalmodel as phys
 import Mors.star as star
 
 class Cluster:
-    """
-    A class for star objects that hold all information about a star. 
+    """A class for star objects that hold all information about a star. 
     
     Attributes
     ------------
@@ -29,8 +27,7 @@ class Cluster:
     """
         
     def __init__(self,Mstar=None,Age=None,Omega=None,OmegaEnv=None,OmegaCore=None,AgesOut=None,starEvoDir=None,evoModels=None,params=params.paramsDefault,verbose=False):
-        """
-        Initialises instance of Cluster class.
+        """Initialises instance of Cluster class.
         
         This is the main function that is run when creating an instance of the Cluster class and it sets up all
         the things needed including calculating evolutionary tracks for each of the stars star. The function requires 
@@ -146,8 +143,7 @@ class Cluster:
         return
     
     def Values(self,Age=None,Quantity=None):
-        """
-        Takes age in Myr and a string with name of quantity to output, returns value of that quantity at specified age for all stars.
+        """Takes age in Myr and a string with name of quantity to output, returns value of that quantity at specified age for all stars.
         
         Parameters
         ----------
@@ -207,8 +203,7 @@ class Cluster:
         return    
         
     def Percentile(self,Mstar=None,Age=None,Omega=None,Prot=None,percentile=None):
-        """
-        Gets rotation rate of percentile or percentile of rotation rate in the rotation distribution at given age.
+        """Gets rotation rate of percentile or percentile of rotation rate in the rotation distribution at given age.
         
         This function can be used for two purposes
         1. to determine the percentile in a rotation distribution of a star given its mass, rotation rate, and age
@@ -263,8 +258,7 @@ class Cluster:
         return result
     
     def ActivityLifetime(self,Quantity=None,Threshold=None,AgeMax=None):
-        """
-        Takes threshold value, returns ages at which each star last drops below this threshold.
+        """Takes threshold value, returns ages at which each star last drops below this threshold.
         
         This function can be used to determine when each star's emission crosses a given threshold value for a few
         activity quantities. These are Lx, Fx, Rx, and FxHZ for X-rays, and similar values for EUV1, EUV2, EUV, 
@@ -307,8 +301,7 @@ class Cluster:
         return AgeActive
         
     def IntegrateEmission(self,AgeMin=None,AgeMax=None,Band=None,aOrb=None):
-        """
-        Takes age range, returns integrated emission in band within that range for each star.
+        """Takes age range, returns integrated emission in band within that range for each star.
         
         This code can be used to the luminosities of the stars between two ages. This can be applied to any wavelength band
         and the result is a total energy emitted in this time in erg. If the user also specifies an orbital distance using 
