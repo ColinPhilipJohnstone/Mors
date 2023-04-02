@@ -65,6 +65,10 @@ The main way that the user is meant to interact with the code is through the Sta
 
 >>> star = mors.Star(Mstar=1.0,Omega=10.0)
 
+```python
+>>> star = mors.Star(Mstar=1.0,Omega=10.0)
+```
+
 The user can instead set the initial rotation rate using the Prot keyword argument giving the surface rotation period in days.
 
 >>> star = mors.Star(Mstar=1.0,Prot=2.7)
