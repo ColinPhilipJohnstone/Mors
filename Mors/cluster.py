@@ -1,8 +1,6 @@
 
 """Module holding the Cluster class and related functions."""
 
-#====================================================================================================================
-
 # Imports for standard stuff needed here
 import sys
 import inspect
@@ -18,8 +16,6 @@ import Mors.rotevo as RE
 import Mors.physicalmodel as phys
 import Mors.star as star
 
-#====================================================================================================================
-
 class Cluster:
   """
   A class for star objects that hold all information about a star. 
@@ -31,9 +27,7 @@ class Cluster:
   ------------
   
   """
-  
-  #---------------------------------------------------------------------------------------
-  
+    
   def __init__(self,Mstar=None,Age=None,Omega=None,OmegaEnv=None,OmegaCore=None,AgesOut=None,starEvoDir=None,evoModels=None,params=params.paramsDefault,verbose=False):
     """
     Initialises instance of Cluster class.
@@ -93,9 +87,7 @@ class Cluster:
     self.aOrbHZ = phys.aOrbHZ(Mstar=self.Mstar,params=self.params)
     
     return
-  
-  #---------------------------------------------------------------------------------------
-  
+    
   def _LoadEvoTracks(self,Age,OmegaEnv0,OmegaCore0,verbose):
     """Loads rotation and activity tracks for each star."""
     
@@ -141,8 +133,6 @@ class Cluster:
     self._setupQuantityFunctions()
     
     return
-
-  #---------------------------------------------------------------------------------------
     
   def _setupQuantityFunctions(self):
     """Makes functions for each quantity that return this quantity at a given age as attributes of class."""
@@ -155,8 +145,6 @@ class Cluster:
       exec( "setattr( self.__class__ , '"+track+"' , "+track+" )" )
     
     return
-  
-  #---------------------------------------------------------------------------------------
   
   def Values(self,Age=None,Quantity=None):
     """
@@ -191,9 +179,7 @@ class Cluster:
       values[iStar] = self.stars[iStar].Value(Age=Age,Quantity=Quantity)
     
     return values
-  
-  #---------------------------------------------------------------------------------------
-  
+    
   def PrintStars(self):
     """Prints list of stars in cluster to screen."""
     
@@ -209,8 +195,6 @@ class Cluster:
     
     return
   
-  #---------------------------------------------------------------------------------------
-  
   def Save(self,filename='cluster.pickle'):
     """Takes filename (default is 'cluster.pickle'), saves cluster to this file using pickle."""
     
@@ -222,10 +206,7 @@ class Cluster:
   def save(self,filename='cluster.pickle'):
     """Same as Save()."""
     self.Save(filename=filename)
-    return
-  
-  #---------------------------------------------------------------------------------------
-    
+    return    
     
   def Percentile(self,Mstar=None,Age=None,Omega=None,Prot=None,percentile=None):
     """
@@ -282,8 +263,6 @@ class Cluster:
                             MstarDist=self.Mstar , OmegaDist=OmegaDist , params=self.params )
     
     return result
-    
-  #---------------------------------------------------------------------------------------
   
   def ActivityLifetime(self,Quantity=None,Threshold=None,AgeMax=None):
     """
@@ -328,8 +307,6 @@ class Cluster:
       AgeActive[iStar] = self.stars[iStar].ActivityLifetime(Quantity=Quantity,Threshold=Threshold,AgeMax=AgeMax)
     
     return AgeActive
-  
-  #---------------------------------------------------------------------------------------
     
   def IntegrateEmission(self,AgeMin=None,AgeMax=None,Band=None,aOrb=None):
     """
@@ -368,11 +345,6 @@ class Cluster:
       Energy[iStar] = self.stars[iStar].IntegrateEmission(AgeMin=AgeMin,AgeMax=AgeMax,Band=Band,aOrb=aOrb)
     
     return Energy
-    
-  #---------------------------------------------------------------------------------------
-  
-    
-#====================================================================================================================
 
 def _CheckInputRotation(Age,Omega,OmegaEnv,OmegaCore):
   """Takes input rotation, checks if values are setup correctly."""
@@ -400,5 +372,3 @@ def _CheckInputRotation(Age,Omega,OmegaEnv,OmegaCore):
   
   
   return Omega , OmegaEnv , OmegaCore
-
-#====================================================================================================================

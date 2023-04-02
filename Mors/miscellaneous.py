@@ -11,8 +11,6 @@ import copy
 # Imports for Mors modules
 import Mors.constants as const
 
-#==================================================================================================================
-
 def _PrintErrorKill(errorString):
   """Takes string with error message, prints message to screen and end code execution."""
   
@@ -34,8 +32,6 @@ def _PrintErrorKill(errorString):
   
   return
 
-#==================================================================================================================
-
 def _PrintError(errorString):
   """Takes string with error message, prints message to screen."""
 
@@ -53,8 +49,6 @@ def _PrintError(errorString):
   
   return
 
-#==================================================================================================================
-
 def _GetPackageDirectory():
   """Gets path to main directory where the code is installed."""
   
@@ -71,8 +65,6 @@ def _GetPackageDirectory():
     path += item + '/'
   
   return path
-
-#==================================================================================================================
 
 def _convertFloatArray(Xin):
   """Takes a value and returns either as float or numpy.ndarray of floats."""
@@ -110,8 +102,6 @@ def _convertFloatArray(Xin):
   
   return
 
-#==================================================================================================================
-
 def Load(filename):
   """Takes filename of saved star or cluster and loads object."""
   
@@ -123,8 +113,6 @@ def Load(filename):
   obj._setupQuantityFunctions()
   
   return obj
-
-#==================================================================================================================
 
 def ModelCluster():
   """Reads the model cluster used in Johnstone et al. (2020)."""
@@ -158,8 +146,6 @@ def ModelCluster():
     iStar += 1
   
   return Mstar , Omega
-
-#====================================================================================================================
 
 def ActivityLifetime(Age=None,Track=None,Threshold=None,AgeMax=None):
   """
@@ -229,8 +215,6 @@ def ActivityLifetime(Age=None,Track=None,Threshold=None,AgeMax=None):
       return mInterp*Threshold + cInterp
       
   return 0.0
-
-#====================================================================================================================
 
 def IntegrateEmission(AgeMin=None,AgeMax=None,Age=None,Luminosity=None,aOrb=None):
   """
@@ -315,8 +299,6 @@ def IntegrateEmission(AgeMin=None,AgeMax=None,Age=None,Luminosity=None,aOrb=None
   
   return Energy
 
-#====================================================================================================================
-
 def _getIndexLTordered(Xarray,X):
   """Takes min to max ordered array of values and a value, returns index of closest element in array smaller than value."""
   
@@ -354,8 +336,6 @@ def _getIndexLTordered(Xarray,X):
   
   return iMid
 
-#====================================================================================================================
-
 def _getIndexLT(Xarray,X):
   """Takes array of values and a value, returns index of closest element in array smaller than value."""
   
@@ -373,8 +353,6 @@ def _getIndexLT(Xarray,X):
   
   return index
 
-#====================================================================================================================
-
 def _getIndexGT(Xarray,X):
   """Takes array of values and a value, returns index of closest element in array larger than value."""
   
@@ -391,6 +369,3 @@ def _getIndexGT(Xarray,X):
   index = np.argmin(deltaX)
   
   return index
-
-#====================================================================================================================
-

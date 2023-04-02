@@ -13,12 +13,8 @@ import Mors.parameters as params
 import Mors.stellarevo as SE
 import sys
 
-#====================================================================================================================
-
 AgeMinDefault = 1.0       # when to start evolution (Myr)
 AgeMaxDefault = 5000.0    # when to end evolution (Myr)
-
-#====================================================================================================================
 
 def FitRotation(Mstar=None,Age=None,Omega=None,AgeMin=None,params=params.paramsDefault,StarEvo=None):
   
@@ -143,8 +139,6 @@ def FitRotation(Mstar=None,Age=None,Omega=None,AgeMin=None,params=params.paramsD
   #---------------------------------------------------------------------
   
   return Omega0
-
-#====================================================================================================================
 
 def EvolveRotation(Mstar=None,Omega0=None,OmegaEnv0=None,OmegaCore0=None,AgeMin=None,AgeMax=None,AgesOut=None,params=params.paramsDefault,StarEvo=None):
   
@@ -283,8 +277,6 @@ def EvolveRotation(Mstar=None,Omega0=None,OmegaEnv0=None,OmegaCore0=None,AgeMin=
   
   return Tracks
 
-#====================================================================================================================
-
 def _dAgeCalc(dAge,Age,AgeMax,AgesOut,params):
   
   """Takes information about age in evolutionary calculation, returns age step to use."""
@@ -317,8 +309,6 @@ def _dAgeCalc(dAge,Age,AgeMax,AgesOut,params):
   dAge = min( dAge , params['dAgeMax'] )
   
   return dAge , dAgeMax
-
-#====================================================================================================================
 
 def _shouldAppend(Age,AgesOut):
   
@@ -359,8 +349,6 @@ def _shouldAppend(Age,AgesOut):
         return AgesOut , False
   
   return AgesOut , False
-
-#====================================================================================================================
 
 def EvolveRotationStep(Mstar=None,Age=None,OmegaEnv=None,OmegaCore=None,dAgeMax=None,dAge=None,params=params.paramsDefault,StarEvo=None):
   
@@ -443,8 +431,6 @@ def EvolveRotationStep(Mstar=None,Age=None,OmegaEnv=None,OmegaCore=None,dAgeMax=
   
   return ( dAge , dAgeNew , OmegaEnv , OmegaCore )
 
-#====================================================================================================================
-
 def _EvolveRotationStepFE(Mstar=None,Age=None,OmegaEnv=None,OmegaCore=None,dAge=None,params=params.paramsDefault,StarEvo=None):
   
   """Takes basic stellar parameters, evolves by timestep using forward Euler method."""
@@ -457,8 +443,6 @@ def _EvolveRotationStepFE(Mstar=None,Age=None,OmegaEnv=None,OmegaCore=None,dAge=
   OmegaCore += dAge * dOmegaCoredt
   
   return ( dAge , dAge , OmegaEnv , OmegaCore )
-
-#====================================================================================================================
 
 def _EvolveRotationStepRK4(Mstar=None,Age=None,OmegaEnv=None,OmegaCore=None,dAge=None,params=params.paramsDefault,StarEvo=None):
   
@@ -475,8 +459,6 @@ def _EvolveRotationStepRK4(Mstar=None,Age=None,OmegaEnv=None,OmegaCore=None,dAge
   OmegaCore += dAge * ( k1Core + 2.0*k2Core + 2.0*k3Core + k4Core ) / 6.0
   
   return ( dAge , dAge , OmegaEnv , OmegaCore )
-
-#====================================================================================================================
 
 def _EvolveRotationStepRKF(Mstar=None,Age=None,OmegaEnv=None,OmegaCore=None,dAgeMax=None,dAge=None,params=params.paramsDefault,StarEvo=None):
 
@@ -553,8 +535,6 @@ def _EvolveRotationStepRKF(Mstar=None,Age=None,OmegaEnv=None,OmegaCore=None,dAge
   OmegaCore = Xnew[1]
   
   return dAge , dAgeNew , OmegaEnv , OmegaCore
-    
-#====================================================================================================================
 
 def _EvolveRotationStepRB(Mstar=None,Age=None,OmegaEnv=None,OmegaCore=None,dAgeMax=None,dAge=None,params=params.paramsDefault,StarEvo=None):
 
@@ -617,8 +597,6 @@ def _EvolveRotationStepRB(Mstar=None,Age=None,OmegaEnv=None,OmegaCore=None,dAgeM
   
   return dAge , dAgeNew , OmegaEnv , OmegaCore
 
-#====================================================================================================================
-
 def _JacobianRB(Mstar,Age,X,nVar,params,StarEvo):
   
   """Calculates Jacobian d(dOmega/dt)/dOmega terms for Rosenbrock solver."""
@@ -646,8 +624,6 @@ def _JacobianRB(Mstar,Age,X,nVar,params,StarEvo):
     
   return Jac
 
-#====================================================================================================================
-
 def _kCoeffRB(Mstar,Age,dAge,X,Jac,nVar,CoefficientsRB,params,StarEvo):
   
   """Calculates kCoeff for Rosenbrock solver."""
@@ -655,7 +631,6 @@ def _kCoeffRB(Mstar,Age,dAge,X,Jac,nVar,CoefficientsRB,params,StarEvo):
   # Make array for holding result
   kCoeff = np.zeros((nVar,CoefficientsRB['s']))
   
-  #-----------------------------------------------------------------------------
   # Get the function involving the Jacobian, given by (I - dt * gamma_ii * J)
   # note: since all gamma_ii coefficients are equal, this function only needs to
   #       be calculated once and can then be used for all values of i
@@ -667,15 +642,11 @@ def _kCoeffRB(Mstar,Age,dAge,X,Jac,nVar,CoefficientsRB,params,StarEvo):
   # Loop over diagonal elements and add 1 to each
   for iVar in range(0,nVar):
     JacFunc[iVar,iVar] += 1.0
-      
-  #-----------------------------------------------------------------------------
   
   # Get k1
   dXdt = np.array( phys.dOmegadt( Mstar=Mstar , Age=Age+dAge, OmegaEnv=X[0] , OmegaCore=X[1] , params=params , StarEvo=StarEvo ) )
   RateFunction = dAge * dXdt
   kCoeff[:,0] = _GaussianElimination( JacFunc , RateFunction )
-  
-  #-----------------------------------------------------------------------------
   
   # Get k2,...ks
   for i in range(1,CoefficientsRB['s']):
@@ -697,11 +668,7 @@ def _kCoeffRB(Mstar,Age,dAge,X,Jac,nVar,CoefficientsRB,params,StarEvo):
     # Get k value for this step
     kCoeff[:,i] = _GaussianElimination( JacFunc , RateFunction )
   
-  #-----------------------------------------------------------------------------
-  
   return kCoeff
-
-#====================================================================================================================
 
 def _GaussianElimination(Ain,B):
   
@@ -764,8 +731,6 @@ def _GaussianElimination(Ain,B):
   
   return X
 
-#====================================================================================================================
-
 def _CreateTracks(Mstar,Age,dAge,OmegaEnv,OmegaCore,params,StarEvo):
   
   """Takes simulation parameters, returns dictionary with empty arrays for evolutionary tracks."""
@@ -800,8 +765,6 @@ def _CreateTracks(Mstar,Age,dAge,OmegaEnv,OmegaCore,params,StarEvo):
   Tracks = _AppendTracks(Tracks,Mstar,Age,dAge,OmegaEnv,OmegaCore,params,StarEvo,StarState=StarState)
   
   return Tracks
-
-#====================================================================================================================
   
 def _AppendTracks(Tracks,Mstar,Age,dAge,OmegaEnv,OmegaCore,params,StarEvo,StarState=None):
   
@@ -831,8 +794,6 @@ def _AppendTracks(Tracks,Mstar,Age,dAge,OmegaEnv,OmegaCore,params,StarEvo,StarSt
         Tracks[quantity] = np.append( Tracks[quantity] , StarState[quantity] )
   
   return Tracks
-  
-#====================================================================================================================
 
 def _CheckBadData(Tracks):
   
@@ -863,5 +824,3 @@ def _CheckBadData(Tracks):
     misc._PrintErrorKill("ending simulation due to bad data found")
   
   return
-
-#====================================================================================================================

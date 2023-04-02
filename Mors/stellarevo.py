@@ -13,8 +13,7 @@ import inspect
 # Imports for Mors modules
 import Mors.miscellaneous as misc
 
-#====================================================================================================================
-
+#----------------------------------------------------------
 # Parameters for stellar evolution models
 
 # Directory for stellar evolution models
@@ -29,7 +28,7 @@ ModelDataDefault = None
 # Number of decimal places to represent masses and ages when doing interpolations
 nDecValue = 7
 
-#====================================================================================================================
+#----------------------------------------------------------
 
 class StarEvo:
   
@@ -50,9 +49,7 @@ class StarEvo:
   ------------
   
   """
-  
-  #---------------------------------------------------------------------------------------
-  
+    
   def __init__(self,starEvoDir=starEvoDirDefault,evoModels=evoModelsDefault):
     
     """Initialises instance of StarEvo class."""
@@ -67,9 +64,7 @@ class StarEvo:
     self.ModelData = _LoadModels( starEvoDir=starEvoDir , evoModels=evoModels )
     
     return
-  
-  #---------------------------------------------------------------------------------------
-  
+    
   def LoadTrack(self,Mstar,ClearData=False):
     
     """
@@ -95,8 +90,6 @@ class StarEvo:
     self.ModelData = LoadTrack(Mstar,ModelData=self.ModelData,ClearData=ClearData)
     
     return
-   
-  #---------------------------------------------------------------------------------------
   
   def Value(Mstar,Age,ParamString):
     
@@ -132,13 +125,12 @@ class StarEvo:
     
     return
   
-  #---------------------------------------------------------------------------------------
+
   # The following functions are for individual parameters that can be called
-  
   def Rstar(self,Mstar,Age,ModelData=ModelDataDefault):
     """Takes mass and age, returns stellar radius."""
     return Value( Mstar , Age , 'Rstar' , ModelData=self.ModelData )
-  
+
   def Lbol(self,Mstar,Age,ModelData=ModelDataDefault):
     """Takes mass and age, returns bolometric luminosity."""
     return Value( Mstar , Age , 'Lbol' , ModelData=self.ModelData )
@@ -195,10 +187,6 @@ class StarEvo:
     """Takes mass and age, returns rate of change of core radius."""
     return Value( Mstar , Age , 'dRcoredt' , ModelData=self.ModelData )
   
-  #---------------------------------------------------------------------------------------
-
-#====================================================================================================================
-
 def _LoadModels(starEvoDir=starEvoDirDefault,evoModels=evoModelsDefault):
   
   """Loads evolutionary tracks as a grid of parameters at each mass and age."""
@@ -210,8 +198,6 @@ def _LoadModels(starEvoDir=starEvoDirDefault,evoModels=evoModelsDefault):
     ModelData = _LoadSavedGrid(starEvoDir,evoModels)
   
   return ModelData
-
-#====================================================================================================================
 
 def _shouldCompileNew(starEvoDir,evoModels):
   
@@ -225,8 +211,6 @@ def _shouldCompileNew(starEvoDir,evoModels):
     compileNew = False
   
   return compileNew
-
-#====================================================================================================================
 
 def _CompileNewGrid(starEvoDir,evoModels):
   
@@ -258,8 +242,6 @@ def _CompileNewGrid(starEvoDir,evoModels):
     
   
   return ModelData
-
-#====================================================================================================================
 
 def _ReadEvolutionTrack(starEvoDir,evoModels,Mstar,MstarFilenameMiddle):
   
@@ -388,11 +370,8 @@ def _ReadEvolutionTrack(starEvoDir,evoModels,Mstar,MstarFilenameMiddle):
   Data['dIenvdt'] = dIenvdt
   Data['dMcoredt'] = dMcoredt
   Data['dRcoredt'] = dRcoredt
-  #Data[''] = 
   
   return Data
-
-#====================================================================================================================
 
 def _RemoveDuplicateAges(nHeader,content):
   
@@ -427,8 +406,6 @@ def _RemoveDuplicateAges(nHeader,content):
   
   return contentNew
 
-#====================================================================================================================
-
 def _CalculateGradient(Age,X):
   
   """Takes an evolutionary track for quantity, returns evolution of rate of change of quantity."""
@@ -453,8 +430,6 @@ def _CalculateGradient(Age,X):
   
   return dXdt
 
-#====================================================================================================================
-
 def _LoadSavedGrid(starEvoDir,evoModels):
   
   """Takes filename for stellar evo model, returns grid of models."""
@@ -464,8 +439,6 @@ def _LoadSavedGrid(starEvoDir,evoModels):
     ModelData = pickle.load(f)
     
   return ModelData
-
-#====================================================================================================================
 
 def LoadTrack(Mstar,ModelData=None,ClearData=False):
   global ModelDataDefault
@@ -542,8 +515,6 @@ def LoadTrack(Mstar,ModelData=None,ClearData=False):
   
   return ModelData
 
-#====================================================================================================================
-
 def _LoadTrack(Mstar,ModelData):
   
   """Takes stellar mass and model data dictionary, returns dictionary with track for this mass."""
@@ -603,8 +574,6 @@ def _LoadTrack(Mstar,ModelData):
   
   return Data
 
-#====================================================================================================================
-
 def _LoadDefaultModelData():
   global ModelDataDefault
   
@@ -617,8 +586,6 @@ def _LoadDefaultModelData():
   ModelDataDefault = _LoadModels()
   
   return ModelDataDefault
-
-#====================================================================================================================
 
 def Value(MstarIn,AgeIn,ParamString,ModelData=ModelDataDefault):
   
@@ -731,8 +698,6 @@ def Value(MstarIn,AgeIn,ParamString,ModelData=ModelDataDefault):
     
   return value
 
-#====================================================================================================================
-
 def _ValueSingle(Mstar,Age,ParamString,ModelData=ModelDataDefault):
   
   """Takes stellar mass and age and parameter string, returns value of that parameter at that mass and age."""
@@ -787,8 +752,6 @@ def _ValueSingle(Mstar,Age,ParamString,ModelData=ModelDataDefault):
     
   return value
 
-#====================================================================================================================
-
 def _CheckAgeLimit(AgeArray,Age):
   
   """Takes age track and an age, outputs error and stops code if age is not within limits."""
@@ -802,9 +765,6 @@ def _CheckAgeLimit(AgeArray,Age):
   
   return
 
-
-#====================================================================================================================
-
 def _CheckMassLimit(MstarArray,Mstar):
   
   """Takes array of masses and an age, outputs error and stops code if mass is not within limits."""
@@ -813,8 +773,6 @@ def _CheckMassLimit(MstarArray,Mstar):
     misc._PrintErrorKill("input stellar mass "+str(Mstar)+" is not within limits of "+str(np.min(MstarArray))+" to "+str(np.max(MstarArray)))
   
   return
-
-#====================================================================================================================
 
 def _Interpolate2D(Z1,Z2,Z,Xarray1,Xarray2,X,Yarray1,Yarray2):
   
@@ -833,8 +791,6 @@ def _Interpolate2D(Z1,Z2,Z,Xarray1,Xarray2,X,Yarray1,Yarray2):
   Y = mInterp * Z + cInterp
   
   return Y
-
-#====================================================================================================================
 
 def _Interpolate1D(Xarray,Yarray,X):
   
@@ -867,10 +823,8 @@ def _Interpolate1D(Xarray,Yarray,X):
   
   return Y
 
-#====================================================================================================================
 
 # The following functions are for individual parameters that can be called
-
 def Rstar(Mstar,Age,ModelData=ModelDataDefault):
   """Takes mass and age, returns stellar radius."""
   return Value( Mstar , Age , 'Rstar' , ModelData=ModelData )
@@ -930,5 +884,3 @@ def dMcoredt(Mstar,Age,ModelData=ModelDataDefault):
 def dRcoredt(Mstar,Age,ModelData=ModelDataDefault):
   """Takes mass and age, returns rate of change of core radius."""
   return Value( Mstar , Age , 'dRcoredt' , ModelData=ModelData )
-
-#====================================================================================================================

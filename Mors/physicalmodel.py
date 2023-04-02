@@ -12,8 +12,6 @@ import Mors.stellarevo as SE
 import Mors.constants as const
 import Mors.parameters as params
 
-#====================================================================================================================
-
 def dOmegadt(Mstar=None,Age=None,OmegaEnv=None,OmegaCore=None,params=params.paramsDefault,StarEvo=None):
   
   """
@@ -66,8 +64,6 @@ def dOmegadt(Mstar=None,Age=None,OmegaEnv=None,OmegaCore=None,params=params.para
   StarState = RotationQuantities(Mstar=Mstar,Age=Age,OmegaEnv=OmegaEnv,OmegaCore=OmegaCore,params=params,StarEvo=StarEvo)
   
   return ( StarState['dOmegaEnvdt'] , StarState['dOmegaCoredt'] )
-
-#====================================================================================================================
 
 def RotationQuantities(Mstar=None,Age=None,OmegaEnv=None,OmegaCore=None,params=params.paramsDefault,StarEvo=None):
   
@@ -241,8 +237,6 @@ def RotationQuantities(Mstar=None,Age=None,OmegaEnv=None,OmegaCore=None,params=p
   
   return StarState
 
-#====================================================================================================================
-
 def ExtendedQuantities(StarState=None,Mstar=None,Age=None,OmegaEnv=None,OmegaCore=None,params=params.paramsDefault,StarEvo=None):
   
   """
@@ -330,8 +324,6 @@ def ExtendedQuantities(StarState=None,Mstar=None,Age=None,OmegaEnv=None,OmegaCor
   StarState['FlyHZ'] = StarState['Lly'] / ( 4.0 * const.Pi * (aOrbHZ2['HZ']*const.AU)**2.0 )
   
   return StarState 
-
-#====================================================================================================================
 
 def QuantitiesUnits(StarState=None):
   
@@ -437,8 +429,6 @@ def QuantitiesUnits(StarState=None):
       StarStateUnits[quantity] = StarStateUnitsTemp[quantity]
   
   return StarStateUnits
-
-#====================================================================================================================
 
 def Lxuv(Mstar=None,Age=None,Omega=None,OmegaEnv=None,Prot=None,params=params.paramsDefault,StarEvo=None):
   
@@ -553,8 +543,6 @@ def Lxuv(Mstar=None,Age=None,Omega=None,OmegaEnv=None,Prot=None,params=params.pa
   
   return LxuvDict
 
-#====================================================================================================================
-
 def Lx(Mstar=None,Age=None,Omega=None,OmegaEnv=None,Prot=None,params=params.paramsDefault,StarEvo=None):
   
   """
@@ -595,8 +583,6 @@ def Lx(Mstar=None,Age=None,Omega=None,OmegaEnv=None,Prot=None,params=params.para
   
   return LxuvDict['Lx']
 
-#====================================================================================================================
-
 def _Xray(StarState,params=params.paramsDefault):
   
   """Takes star state, returns Lx in erg s^-1, Fx in erg s^-1 cm^-1, and Rx."""
@@ -614,8 +600,6 @@ def _Xray(StarState,params=params.paramsDefault):
   Fx = Lx / ( 4.0 * const.Pi * (StarState['Rstar']*const.Rsun)**2.0 )
   
   return Lx , Fx , Rx
-
-#====================================================================================================================
 
 def XrayScatter(XrayAverage,params=params.paramsDefault):
   
@@ -659,8 +643,6 @@ def XrayScatter(XrayAverage,params=params.paramsDefault):
   deltaXray = XrayAverageScattered - XrayAverage
   
   return deltaXray
-
-#====================================================================================================================
 
 def XUVScatter(XUVAverage,params=params.paramsDefault):
   
@@ -749,8 +731,6 @@ def XUVScatter(XUVAverage,params=params.paramsDefault):
   
   return deltaXUV
 
-#====================================================================================================================
-
 def _Tcor(StarState,params=params.paramsDefault):
   
   """Takes star state, returns average coronal temperature in MK."""
@@ -759,8 +739,6 @@ def _Tcor(StarState,params=params.paramsDefault):
   Tcor = 0.11 * StarState['Fx']**0.26
   
   return Tcor
-
-#====================================================================================================================
 
 def Leuv(Mstar=None,Age=None,Omega=None,OmegaEnv=None,Prot=None,band=0,params=params.paramsDefault,StarEvo=None):
   
@@ -817,8 +795,6 @@ def Leuv(Mstar=None,Age=None,Omega=None,OmegaEnv=None,Prot=None,band=0,params=pa
     
   return -1
 
-#====================================================================================================================
-
 def _EUV1(StarState,params=params.paramsDefault):
   
   """Takes star state, returns Leuv1 in erg s^-1, Feuv in erg s^-1 cm^-1, and Reuv (10-36 nm)."""
@@ -833,8 +809,6 @@ def _EUV1(StarState,params=params.paramsDefault):
   Reuv1 = Leuv1 / StarState['Lbol']
   
   return Leuv1 , Feuv1 , Reuv1
-
-#====================================================================================================================
 
 def _EUV2(StarState,params=params.paramsDefault):
   
@@ -851,8 +825,6 @@ def _EUV2(StarState,params=params.paramsDefault):
   
   return Leuv2 , Feuv2 , Reuv2
 
-#====================================================================================================================
-
 def _EUV(StarState,params=params.paramsDefault):
   
   """Takes star state, returns Leuv in erg s^-1, Feuv in erg s^-1 cm^-1, and Reuv (10-92 nm)."""
@@ -863,8 +835,6 @@ def _EUV(StarState,params=params.paramsDefault):
   Reuv = StarState['Reuv1'] + StarState['Reuv2']
   
   return Leuv , Feuv , Reuv
-
-#====================================================================================================================
 
 def Lly(Mstar=None,Age=None,Omega=None,OmegaEnv=None,Prot=None,params=params.paramsDefault,StarEvo=None):
   
@@ -906,8 +876,6 @@ def Lly(Mstar=None,Age=None,Omega=None,OmegaEnv=None,Prot=None,params=params.par
   
   return LxuvDict['Lly']
 
-#====================================================================================================================
-
 def _Lymanalpha(StarState,params=params.paramsDefault):
   
   """Takes star state, returns Lly in erg s^-1, Fly in erg s^-1 cm^-1, and Rly (10-92 nm)."""
@@ -922,8 +890,6 @@ def _Lymanalpha(StarState,params=params.paramsDefault):
   Rly = Lly / StarState['Lbol']
   
   return Lly , Fly , Rly
-
-#====================================================================================================================
 
 def _torqueDiskLocking(StarState,CoreEnvelopeDecoupling,params=params.paramsDefault):
   
@@ -947,8 +913,6 @@ def _torqueDiskLocking(StarState,CoreEnvelopeDecoupling,params=params.paramsDefa
   
   return torqueEnvDL
 
-#====================================================================================================================
-
 def _torqueCoreEnvelope(StarState,params=params.paramsDefault):
   
   """Takes stellar parameters, returns core-envelope torque."""
@@ -969,8 +933,6 @@ def _torqueCoreEnvelope(StarState,params=params.paramsDefault):
   
   return ( torqueEnvMoment , torqueCoreMoment )
 
-#====================================================================================================================
-
 def _torqueMoment(StarState,CoreEnvelopeDecoupling):
   
   """Takes stellar parameters, returns moment of inertia change torque in erg."""
@@ -988,8 +950,6 @@ def _torqueMoment(StarState,CoreEnvelopeDecoupling):
     
   return ( torqueEnvMoment , torqueCoreMoment )
 
-#====================================================================================================================
-
 def _torqueCoreGrowth(StarState):
   
   """Takes stellar parameters, returns core-growth torque in erg."""
@@ -999,8 +959,6 @@ def _torqueCoreGrowth(StarState):
   torqueCoreCG = - torqueEnvCG
   
   return ( torqueEnvCG , torqueCoreCG )
-
-#====================================================================================================================
 
 def _torqueWind(StarState,params=params.paramsDefault):
   
@@ -1017,19 +975,13 @@ def _torqueWind(StarState,params=params.paramsDefault):
   
   return torqueWind
 
-#====================================================================================================================
-
 def _Omega(Prot):
   """Takes rotation period in days, returns angular velocity in OmegaSun."""
   return 2.0*const.Pi / ( Prot*const.day ) / const.OmegaSun
 
-#====================================================================================================================
-
 def _Prot(Omega):
   """Takes angular velocity in OmegaSun, returns rotation period in days."""
   return 2.0*const.Pi / ( Omega*const.OmegaSun ) / const.day
-
-#====================================================================================================================
 
 def _Ro(StarState):
   
@@ -1039,8 +991,6 @@ def _Ro(StarState):
   Ro = StarState['Prot'] / StarState['tauConv']
   
   return Ro
-
-#====================================================================================================================
 
 def _Bdip(StarState,params=params.paramsDefault):
   
@@ -1053,8 +1003,6 @@ def _Bdip(StarState,params=params.paramsDefault):
     BdipStar = params['BdipSun'] * ( params['RoSatBdip'] / const.RoSun )**params['aBdip']
   
   return BdipStar
-
-#====================================================================================================================
 
 def _Mdot(StarState,params=params.paramsDefault):
   
@@ -1069,8 +1017,6 @@ def _Mdot(StarState,params=params.paramsDefault):
     MdotWind *= MdotFactor(StarState['Mstar'],StarState['Rstar'],StarState['OmegaEnv'])
   
   return MdotWind
-
-#====================================================================================================================
 
 def MdotFactor(Mstar,Rstar,OmegaSurface,params=params.paramsDefault):
   
@@ -1106,8 +1052,6 @@ def MdotFactor(Mstar,Rstar,OmegaSurface,params=params.paramsDefault):
       
   return factor
 
-#====================================================================================================================
-
 def OmegaBreak(Mstar,Rstar):
   
   """
@@ -1130,8 +1074,6 @@ def OmegaBreak(Mstar,Rstar):
   # Assuming here that Rpole = Rstar  
   return (2.0/3.0)**(3.0/2.0) * ( const.GravConstant * Mstar*const.Msun )**0.5 / ( Rstar*const.Rsun )**(3.0/2.0) / const.OmegaSun
 
-#====================================================================================================================
-
 def _vEsc(Mstar,Rstar):
   
   """
@@ -1152,8 +1094,6 @@ def _vEsc(Mstar,Rstar):
   """
   
   return ( 2.0 * const.GravConstant * Mstar*const.Msun / (Rstar*const.Rsun) )**0.5
-
-#====================================================================================================================
 
 def _shouldCoreEnvelopeDecoupling(StarState,params=params.paramsDefault):
   
@@ -1178,8 +1118,6 @@ def _shouldCoreEnvelopeDecoupling(StarState,params=params.paramsDefault):
   
   # If got to here, then core-envelope decoupling should happen
   return True
-
-#====================================================================================================================
 
 def OmegaSat(Mstar=None,Age=None,param='XUV',params=params.paramsDefault,StarEvo=None):
   
@@ -1225,8 +1163,6 @@ def OmegaSat(Mstar=None,Age=None,param='XUV',params=params.paramsDefault,StarEvo
   Omega = _Omega(Prot)
   
   return Omega
-
-#====================================================================================================================
 
 def ProtSat(Mstar=None,Age=None,param='XUV',params=params.paramsDefault,StarEvo=None):
   
@@ -1282,8 +1218,6 @@ def ProtSat(Mstar=None,Age=None,param='XUV',params=params.paramsDefault,StarEvo=
   Prot = Ro * tauConv
   
   return Prot
-
-#====================================================================================================================
 
 def aOrbHZ(Mstar=None,Age=None,params=params.paramsDefault):
   
@@ -1381,5 +1315,3 @@ def aOrbHZ(Mstar=None,Age=None,params=params.paramsDefault):
   aOrbHZAll['HZ'] = 0.5 * ( aOrbHZAll['MoistGreenhouse'] + aOrbHZAll['MaximumGreenhouse'] )
   
   return aOrbHZAll
-
-#====================================================================================================================

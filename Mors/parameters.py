@@ -5,13 +5,9 @@
 import copy
 import numpy as np
 
-#==================================================================================================================
-
 # Make empty dictionary to hold default values for all parameters in the code. Some of these
 # are parameters that the user might want to change in order to determine the behavior of the code.
 paramsDefault = {}
-
-#==================================================================================================================
 
 def SetDefaultParameters(paramsDefault):
   
@@ -86,16 +82,7 @@ def SetDefaultParameters(paramsDefault):
   paramsDefault['dMstarPer'] = 0.1                          # Msun - half width of bins for working out percentiles of distribution
   paramsDefault['AgeHZ'] = 5000.0                           # Myr - age to use for calculating habitable zone boundaries
   
-  
-  
-  #paramsDefault[''] =   # 
-  #paramsDefault[''] =   # 
-  #paramsDefault[''] =   # 
-  #paramsDefault[''] =   # 
-  
   return paramsDefault
-
-#==================================================================================================================
 
 def _CoefficientsRB():
   
@@ -154,8 +141,6 @@ def _CoefficientsRB():
   
   return CoefficientsRB
 
-#====================================================================================================================
-
 def PrintParams(params=paramsDefault):
   
   """Takes parameter dictionary, prints values to screen."""
@@ -165,8 +150,6 @@ def PrintParams(params=paramsDefault):
     print(param , " = " , params[param] )
   
   return
-
-#==================================================================================================================
 
 def NewParams(**kwargs):
   
@@ -180,8 +163,6 @@ def NewParams(**kwargs):
     params[param] = kwargs[param]
   
   return params
-
-#==================================================================================================================
 
 # Setup the default parameter dictionary
 paramsDefault = SetDefaultParameters(paramsDefault)
