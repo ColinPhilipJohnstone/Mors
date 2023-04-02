@@ -149,7 +149,6 @@ class Cluster:
         """
         Takes age in Myr and a string with name of quantity to output, returns value of that quantity at specified age for all stars.
         
-        
         Parameters
         ----------
         Age : float
@@ -368,6 +367,5 @@ def _CheckInputRotation(Age,Omega,OmegaEnv,OmegaCore):
     # Set both OmegaEnv and OmegaCore to Omega
     OmegaEnv = Omega
     OmegaCore = Omega
-  
   
   return Omega , OmegaEnv , OmegaCore

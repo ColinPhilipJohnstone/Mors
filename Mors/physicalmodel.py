@@ -13,9 +13,7 @@ import Mors.constants as const
 import Mors.parameters as params
 
 def dOmegadt(Mstar=None,Age=None,OmegaEnv=None,OmegaCore=None,params=params.paramsDefault,StarEvo=None):
-    
-    """
-    Takes basic stellar parameters, returns rates of change of rotation.
+    """Takes basic stellar parameters, returns rates of change of rotation.
     
     This is the main function to be used by the solvers to get the rates of change of the core and envelope 
     rotation rates given basic stellar parameters. The actual calculations of these are done in RotationQuantities() 
@@ -66,9 +64,7 @@ def dOmegadt(Mstar=None,Age=None,OmegaEnv=None,OmegaCore=None,params=params.para
     return ( StarState['dOmegaEnvdt'] , StarState['dOmegaCoredt'] )
 
 def RotationQuantities(Mstar=None,Age=None,OmegaEnv=None,OmegaCore=None,params=params.paramsDefault,StarEvo=None):
-    
-    """
-    Takes basic stellar parameters, returns rotation quantities including rates of change of rotation.
+    """Takes basic stellar parameters, returns rotation quantities including rates of change of rotation.
     
     This is the main function to be used to get the rates of change of the core and envelope rotation 
     rates given basic stellar parameters. The actual calculations of these are done in GetState() which
@@ -238,9 +234,7 @@ def RotationQuantities(Mstar=None,Age=None,OmegaEnv=None,OmegaCore=None,params=p
     return StarState
 
 def ExtendedQuantities(StarState=None,Mstar=None,Age=None,OmegaEnv=None,OmegaCore=None,params=params.paramsDefault,StarEvo=None):
-    
-    """
-    Takes basic stellar parameters, returns extended set of physical quantities not calculated by RotationQuantities.
+    """Takes basic stellar parameters, returns extended set of physical quantities not calculated by RotationQuantities.
     
     This is the main function to be used to get things like stellar XUV emission. The user can either input as arguments the 
     dictionary StarState, which is returned by RotationQuantities, or the basic stellar parameters Mstar, Age, OmegaEnv, and
@@ -326,9 +320,7 @@ def ExtendedQuantities(StarState=None,Mstar=None,Age=None,OmegaEnv=None,OmegaCor
     return StarState 
 
 def QuantitiesUnits(StarState=None):
-    
-    """
-    Returns dictionary of units for each physical quantity in calculated by RotationQuantities() and ExtendedQuantities().
+    """Returns dictionary of units for each physical quantity in calculated by RotationQuantities() and ExtendedQuantities().
     
     For output purposes, this is essential since it gives the user a way to know the units of the quantities output. It is 
     recommended to input also 'StarState' which will cause the function to also check that all quantities in StarState do
@@ -431,9 +423,7 @@ def QuantitiesUnits(StarState=None):
     return StarStateUnits
 
 def Lxuv(Mstar=None,Age=None,Omega=None,OmegaEnv=None,Prot=None,params=params.paramsDefault,StarEvo=None):
-    
-    """
-    Takes basic stellar parameters, returns X-ray, EUV, and Ly-alpha luminosities in erg s^-1.
+    """Takes basic stellar parameters, returns X-ray, EUV, and Ly-alpha luminosities in erg s^-1.
     
     The user can supply a mass, age, and surface rotation rate for a star and it returns the XUV luminosities as 
     a dictionary. The rotation rate can be either the rotation velocity as a multiple of the solar rotation 
@@ -544,9 +534,7 @@ def Lxuv(Mstar=None,Age=None,Omega=None,OmegaEnv=None,Prot=None,params=params.pa
     return LxuvDict
 
 def Lx(Mstar=None,Age=None,Omega=None,OmegaEnv=None,Prot=None,params=params.paramsDefault,StarEvo=None):
-    
-    """
-    Takes basic stellar parameters, returns X-ray luminosity in erg s^-1.
+    """Takes basic stellar parameters, returns X-ray luminosity in erg s^-1.
     
     The user can supply a mass, age, and surface rotation rate for a star and it returns the X-ray luminosity. The
     rotation rate can be either the rotation velocity as a multiple of the solar rotation rate (2.67e-6 rad s^-1) 
@@ -584,7 +572,6 @@ def Lx(Mstar=None,Age=None,Omega=None,OmegaEnv=None,Prot=None,params=params.para
     return LxuvDict['Lx']
 
 def _Xray(StarState,params=params.paramsDefault):
-    
     """Takes star state, returns Lx in erg s^-1, Fx in erg s^-1 cm^-1, and Rx."""
     
     # Get Rx depending on Ro and regime
@@ -602,9 +589,7 @@ def _Xray(StarState,params=params.paramsDefault):
     return Lx , Fx , Rx
 
 def XrayScatter(XrayAverage,params=params.paramsDefault):
-    
-    """
-    Takes stellar X-ray, returns X-ray scatter around this value.
+    """Takes stellar X-ray, returns X-ray scatter around this value.
     
     The other functions in this code calculate an average Lx for a star given its parameters, making Lx a unique
     function of mass, age, and rotation. In reality there is a scatter around these values that appear somewhat
@@ -645,9 +630,7 @@ def XrayScatter(XrayAverage,params=params.paramsDefault):
     return deltaXray
 
 def XUVScatter(XUVAverage,params=params.paramsDefault):
-    
-    """
-    Takes stellar XUV values, returns scatter around these value.
+    """Takes stellar XUV values, returns scatter around these value.
     
     The other functions in this code calculate an average XUV values for a star given its parameters, making them unique
     functions of mass, age, and rotation. In reality there is a scatter around these values that appear somewhat
@@ -732,7 +715,6 @@ def XUVScatter(XUVAverage,params=params.paramsDefault):
     return deltaXUV
 
 def _Tcor(StarState,params=params.paramsDefault):
-    
     """Takes star state, returns average coronal temperature in MK."""
     
     # Get Tcor depending on Fx using equations from Johnstone & Guedel (2015)
@@ -741,9 +723,7 @@ def _Tcor(StarState,params=params.paramsDefault):
     return Tcor
 
 def Leuv(Mstar=None,Age=None,Omega=None,OmegaEnv=None,Prot=None,band=0,params=params.paramsDefault,StarEvo=None):
-    
-    """
-    Takes basic stellar parameters, returns EUV luminosity in erg s^-1.
+    """Takes basic stellar parameters, returns EUV luminosity in erg s^-1.
     
     The user can supply a mass, age, and surface rotation rate for a star and it returns the EUV luminosity. 
     By default, this will be the luminosity in the 10-92 nm band, but using the band keyword argument, the 
@@ -796,7 +776,6 @@ def Leuv(Mstar=None,Age=None,Omega=None,OmegaEnv=None,Prot=None,band=0,params=pa
     return -1
 
 def _EUV1(StarState,params=params.paramsDefault):
-    
     """Takes star state, returns Leuv1 in erg s^-1, Feuv in erg s^-1 cm^-1, and Reuv (10-36 nm)."""
     
     # Get Feuv from Fx using equation from Johnstone et al. (2020)
@@ -811,7 +790,6 @@ def _EUV1(StarState,params=params.paramsDefault):
     return Leuv1 , Feuv1 , Reuv1
 
 def _EUV2(StarState,params=params.paramsDefault):
-    
     """Takes star state, returns Leuv2 in erg s^-1, Feuv2 in erg s^-1 cm^-1, and Reuv2 (36-92 nm)."""
     
     # Get Feuv2 from Feuv1 using equation from Johnstone et al. (2020)
@@ -826,7 +804,6 @@ def _EUV2(StarState,params=params.paramsDefault):
     return Leuv2 , Feuv2 , Reuv2
 
 def _EUV(StarState,params=params.paramsDefault):
-    
     """Takes star state, returns Leuv in erg s^-1, Feuv in erg s^-1 cm^-1, and Reuv (10-92 nm)."""
     
     # Just add quantities 
@@ -837,9 +814,7 @@ def _EUV(StarState,params=params.paramsDefault):
     return Leuv , Feuv , Reuv
 
 def Lly(Mstar=None,Age=None,Omega=None,OmegaEnv=None,Prot=None,params=params.paramsDefault,StarEvo=None):
-    
-    """
-    Takes basic stellar parameters, returns Ly-alpha luminosity in erg s^-1.
+    """Takes basic stellar parameters, returns Ly-alpha luminosity in erg s^-1.
     
     The user can supply a mass, age, and surface rotation rate for a star and it returns the Ly-alpha luminosity. The
     rotation rate can be either the rotation velocity as a multiple of the solar rotation rate (2.67e-6 rad s^-1) 
@@ -877,7 +852,6 @@ def Lly(Mstar=None,Age=None,Omega=None,OmegaEnv=None,Prot=None,params=params.par
     return LxuvDict['Lly']
 
 def _Lymanalpha(StarState,params=params.paramsDefault):
-    
     """Takes star state, returns Lly in erg s^-1, Fly in erg s^-1 cm^-1, and Rly (10-92 nm)."""
     
     # Get Fly using from Fx using equation from Johnstone et al. (2020)
@@ -892,7 +866,6 @@ def _Lymanalpha(StarState,params=params.paramsDefault):
     return Lly , Fly , Rly
 
 def _torqueDiskLocking(StarState,CoreEnvelopeDecoupling,params=params.paramsDefault):
-    
     """Takes stellar parameters, returns disk-locking torque."""
     
     # As it is currently setup, this will only work if the other torques are calculated first
@@ -914,7 +887,6 @@ def _torqueDiskLocking(StarState,CoreEnvelopeDecoupling,params=params.paramsDefa
     return torqueEnvDL
 
 def _torqueCoreEnvelope(StarState,params=params.paramsDefault):
-    
     """Takes stellar parameters, returns core-envelope torque."""
         
     # Get deltaJ
@@ -934,7 +906,6 @@ def _torqueCoreEnvelope(StarState,params=params.paramsDefault):
     return ( torqueEnvMoment , torqueCoreMoment )
 
 def _torqueMoment(StarState,CoreEnvelopeDecoupling):
-    
     """Takes stellar parameters, returns moment of inertia change torque in erg."""
     
     # Note that the torque calculated in this function is not actually a real physical torque
@@ -951,7 +922,6 @@ def _torqueMoment(StarState,CoreEnvelopeDecoupling):
     return ( torqueEnvMoment , torqueCoreMoment )
 
 def _torqueCoreGrowth(StarState):
-    
     """Takes stellar parameters, returns core-growth torque in erg."""
     
     # Get torque in erg
@@ -961,7 +931,8 @@ def _torqueCoreGrowth(StarState):
     return ( torqueEnvCG , torqueCoreCG )
 
 def _torqueWind(StarState,params=params.paramsDefault):
-    
+    """Take stellar parameters, returns wind torque in erg."""
+
     # Some constants from Matt et al. (2012)
     K1Matt = 1.3
     K2Matt = 0.0506
@@ -984,7 +955,6 @@ def _Prot(Omega):
     return 2.0*const.Pi / ( Omega*const.OmegaSun ) / const.day
 
 def _Ro(StarState):
-    
     """Takes state of star, returns Rossby number."""
     
     # Get Rossby 
@@ -993,7 +963,6 @@ def _Ro(StarState):
     return Ro
 
 def _Bdip(StarState,params=params.paramsDefault):
-    
     """Takes state of star, returns dipole field strength."""
     
     # Use Rossby number to get dipole field, depending if saturated or not
@@ -1005,7 +974,6 @@ def _Bdip(StarState,params=params.paramsDefault):
     return BdipStar
 
 def _Mdot(StarState,params=params.paramsDefault):
-    
     """Takes state of star, returns mass loss rate."""
 
     # Use Rossby number to get mass loss rate
@@ -1021,7 +989,6 @@ def _Mdot(StarState,params=params.paramsDefault):
     return MdotWind
 
 def MdotFactor(Mstar,Rstar,OmegaSurface,params=params.paramsDefault):
-    
     """Takes stellar mass, radius, and rotation rate, returns factor to increase wind mass loss rate."""
     
     # Initially assume factor is unity
@@ -1055,9 +1022,7 @@ def MdotFactor(Mstar,Rstar,OmegaSurface,params=params.paramsDefault):
     return factor
 
 def OmegaBreak(Mstar,Rstar):
-    
-    """
-    Takes stellar mass and radius in solar units, returns breakup rotation rate in OmegaSun.
+    """Takes stellar mass and radius in solar units, returns breakup rotation rate in OmegaSun.
         
     Parameters
     ----------
@@ -1077,9 +1042,7 @@ def OmegaBreak(Mstar,Rstar):
     return (2.0/3.0)**(3.0/2.0) * ( const.GravConstant * Mstar*const.Msun )**0.5 / ( Rstar*const.Rsun )**(3.0/2.0) / const.OmegaSun
 
 def _vEsc(Mstar,Rstar):
-    
-    """
-    Takes stellar mass and radius in solar units, returns surface escape velocity in cm s^-1.
+    """Takes stellar mass and radius in solar units, returns surface escape velocity in cm s^-1.
         
     Parameters
     ----------
@@ -1098,7 +1061,6 @@ def _vEsc(Mstar,Rstar):
     return ( 2.0 * const.GravConstant * Mstar*const.Msun / (Rstar*const.Rsun) )**0.5
 
 def _shouldCoreEnvelopeDecoupling(StarState,params=params.paramsDefault):
-    
     """Takes state of star, determines if core-envelope decoupling should be used."""
     
     # For this, there are several things that need to be fulfilled:-
@@ -1122,9 +1084,7 @@ def _shouldCoreEnvelopeDecoupling(StarState,params=params.paramsDefault):
     return True
 
 def OmegaSat(Mstar=None,Age=None,param='XUV',params=params.paramsDefault,StarEvo=None):
-    
-    """
-    Takes basic stellar parameters, returns saturation rotation rate as surface angular velocity.
+    """Takes basic stellar parameters, returns saturation rotation rate as surface angular velocity.
     
     The user can supply a mass and age, and the code will return the rotation rate of the saturation threshold
     as a multiple of the solar rotation rate (2.67e-6 rad s^-1). The user can optionally also give a parameter 
@@ -1167,9 +1127,7 @@ def OmegaSat(Mstar=None,Age=None,param='XUV',params=params.paramsDefault,StarEvo
     return Omega
 
 def ProtSat(Mstar=None,Age=None,param='XUV',params=params.paramsDefault,StarEvo=None):
-    
-    """
-    Takes basic stellar parameters, returns saturation rotation rate as rotation period.
+    """Takes basic stellar parameters, returns saturation rotation rate as rotation period.
     
     The user can supply a mass and age, and the code will return the rotation rate of the saturation threshold
     as a multiple of the solar rotation rate (2.67e-6 rad s^-1). The user can optionally also give a parameter 
@@ -1222,9 +1180,7 @@ def ProtSat(Mstar=None,Age=None,param='XUV',params=params.paramsDefault,StarEvo=
     return Prot
 
 def aOrbHZ(Mstar=None,Age=None,params=params.paramsDefault):
-    
-    """
-    Takes stellar mass, returns orbital distances of habitable zone boundaries.
+    """Takes stellar mass, returns orbital distances of habitable zone boundaries.
     
     This function can be used to get the habitable zone boundary orbital distances as a function of stellar mass
     and age. The mass can be either a simple value or an array, in which case all HZ boundaries will be returned

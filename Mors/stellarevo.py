@@ -31,9 +31,7 @@ nDecValue = 7
 #----------------------------------------------------------
 
 class StarEvo:
-    
-    """
-    Class to hold complete information about stellar evolution models.
+    """Class to hold complete information about stellar evolution models.
     
     An instance of this class will hold evolutionary tracks for all masses and all quantities of interest. For
     now, only models from Spada et al. (2013) can be loaded. The main set of information held in this class is
@@ -51,7 +49,6 @@ class StarEvo:
     """
         
     def __init__(self,starEvoDir=starEvoDirDefault,evoModels=evoModelsDefault):
-        
         """Initialises instance of StarEvo class."""
         
         # If starEvoDir and evoModels are None, use defaults
@@ -66,9 +63,7 @@ class StarEvo:
         return
         
     def LoadTrack(self,Mstar,ClearData=False):
-        
-        """
-        Takes stellar mass, loads evolutionary track for a specific mass into the model data.
+        """Takes stellar mass, loads evolutionary track for a specific mass into the model data.
         
         This can be useful if the user wants to load a specific evolutionary track into a model data for a specific mass
         since this will make getting values for this mass faster since no interpolation between mass bins will be needed.
@@ -92,9 +87,7 @@ class StarEvo:
         return
         
     def Value(Mstar,Age,ParamString):
-        
-        """
-        Takes stellar mass, age, and a parameter string, returns values corresponding to named parameter.
+        """Takes stellar mass, age, and a parameter string, returns values corresponding to named parameter.
         
         The set of models should have already been loaded. With this function, the user can ask for a value
         of one of the parameters for a specific stellar mass and age. All three of these can be input as multiple
@@ -187,7 +180,6 @@ class StarEvo:
         return Value( Mstar , Age , 'dRcoredt' , ModelData=self.ModelData )
     
 def _LoadModels(starEvoDir=starEvoDirDefault,evoModels=evoModelsDefault):
-    
     """Loads evolutionary tracks as a grid of parameters at each mass and age."""
     
     # Check if should compile new grid of evolutionary models or load previous grid
@@ -199,7 +191,6 @@ def _LoadModels(starEvoDir=starEvoDirDefault,evoModels=evoModelsDefault):
     return ModelData
 
 def _shouldCompileNew(starEvoDir,evoModels):
-    
     """Takes directory for stellar evo models, returns if new grid needs to be compiled."""
     
     # Initially assume need to compile new
@@ -212,7 +203,6 @@ def _shouldCompileNew(starEvoDir,evoModels):
     return compileNew
 
 def _CompileNewGrid(starEvoDir,evoModels):
-    
     """Compiles new dictionary of stellar evo models."""
     
     # List all masses to load
@@ -243,9 +233,7 @@ def _CompileNewGrid(starEvoDir,evoModels):
     return ModelData
 
 def _ReadEvolutionTrack(starEvoDir,evoModels,Mstar,MstarFilenameMiddle):
-    
-    # This function loads the original stellar evolution models from Spada et al. (2013) for an individual 
-    # mass bin and puts them into a dictionary.
+    """Loads the stellar evolution models from Spada et al. (2013) for a mass bin and puts it into a dictionary."""
         
     # Set strings for starting and ending of filenames
     filename_prefix = starEvoDir + evoModels + "/M"
@@ -372,7 +360,6 @@ def _ReadEvolutionTrack(starEvoDir,evoModels,Mstar,MstarFilenameMiddle):
     return Data
 
 def _RemoveDuplicateAges(nHeader,content):
-    
     """Takes lines from evo file, removes duplicate ages."""
     
     # This is necessary because one of the Spada files has an age repeated a few times.
@@ -405,7 +392,6 @@ def _RemoveDuplicateAges(nHeader,content):
     return contentNew
 
 def _CalculateGradient(Age,X):
-    
     """Takes an evolutionary track for quantity, returns evolution of rate of change of quantity."""
     
     # Number of age bins
@@ -429,7 +415,6 @@ def _CalculateGradient(Age,X):
     return dXdt
 
 def _LoadSavedGrid(starEvoDir,evoModels):
-    
     """Takes filename for stellar evo model, returns grid of models."""
     
     # Simply load data
@@ -440,9 +425,7 @@ def _LoadSavedGrid(starEvoDir,evoModels):
 
 def LoadTrack(Mstar,ModelData=None,ClearData=False):
     global ModelDataDefault
-    
-    """
-    Takes stellar mass, loads evolutionary track for a specific mass into the model data.
+    """Takes stellar mass, loads evolutionary track for a specific mass into the model data.
     
     This can be useful if the user wants to load a specific evolutionary track into a model data for a specific mass
     since this will make getting values for this mass faster since no interpolation between mass bins will be needed.
@@ -464,7 +447,6 @@ def LoadTrack(Mstar,ModelData=None,ClearData=False):
     ----------
     None
         None
-    
     """
     
     # Use default model data if nothing was specified
@@ -514,7 +496,6 @@ def LoadTrack(Mstar,ModelData=None,ClearData=False):
     return ModelData
 
 def _LoadTrack(Mstar,ModelData):
-    
     """Takes stellar mass and model data dictionary, returns dictionary with track for this mass."""
     
     # Round mass to nDecValue decimal places specified at top of this file
@@ -574,7 +555,6 @@ def _LoadTrack(Mstar,ModelData):
 
 def _LoadDefaultModelData():
     global ModelDataDefault
-    
     """Loads model data for the default model to be used if no StarEvo class object is used."""
     
     # Loading a default model is generally not necessary, but it would be useful if the user doesn't want to mess
@@ -586,9 +566,7 @@ def _LoadDefaultModelData():
     return ModelDataDefault
 
 def Value(MstarIn,AgeIn,ParamString,ModelData=ModelDataDefault):
-    
-    """
-    Takes stellar mass, age, and a parameter string, returns values corresponding to named parameter.
+    """Takes stellar mass, age, and a parameter string, returns values corresponding to named parameter.
     
     The set of models should have already been loaded. With this function, the user can ask for a value
     of one of the parameters for a specific stellar mass and age. All three of these can be input as multiple
@@ -697,7 +675,6 @@ def Value(MstarIn,AgeIn,ParamString,ModelData=ModelDataDefault):
     return value
 
 def _ValueSingle(Mstar,Age,ParamString,ModelData=ModelDataDefault):
-    
     """Takes stellar mass and age and parameter string, returns value of that parameter at that mass and age."""
     
     ## Make sure Mstar and age are floats
@@ -751,7 +728,6 @@ def _ValueSingle(Mstar,Age,ParamString,ModelData=ModelDataDefault):
     return value
 
 def _CheckAgeLimit(AgeArray,Age):
-    
     """Takes age track and an age, outputs error and stops code if age is not within limits."""
     
     # Round the age to decimal places determined by nDecValue at top of file
@@ -764,7 +740,6 @@ def _CheckAgeLimit(AgeArray,Age):
     return
 
 def _CheckMassLimit(MstarArray,Mstar):
-    
     """Takes array of masses and an age, outputs error and stops code if mass is not within limits."""
     
     if not ( np.min(MstarArray) <= Mstar <= np.max(MstarArray) ):
@@ -773,7 +748,6 @@ def _CheckMassLimit(MstarArray,Mstar):
     return
 
 def _Interpolate2D(Z1,Z2,Z,Xarray1,Xarray2,X,Yarray1,Yarray2):
-    
     """Takes two sets of 1D arrays for corresponding X and Y values, returns interpolated Y value corresponding to input X."""
     
     # Round the input values to decimal places determined by nDecValue at top of file
@@ -791,7 +765,6 @@ def _Interpolate2D(Z1,Z2,Z,Xarray1,Xarray2,X,Yarray1,Yarray2):
     return Y
 
 def _Interpolate1D(Xarray,Yarray,X):
-    
     """Takes 1D arrays for corresponding X and Y values, returns interpolated Y value corresponding to input X."""
     
     # Note that it is assumed here that Xarray is in ascending order and this won't work if it is not
@@ -820,7 +793,6 @@ def _Interpolate1D(Xarray,Yarray,X):
         Y = mInterp * X + cInterp
     
     return Y
-
 
 # The following functions are for individual parameters that can be called
 def Rstar(Mstar,Age,ModelData=ModelDataDefault):

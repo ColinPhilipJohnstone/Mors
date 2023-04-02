@@ -17,9 +17,7 @@ AgeMinDefault = 1.0       # when to start evolution (Myr)
 AgeMaxDefault = 5000.0    # when to end evolution (Myr)
 
 def FitRotation(Mstar=None,Age=None,Omega=None,AgeMin=None,params=params.paramsDefault,StarEvo=None):
-    
-    """
-    Takes stellar mass, age, and surface rotation rate, returns initial rotation rate of star. 
+    """Takes stellar mass, age, and surface rotation rate, returns initial rotation rate of star. 
     
     This function can be used if the age and surface rotation rate of the star is known and the user wants to get
     the corresponding initial (usually 1 Myr) rotation rate for the star. The star's mass, age, and rotation rates 
@@ -140,9 +138,7 @@ def FitRotation(Mstar=None,Age=None,Omega=None,AgeMin=None,params=params.paramsD
     return Omega0
 
 def EvolveRotation(Mstar=None,Omega0=None,OmegaEnv0=None,OmegaCore0=None,AgeMin=None,AgeMax=None,AgesOut=None,params=params.paramsDefault,StarEvo=None):
-    
-    """
-    Takes stellar mass and rotation rate, evolves rotation. 
+    """Takes stellar mass and rotation rate, evolves rotation. 
     
     This is the main function for rotational evolution calculations. It will take some basic stellar parameters and
     evolve rotation between two ages.
@@ -277,7 +273,6 @@ def EvolveRotation(Mstar=None,Omega0=None,OmegaEnv0=None,OmegaCore0=None,AgeMin=
     return Tracks
 
 def _dAgeCalc(dAge,Age,AgeMax,AgesOut,params):
-    
     """Takes information about age in evolutionary calculation, returns age step to use."""
     
     # Get maximum timestep in Myr
@@ -310,7 +305,6 @@ def _dAgeCalc(dAge,Age,AgeMax,AgesOut,params):
     return dAge , dAgeMax
 
 def _shouldAppend(Age,AgesOut):
-    
     """Takes information about age in evolutionary calculation, returns if age should be output."""
     
     # If AgesOut is not set, then should always output
@@ -350,9 +344,7 @@ def _shouldAppend(Age,AgesOut):
     return AgesOut , False
 
 def EvolveRotationStep(Mstar=None,Age=None,OmegaEnv=None,OmegaCore=None,dAgeMax=None,dAge=None,params=params.paramsDefault,StarEvo=None):
-    
-    """
-    Evolves rotation by a single step.
+    """Evolves rotation by a single step.
     
     This is the main function to be used to do timestep updates of the core and envelope rotation rates
     for a star given its basic parameters. The five arguments Mstar, Age, OmegaEnv, OmegaCore, 
@@ -431,7 +423,6 @@ def EvolveRotationStep(Mstar=None,Age=None,OmegaEnv=None,OmegaCore=None,dAgeMax=
     return ( dAge , dAgeNew , OmegaEnv , OmegaCore )
 
 def _EvolveRotationStepFE(Mstar=None,Age=None,OmegaEnv=None,OmegaCore=None,dAge=None,params=params.paramsDefault,StarEvo=None):
-    
     """Takes basic stellar parameters, evolves by timestep using forward Euler method."""
     
     # Get rates of change
@@ -444,7 +435,6 @@ def _EvolveRotationStepFE(Mstar=None,Age=None,OmegaEnv=None,OmegaCore=None,dAge=
     return ( dAge , dAge , OmegaEnv , OmegaCore )
 
 def _EvolveRotationStepRK4(Mstar=None,Age=None,OmegaEnv=None,OmegaCore=None,dAge=None,params=params.paramsDefault,StarEvo=None):
-    
     """Takes basic stellar parameters, evolves by timestep using classical Runge-Kutta method."""
     
     # Get rates of change
@@ -460,7 +450,6 @@ def _EvolveRotationStepRK4(Mstar=None,Age=None,OmegaEnv=None,OmegaCore=None,dAge
     return ( dAge , dAge , OmegaEnv , OmegaCore )
 
 def _EvolveRotationStepRKF(Mstar=None,Age=None,OmegaEnv=None,OmegaCore=None,dAgeMax=None,dAge=None,params=params.paramsDefault,StarEvo=None):
-
     """Takes basic stellar parameters, evolves by timestep using Runge-Kutta-Fehlberg method."""
     
     # Start with dAge as timestep
@@ -536,7 +525,6 @@ def _EvolveRotationStepRKF(Mstar=None,Age=None,OmegaEnv=None,OmegaCore=None,dAge
     return dAge , dAgeNew , OmegaEnv , OmegaCore
 
 def _EvolveRotationStepRB(Mstar=None,Age=None,OmegaEnv=None,OmegaCore=None,dAgeMax=None,dAge=None,params=params.paramsDefault,StarEvo=None):
-
     """Takes basic stellar parameters, evolves by timestep using Runge-Kutta-Fehlberg method."""
     
     # Get coefficients for solver
@@ -597,7 +585,6 @@ def _EvolveRotationStepRB(Mstar=None,Age=None,OmegaEnv=None,OmegaCore=None,dAgeM
     return dAge , dAgeNew , OmegaEnv , OmegaCore
 
 def _JacobianRB(Mstar,Age,X,nVar,params,StarEvo):
-    
     """Calculates Jacobian d(dOmega/dt)/dOmega terms for Rosenbrock solver."""
     
     # Make array
@@ -624,7 +611,6 @@ def _JacobianRB(Mstar,Age,X,nVar,params,StarEvo):
     return Jac
 
 def _kCoeffRB(Mstar,Age,dAge,X,Jac,nVar,CoefficientsRB,params,StarEvo):
-    
     """Calculates kCoeff for Rosenbrock solver."""
     
     # Make array for holding result
@@ -670,7 +656,6 @@ def _kCoeffRB(Mstar,Age,dAge,X,Jac,nVar,CoefficientsRB,params,StarEvo):
     return kCoeff
 
 def _GaussianElimination(Ain,B):
-    
     """Solves the equation A*X = B using Gaussian elimination."""
     
     # This is meant to be used when getting the k coefficients in the Rosenbrock
@@ -731,7 +716,6 @@ def _GaussianElimination(Ain,B):
     return X
 
 def _CreateTracks(Mstar,Age,dAge,OmegaEnv,OmegaCore,params,StarEvo):
-    
     """Takes simulation parameters, returns dictionary with empty arrays for evolutionary tracks."""
     
     # Create empty dictionary
@@ -766,7 +750,6 @@ def _CreateTracks(Mstar,Age,dAge,OmegaEnv,OmegaCore,params,StarEvo):
     return Tracks
   
 def _AppendTracks(Tracks,Mstar,Age,dAge,OmegaEnv,OmegaCore,params,StarEvo,StarState=None):
-    
     """Takes state of evolutionary simulation, appends state onto arrays in Tracks dictionary."""
     
     # Basic quantities that are always included
@@ -795,7 +778,6 @@ def _AppendTracks(Tracks,Mstar,Age,dAge,OmegaEnv,OmegaCore,params,StarEvo,StarSt
     return Tracks
 
 def _CheckBadData(Tracks):
-    
     """Takes current set of tracks, checks last entries for bad data."""
     
     # Originally assume no error and sould continue

@@ -19,8 +19,7 @@ MstarMin = 0.1
 MstarMax = 1.25
 
 class Star:
-    """
-    A class for star objects that hold all information about a star. 
+    """A class for star objects that hold all information about a star. 
     
     Attributes
     ------------
@@ -33,8 +32,7 @@ class Star:
     #---------------------------------------------------------------------------------------
 
     def __init__(self,Mstar=None,Age=None,percentile=None,Omega=None,Prot=None,OmegaEnv=None,OmegaCore=None,AgesOut=None,starEvoDir=None,evoModels=None,params=params.paramsDefault):
-        """
-        Initialises instance of Star class.
+        """Initialises instance of Star class.
         
         This is the main function that is run when creating an instance of the Star class and it sets up all
         the things needed including calculating evolutionary tracks for the star. The function requires that
@@ -250,8 +248,7 @@ class Star:
         return
   
     def ActivityLifetime(self,Quantity=None,Threshold=None,AgeMax=None):
-        """
-        Takes threshold value, returns age at which a star last drops below this threshold.
+        """Takes threshold value, returns age at which a star last drops below this threshold.
         
         This function can be used to determine when a star's emission crosses a given threshold value for a few
         activity quantities. These are Lx, Fx, Rx, and FxHZ for X-rays, and similar values for EUV1, EUV2, EUV, 
@@ -317,8 +314,7 @@ class Star:
         return AgeActive
  
     def IntegrateEmission(self,AgeMin=None,AgeMax=None,Band=None,aOrb=None):
-        """
-        Takes age range, calculates integrated emission in band within that range.
+        """Takes age range, calculates integrated emission in band within that range.
         
         This code can be used to integrate a star's luminosity between two ages. This can be applied to any wavelength band
         and the result is a total energy emitted in this time in erg. If the user also specifies an orbital distance using 
@@ -496,8 +492,7 @@ def _InputRotation(Mstar,Age,Omega,OmegaEnv,OmegaCore,Prot,percentile,params):
     return Omega , OmegaEnv , OmegaCore
 
 def Percentile(Mstar=None,Omega=None,Prot=None,percentile=None,MstarDist=None,OmegaDist=None,ProtDist=None,params=params.paramsDefault):
-    """
-    Gets rotation rate of percentile or percentile of rotation rate in the model rotation distribution.
+    """Gets rotation rate of percentile or percentile of rotation rate in the model rotation distribution.
     
     This function can be used for two purposes
         1. to determine the percentile in a rotation distribution of a star given its mass and rotation rate
