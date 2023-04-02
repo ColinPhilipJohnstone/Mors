@@ -37,45 +37,45 @@ def Main(SystemArguments):
     sys.exit()
   
   # Determine which figure to do
-  if ( SystemArguments[1] == 'Fig1' ):
+  if ((SystemArguments[1] == 'Fig1') or (SystemArguments[1] == 'All')):
     Fig1()
-  elif ( SystemArguments[1] == 'Fig2' ):
+  elif ((SystemArguments[1] == 'Fig2') or (SystemArguments[1] == 'All')):
     Fig2()
-  elif ( SystemArguments[1] == 'Fig3' ):
+  elif ((SystemArguments[1] == 'Fig3') or (SystemArguments[1] == 'All')):
     Fig3()
-  elif ( SystemArguments[1] == 'Fig4' ):
+  elif ((SystemArguments[1] == 'Fig4') or (SystemArguments[1] == 'All')):
     Fig4()
-  elif ( SystemArguments[1] == 'Fig5' ):
+  elif ((SystemArguments[1] == 'Fig5') or (SystemArguments[1] == 'All')):
     Fig5()
-  elif ( SystemArguments[1] == 'Fig6' ):
+  elif ((SystemArguments[1] == 'Fig6') or (SystemArguments[1] == 'All')):
     Fig6()
-  elif ( SystemArguments[1] == 'Fig7' ):
+  elif ((SystemArguments[1] == 'Fig7') or (SystemArguments[1] == 'All')):
     Fig7()
-  elif ( SystemArguments[1] == 'Fig8' ):
+  elif ((SystemArguments[1] == 'Fig8') or (SystemArguments[1] == 'All')):
     Fig8()
-  elif ( SystemArguments[1] == 'Fig9' ):
+  elif ((SystemArguments[1] == 'Fig9') or (SystemArguments[1] == 'All')):
     Fig9()
-  elif ( SystemArguments[1] == 'Fig10' ):
+  elif ((SystemArguments[1] == 'Fig10') or (SystemArguments[1] == 'All')):
     Fig10()
-  elif ( SystemArguments[1] == 'Fig11' ):
+  elif ((SystemArguments[1] == 'Fig11') or (SystemArguments[1] == 'All')):
     Fig11()
-  elif ( SystemArguments[1] == 'Fig12' ):
+  elif ((SystemArguments[1] == 'Fig12') or (SystemArguments[1] == 'All')):
     Fig12()
-  elif ( SystemArguments[1] == 'Fig13' ):
+  elif ((SystemArguments[1] == 'Fig13') or (SystemArguments[1] == 'All')):
     Fig13()
-  elif ( SystemArguments[1] == 'Fig14' ):
+  elif ((SystemArguments[1] == 'Fig14') or (SystemArguments[1] == 'All')):
     Fig14()
-  elif ( SystemArguments[1] == 'Fig15' ):
+  elif ((SystemArguments[1] == 'Fig15') or (SystemArguments[1] == 'All')):
     Fig15()
-  elif ( SystemArguments[1] == 'Fig16' ):
+  elif ((SystemArguments[1] == 'Fig16') or (SystemArguments[1] == 'All')):
     Fig16()
-  elif ( SystemArguments[1] == 'Fig17' ):
+  elif ((SystemArguments[1] == 'Fig17') or (SystemArguments[1] == 'All')):
     Fig17()
-  elif ( SystemArguments[1] == 'Fig18' ):
+  elif ((SystemArguments[1] == 'Fig18') or (SystemArguments[1] == 'All')):
     Fig18()
-  elif ( SystemArguments[1] == 'Fig19' ):
+  elif ((SystemArguments[1] == 'Fig19') or (SystemArguments[1] == 'All')):
     Fig19()
-  elif ( SystemArguments[1] == 'Fig20' ):
+  elif ((SystemArguments[1] == 'Fig20') or (SystemArguments[1] == 'All')):
     Fig20()
   else:
     print("Invalid parameter")
