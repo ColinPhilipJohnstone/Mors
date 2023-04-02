@@ -18,8 +18,8 @@ setup(
     include_package_data=True,
     classifiers=[
         "Programming Language :: Python :: 3",
-        "License :: No idea",
-        "Operating System :: Ubuntu (at the moment)",
+        "License :: MIT",
+        "Operating System :: OS Independent",
     ],
     python_requires='>=3.6',
     )
