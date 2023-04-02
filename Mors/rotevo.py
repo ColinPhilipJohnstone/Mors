@@ -304,7 +304,7 @@ def _dAgeCalc(dAge,Age,AgeMax,AgesOut,params):
     else:
       
       # Get index of next age in AgesOut after current Age
-      index = SE._getIndexGT(AgesOut,Age)
+      index = misc._getIndexGT(AgesOut,Age)
       
       # Get new maximum age
       dAgeMax = AgesOut[index] - Age
