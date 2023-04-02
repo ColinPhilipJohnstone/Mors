@@ -12,7 +12,7 @@ import Mors.stellarevo as SE
 import Mors.constants as const
 import Mors.parameters as params
 
-    def dOmegadt(Mstar=None,Age=None,OmegaEnv=None,OmegaCore=None,params=params.paramsDefault,StarEvo=None):
+def dOmegadt(Mstar=None,Age=None,OmegaEnv=None,OmegaCore=None,params=params.paramsDefault,StarEvo=None):
     
     """
     Takes basic stellar parameters, returns rates of change of rotation.
