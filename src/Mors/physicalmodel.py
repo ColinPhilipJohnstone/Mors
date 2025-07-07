@@ -1230,7 +1230,7 @@ def aOrbHZ(Mstar=None,Age=None,params=params.paramsDefault):
     b = 3.3954e-9
     c = -7.6364e-12
     d = -1.1950e-15
-    Seff = SeffSun + a*Teff + b*Teff**2.0 + c*Teff*3.0 + d*Teff**4.0
+    Seff = SeffSun + a*Teff + b*Teff**2.0 + c*Teff**3.0 + d*Teff**4.0
     aOrbHZAll['RecentVenus'] = ( Lbol / Seff )**0.5
     
     # Get Runaway Greenhouse limit
@@ -1239,7 +1239,7 @@ def aOrbHZ(Mstar=None,Age=None,params=params.paramsDefault):
     b = 1.4612e-8
     c = -7.6345e-12
     d = -1.7511e-15
-    Seff = SeffSun + a*Teff + b*Teff**2.0 + c*Teff*3.0 + d*Teff**4.0
+    Seff = SeffSun + a*Teff + b*Teff**2.0 + c*Teff**3.0 + d*Teff**4.0
     aOrbHZAll['RunawayGreenhouse'] = ( Lbol / Seff )**0.5
     
     # Get Moist Greenhouse limit
@@ -1248,7 +1248,7 @@ def aOrbHZ(Mstar=None,Age=None,params=params.paramsDefault):
     b = 1.9394e-9
     c = -4.3618e-12
     d = -6.8260e-16
-    Seff = SeffSun + a*Teff + b*Teff**2.0 + c*Teff*3.0 + d*Teff**4.0
+    Seff = SeffSun + a*Teff + b*Teff**2.0 + c*Teff**3.0 + d*Teff**4.0
     aOrbHZAll['MoistGreenhouse'] = ( Lbol / Seff )**0.5
     
     # Get Maximum Greenhouse limit
@@ -1257,7 +1257,7 @@ def aOrbHZ(Mstar=None,Age=None,params=params.paramsDefault):
     b = 1.6707e-9
     c = -3.0058e-12
     d = -5.1925e-16
-    Seff = SeffSun + a*Teff + b*Teff**2.0 + c*Teff*3.0 + d*Teff**4.0
+    Seff = SeffSun + a*Teff + b*Teff**2.0 + c*Teff**3.0 + d*Teff**4.0
     aOrbHZAll['MaximumGreenhouse'] = ( Lbol / Seff )**0.5
     
     # Get Early Mars limit
@@ -1266,7 +1266,7 @@ def aOrbHZ(Mstar=None,Age=None,params=params.paramsDefault):
     b = 1.5275e-9
     c = -2.1709e-12
     d = -3.8282e-16
-    Seff = SeffSun + a*Teff + b*Teff**2.0 + c*Teff*3.0 + d*Teff**4.0
+    Seff = SeffSun + a*Teff + b*Teff**2.0 + c*Teff**3.0 + d*Teff**4.0
     aOrbHZAll['EarlyMars'] = ( Lbol / Seff )**0.5
     
     # Now get value of center of moist and maximum greenhouse
